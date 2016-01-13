@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using _3DCytoFlow.Models;
 using _3DCytoFlow.Services;
+using Microsoft.AspNet.Identity;
 
 namespace _3DCytoFlow
 {
