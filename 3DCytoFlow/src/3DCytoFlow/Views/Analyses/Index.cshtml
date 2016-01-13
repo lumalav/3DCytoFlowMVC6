@@ -1,4 +1,6 @@
-﻿@model IEnumerable<Analysis>
+﻿@using System.Threading.Tasks
+@using _3DCytoFlow
+@model IEnumerable<Analysis>
 
 @{
     ViewBag.Title = "Results";
@@ -108,10 +110,9 @@
         </div>
     </div>
     
-    @section Scripts{
-        <script src="~/Scripts/three.min.js"></script>
-        <script src="~/Scripts/TweenLite.min.js"></script>
-        <script src="~/Scripts/TrackballControls.js"></script>
-        <script src="~/Scripts/DataProjector.js"></script>
-    }
+        <script src="~/js/three.min.js"></script>
+        <script src="~/js/TweenLite.min.js"></script>
+        <script src="~/js/TrackballControls.js"></script>
+        <script src="~/js/DataProjector.js"></script>
+    
 </div>

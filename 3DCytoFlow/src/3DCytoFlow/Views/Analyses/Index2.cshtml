@@ -1,5 +1,7 @@
-﻿@using Microsoft.Ajax.Utilities
-@model IEnumerable<Analysis>
+﻿@using System.Threading.Tasks
+@using Microsoft.Ajax.Utilities
+@using _3DCytoFlow
+@model IEnumerable<_3DCytoFlow.Analysis>
 
 @{
     ViewBag.Title = "Results";
@@ -8,11 +10,11 @@
 
 <link rel="stylesheet" type="text/css" href="~/Content/stylish.css">
 <link rel="stylesheet" type="text/css" href="~/Content/semantic.min.css">
-<script src="~/Scripts/three.min2.js"></script>
-<script src="~/Scripts/OrbitControls-Touch.js"></script>
-<script src="~/Scripts/rAF.js"></script>
-<script src="~/Scripts/lodash.min.js"></script>
-<script src="~/Scripts/semantic.min.js"></script>
+<script src="~/js/three.min2.js"></script>
+<script src="~/js/OrbitControls-Touch.js"></script>
+<script src="~/js/rAF.js"></script>
+<script src="~/js/lodash.min.js"></script>
+<script src="~/js/semantic.min.js"></script>
 
 <div id="page-wrapper">
     <div id="body3">
@@ -79,8 +81,8 @@
             </div>
         </div>
 
-        <script src="~/Scripts/dreda.js"></script>
-        <script src="~/Scripts/ui.js"></script>
+        <script src="~/js/dreda.js"></script>
+        <script src="~/js/ui.js"></script>
         <script>
             $(document).ready(function () {
                 plot(getFile($('#analysisSelect').val()));
