@@ -13,7 +13,7 @@ namespace _3DCytoFlow.Controllers
     [Route("api/Clusters")]
     public class ClustersController : Controller
     {
-        private ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
 
         public ClustersController(ApplicationDbContext context)
         {
@@ -24,7 +24,7 @@ namespace _3DCytoFlow.Controllers
         [HttpGet]
         public IEnumerable<Cluster> GetCluster()
         {
-            return _context.Cluster;
+            return _context.Clusters;
         }
 
         // GET: api/Clusters/5
@@ -36,7 +36,7 @@ namespace _3DCytoFlow.Controllers
                 return HttpBadRequest(ModelState);
             }
 
-            Cluster cluster = await _context.Cluster.SingleAsync(m => m.Id == id);
+            Cluster cluster = await _context.Clusters.SingleAsync(m => m.Id == id);
 
             if (cluster == null)
             {
@@ -90,7 +90,7 @@ namespace _3DCytoFlow.Controllers
                 return HttpBadRequest(ModelState);
             }
 
-            _context.Cluster.Add(cluster);
+            _context.Clusters.Add(cluster);
             try
             {
                 await _context.SaveChangesAsync();
@@ -119,13 +119,13 @@ namespace _3DCytoFlow.Controllers
                 return HttpBadRequest(ModelState);
             }
 
-            Cluster cluster = await _context.Cluster.SingleAsync(m => m.Id == id);
+            Cluster cluster = await _context.Clusters.SingleAsync(m => m.Id == id);
             if (cluster == null)
             {
                 return HttpNotFound();
             }
 
-            _context.Cluster.Remove(cluster);
+            _context.Clusters.Remove(cluster);
             await _context.SaveChangesAsync();
 
             return Ok(cluster);
@@ -142,7 +142,7 @@ namespace _3DCytoFlow.Controllers
 
         private bool ClusterExists(int id)
         {
-            return _context.Cluster.Count(e => e.Id == id) > 0;
+            return _context.Clusters.Count(e => e.Id == id) > 0;
         }
     }
 }

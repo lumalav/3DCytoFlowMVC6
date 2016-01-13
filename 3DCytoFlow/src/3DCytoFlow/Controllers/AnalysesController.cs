@@ -9,7 +9,7 @@ namespace _3DCytoFlow.Controllers
 {
     public class AnalysesController : Controller
     {
-        private ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
 
         public AnalysesController(ApplicationDbContext context)
         {
@@ -19,13 +19,13 @@ namespace _3DCytoFlow.Controllers
         // GET: Analyses
         public IActionResult Index()
         {
-            return View(_context.Analysis.ToList());
+            return View(_context.Analyses.ToList());
         }
 
         // GET: Analyses
         public IActionResult Index2()
         {
-            return View(_context.Analysis.ToList());
+            return View(_context.Analyses.ToList());
         }
 
         // GET: Analyses/Details/5
@@ -36,7 +36,7 @@ namespace _3DCytoFlow.Controllers
                 return HttpNotFound();
             }
 
-            Analysis analysis = _context.Analysis.Single(m => m.Id == id);
+            Analysis analysis = _context.Analyses.Single(m => m.Id == id);
             if (analysis == null)
             {
                 return HttpNotFound();
@@ -58,7 +58,7 @@ namespace _3DCytoFlow.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Analysis.Add(analysis);
+                _context.Analyses.Add(analysis);
                 _context.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -73,7 +73,7 @@ namespace _3DCytoFlow.Controllers
                 return HttpNotFound();
             }
 
-            Analysis analysis = _context.Analysis.Single(m => m.Id == id);
+            Analysis analysis = _context.Analyses.Single(m => m.Id == id);
             if (analysis == null)
             {
                 return HttpNotFound();
@@ -104,7 +104,7 @@ namespace _3DCytoFlow.Controllers
                 return HttpNotFound();
             }
 
-            Analysis analysis = _context.Analysis.Single(m => m.Id == id);
+            Analysis analysis = _context.Analyses.Single(m => m.Id == id);
             if (analysis == null)
             {
                 return HttpNotFound();
@@ -118,8 +118,8 @@ namespace _3DCytoFlow.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            Analysis analysis = _context.Analysis.Single(m => m.Id == id);
-            _context.Analysis.Remove(analysis);
+            Analysis analysis = _context.Analyses.Single(m => m.Id == id);
+            _context.Analyses.Remove(analysis);
             _context.SaveChanges();
             return RedirectToAction("Index");
         }

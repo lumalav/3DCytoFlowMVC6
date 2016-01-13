@@ -18,8 +18,8 @@ namespace _3DCytoFlow.Models
             // Add your customizations after calling base.OnModelCreating(builder);
         }
 
-        public DbSet<Analysis> Analysis { get; set; }
-        public DbSet<Cluster> Cluster { get; set; }
-        public DbSet<Patient> Patient { get; set; }
+        public DbSet<Analysis> Analyses { get; set; }
+        public DbSet<Cluster> Clusters { get; set; }
+        public DbSet<Patient> Patients { get; set; }
     }
 }

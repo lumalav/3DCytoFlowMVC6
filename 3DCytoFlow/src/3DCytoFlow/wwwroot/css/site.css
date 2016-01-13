@@ -44,10 +44,10 @@ body {
     background-color: #fff;
 }
 
-@media(min-width:768px) {
+@media(min-width:100%) {
     #page-wrapper {
         position: inherit;
-        margin: 0 0 0 250px;
+        margin: 0 0 0 -247px;
         padding: 0 30px;
         border-left: 1px solid #e7e7e7;
     }

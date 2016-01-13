@@ -24,7 +24,7 @@ namespace _3DCytoFlow.Controllers
             {
                 var user = User.GetUserId();
 
-                return View(_context.Patient.Where(i => i.User_Id.Equals(user)).ToList());
+                return View(_context.Patients.Where(i => i.User_Id.Equals(user)).ToList());
             }
 
             return RedirectToAction("LogIn", "Account");
@@ -38,7 +38,7 @@ namespace _3DCytoFlow.Controllers
                 return HttpNotFound();
             }
 
-            Patient patient = _context.Patient.Single(m => m.Id == id);
+            Patient patient = _context.Patients.Single(m => m.Id == id);
             if (patient == null)
             {
                 return HttpNotFound();
@@ -65,7 +65,7 @@ namespace _3DCytoFlow.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Patient.Add(patient);
+                _context.Patients.Add(patient);
                 _context.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -80,7 +80,7 @@ namespace _3DCytoFlow.Controllers
                 return HttpNotFound();
             }
 
-            Patient patient = _context.Patient.Single(m => m.Id == id);
+            Patient patient = _context.Patients.Single(m => m.Id == id);
             if (patient == null)
             {
                 return HttpNotFound();
@@ -111,7 +111,7 @@ namespace _3DCytoFlow.Controllers
                 return HttpNotFound();
             }
 
-            Patient patient = _context.Patient.Single(m => m.Id == id);
+            Patient patient = _context.Patients.Single(m => m.Id == id);
             if (patient == null)
             {
                 return HttpNotFound();
@@ -125,8 +125,8 @@ namespace _3DCytoFlow.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            Patient patient = _context.Patient.Single(m => m.Id == id);
-            _context.Patient.Remove(patient);
+            Patient patient = _context.Patients.Single(m => m.Id == id);
+            _context.Patients.Remove(patient);
             _context.SaveChanges();
             return RedirectToAction("Index");
         }

@@ -1,7 +1,7 @@
 ﻿@using System.Threading.Tasks
 @using Microsoft.AspNet.Identity
 @model _3DCytoFlow.ViewModels.Account.LoginViewModel
-@*@inject SignInManager<ApplicationUser> SignInManager*@
+@inject SignInManager<ApplicationUser> SignInManager
 
 @{
     ViewData["Title"] = "Log in";
@@ -56,7 +56,7 @@
             <h4>Use another service to log in.</h4>
             <hr />
             @{
-                var loginProviders = SignInManager<>.GetExternalAuthenticationSchemes().ToList();
+                var loginProviders = SignInManager.GetExternalAuthenticationSchemes().ToList();
                 if (loginProviders.Count == 0)
                 {
                     <div>
