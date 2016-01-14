@@ -22,7 +22,6 @@ namespace _3DCytoFlow
         public double Width { get; set; }
         public double Height { get; set; }
         public double Depth { get; set; }
-        public int Analysis_Id { get; set; }
     
         public virtual Analysis Analysis { get; set; }
     }

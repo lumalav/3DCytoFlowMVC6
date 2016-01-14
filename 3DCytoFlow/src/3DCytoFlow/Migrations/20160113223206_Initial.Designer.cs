@@ -8,7 +8,7 @@ using _3DCytoFlow.Models;
 namespace _3DCytoFlow.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20160112233845_Initial")]
+    [Migration("20160113223206_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,15 +32,11 @@ namespace _3DCytoFlow.Migrations
 
                     b.Property<int?>("PatientId");
 
-                    b.Property<int>("Patient_Id");
-
                     b.Property<DateTime>("ResultDate");
 
                     b.Property<string>("ResultFilePath");
 
                     b.Property<string>("UserId");
-
-                    b.Property<int>("User_Id");
 
                     b.HasKey("Id");
                 });
@@ -51,8 +47,6 @@ namespace _3DCytoFlow.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<int?>("AnalysisId");
-
-                    b.Property<int>("Analysis_Id");
 
                     b.Property<double>("Depth");
 
@@ -161,8 +155,6 @@ namespace _3DCytoFlow.Migrations
                     b.Property<string>("Phone");
 
                     b.Property<string>("UserId");
-
-                    b.Property<int>("User_Id");
 
                     b.Property<string>("Zip");
 

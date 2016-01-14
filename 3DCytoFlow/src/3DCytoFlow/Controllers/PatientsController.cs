@@ -22,9 +22,9 @@ namespace _3DCytoFlow.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                var user = User.GetUserId();
+                var user = GetUser();
 
-                return View(_context.Patients.Where(i => i.User_Id.Equals(user)).ToList());
+                return View(_context.Patients.Where(i => i.User.Id.Equals(user.Id)).ToList());
             }
 
             return RedirectToAction("LogIn", "Account");
@@ -65,7 +65,8 @@ namespace _3DCytoFlow.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Patients.Add(patient);
+                var user = GetUser();
+                user.Patients.Add(patient);
                 _context.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -130,5 +131,12 @@ namespace _3DCytoFlow.Controllers
             _context.SaveChanges();
             return RedirectToAction("Index");
         }
+
+        #region Helpers
+        private ApplicationUser GetUser()
+        {
+            return _context.Users.First(i => i.UserName.Equals(User.Identity.Name));
+        }
+        #endregion
     }
 }

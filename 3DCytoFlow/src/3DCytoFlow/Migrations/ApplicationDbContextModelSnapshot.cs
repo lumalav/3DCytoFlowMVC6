@@ -31,15 +31,11 @@ namespace _3DCytoFlow.Migrations
 
                     b.Property<int?>("PatientId");
 
-                    b.Property<int>("Patient_Id");
-
                     b.Property<DateTime>("ResultDate");
 
                     b.Property<string>("ResultFilePath");
 
                     b.Property<string>("UserId");
-
-                    b.Property<int>("User_Id");
 
                     b.HasKey("Id");
                 });
@@ -50,8 +46,6 @@ namespace _3DCytoFlow.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<int?>("AnalysisId");
-
-                    b.Property<int>("Analysis_Id");
 
                     b.Property<double>("Depth");
 
@@ -160,8 +154,6 @@ namespace _3DCytoFlow.Migrations
                     b.Property<string>("Phone");
 
                     b.Property<string>("UserId");
-
-                    b.Property<int>("User_Id");
 
                     b.Property<string>("Zip");
 

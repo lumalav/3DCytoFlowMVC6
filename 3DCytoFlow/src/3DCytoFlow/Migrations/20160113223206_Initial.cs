@@ -71,7 +71,6 @@ namespace _3DCytoFlow.Migrations
                     Middle = table.Column<string>(nullable: true),
                     Phone = table.Column<string>(nullable: true),
                     UserId = table.Column<string>(nullable: true),
-                    User_Id = table.Column<int>(nullable: false),
                     Zip = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -177,11 +176,9 @@ namespace _3DCytoFlow.Migrations
                     FcsFilePath = table.Column<string>(nullable: true),
                     FcsUploadDate = table.Column<string>(nullable: true),
                     PatientId = table.Column<int>(nullable: true),
-                    Patient_Id = table.Column<int>(nullable: false),
                     ResultDate = table.Column<DateTime>(nullable: false),
                     ResultFilePath = table.Column<string>(nullable: true),
-                    UserId = table.Column<string>(nullable: true),
-                    User_Id = table.Column<int>(nullable: false)
+                    UserId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -206,7 +203,6 @@ namespace _3DCytoFlow.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     AnalysisId = table.Column<int>(nullable: true),
-                    Analysis_Id = table.Column<int>(nullable: false),
                     Depth = table.Column<double>(nullable: false),
                     Height = table.Column<double>(nullable: false),
                     Name = table.Column<string>(nullable: true),

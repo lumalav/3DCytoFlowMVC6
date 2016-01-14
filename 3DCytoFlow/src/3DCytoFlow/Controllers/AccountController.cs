@@ -18,6 +18,8 @@ namespace _3DCytoFlow.Controllers
     [Authorize]
     public class AccountController : Controller
     {
+        const string Greeting = "\nHi User! This is 3DCytoFlow giving you an update on your recent request";
+
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;

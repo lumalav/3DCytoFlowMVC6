@@ -12,7 +12,6 @@ namespace _3DCytoFlow.ViewModels.Account
         [Display(Name = "First Name")]
         public string FirstName { get; set; }
 
-        [Required]
         [Display(Name = "MI")]
         public string Middle { get; set; }
 

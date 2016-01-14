@@ -28,8 +28,6 @@ namespace _3DCytoFlow
         public string ResultFilePath { get; set; }
         public System.DateTime ResultDate { get; set; }
         public double Delta { get; set; }
-        public int User_Id { get; set; }
-        public int Patient_Id { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Cluster> Clusters { get; set; }
