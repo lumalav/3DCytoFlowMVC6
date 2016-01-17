@@ -1,6 +1,5 @@
 ﻿/// <reference path="jquery-1.8.2.js" />
 /// <reference path="_references.js" />
-/// <reference path="~/Scripts/jquery-2.1.4.intellisense.js" />
 var maxRetries = 3;
 var blockLength = 1048576;
 var numberOfBlocks = 1;

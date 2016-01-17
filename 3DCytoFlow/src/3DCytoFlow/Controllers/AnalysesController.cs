@@ -22,12 +22,6 @@ namespace _3DCytoFlow.Controllers
             return View(_context.Analyses.ToList());
         }
 
-        // GET: Analyses
-        public IActionResult Index2()
-        {
-            return View(_context.Analyses.ToList());
-        }
-
         // GET: Analyses/Details/5
         public IActionResult Details(int? id)
         {

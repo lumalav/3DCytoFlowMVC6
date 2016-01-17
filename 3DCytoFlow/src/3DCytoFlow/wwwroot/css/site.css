@@ -448,7 +448,13 @@ a:hover{
     text-align: center;
     font-size:larger;
     padding-top:80px;
+
 }
+
+#side-menu {
+    margin-top: 5px;
+}
+/*
 @media (min-width: 768px) {
     #side-menu li {
         position: relative;
@@ -477,4 +483,4 @@ a:hover{
         float: left;
         width: 100%;
     }
-}
+}*/

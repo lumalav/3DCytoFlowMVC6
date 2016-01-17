@@ -7,6 +7,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System.ComponentModel.DataAnnotations;
+
 namespace _3DCytoFlow
 {
     using Models;
@@ -20,16 +22,38 @@ namespace _3DCytoFlow
         {
             this.Analyses = new HashSet<Analysis>();
         }
-    
+        
         public int Id { get; set; }
+
+        [Required]
+        [Display(Name="First Name")]
         public string FirstName { get; set; }
+
+        [Display(Name = "MI")]
         public string Middle { get; set; }
+
+        [Required]
+        [Display(Name = "Last Name")]
         public string LastName { get; set; }
+
+        [Required]
+        [DataType(DataType.Date)]
         public System.DateTime DOB { get; set; }
+
+        [EmailAddress]
         public string Email { get; set; }
+
+        [DataType(DataType.PhoneNumber)]
+        [RegularExpression(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$", ErrorMessage = "Invalid Phone Number")]
+        [Display(Name = "Cell Phone")]
         public string Phone { get; set; }
+
         public string Address { get; set; }
+
         public string City { get; set; }
+
+        [Display(Name = "Zip Code")]
+        [RegularExpression(@"^\d{5}(-\d{4})?$", ErrorMessage = "Invalid Zip")]
         public string Zip { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

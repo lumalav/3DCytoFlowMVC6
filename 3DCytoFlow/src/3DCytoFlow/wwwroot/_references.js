@@ -5,7 +5,6 @@
 /// <reference path="js/bootstrap-datepicker.js" />
 /// <reference path="js/bootstrapvalidator.min.js" />
 /// <reference path="js/chunked-uploader.js" />
-/// <reference path="js/dataprojector.js" />
 /// <reference path="js/dreda.js" />
 /// <reference path="js/jquery.validate.js" />
 /// <reference path="js/jquery.validate.unobtrusive.js" />

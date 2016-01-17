@@ -10,7 +10,7 @@ namespace _3DCytoFlow.Controllers
 {
     public class PatientsController : Controller
     {
-        private ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
 
         public PatientsController(ApplicationDbContext context)
         {
@@ -81,7 +81,7 @@ namespace _3DCytoFlow.Controllers
                 return HttpNotFound();
             }
 
-            Patient patient = _context.Patients.Single(m => m.Id == id);
+            var patient = _context.Patients.Single(m => m.Id == id);
             if (patient == null)
             {
                 return HttpNotFound();
@@ -96,6 +96,8 @@ namespace _3DCytoFlow.Controllers
         {
             if (ModelState.IsValid)
             {
+                var user = GetUser();
+                patient.User = user;
                 _context.Update(patient);
                 _context.SaveChanges();
                 return RedirectToAction("Index");
@@ -112,7 +114,7 @@ namespace _3DCytoFlow.Controllers
                 return HttpNotFound();
             }
 
-            Patient patient = _context.Patients.Single(m => m.Id == id);
+            var patient = _context.Patients.Single(m => m.Id == id);
             if (patient == null)
             {
                 return HttpNotFound();
