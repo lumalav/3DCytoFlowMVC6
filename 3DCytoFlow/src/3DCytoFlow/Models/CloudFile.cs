@@ -3,7 +3,6 @@ using System;
 
 namespace _3DCytoFlow.Models
 {
-    [Serializable]
     public class CloudFile
     {
         public string FileName { get; set; }
