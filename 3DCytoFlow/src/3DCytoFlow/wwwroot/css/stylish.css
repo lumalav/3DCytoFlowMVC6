@@ -51,7 +51,8 @@ a > i {
     z-index: 5;
     position: absolute;
 }
-#analysisSelect {
+
+#analysisSelect, .btn-colorselector, #clusterInput, #clusterButton, #clusterButton2 {
     margin: 10px;
 }
 .label {
@@ -74,9 +75,7 @@ a > i {
 	color: rgba(255,255,255,.8);
 }
 
-
 /* CLASSES */
-
 
 .infoLabel {
 	color: rgba(255,255,255,.8);
@@ -126,3 +125,38 @@ a > i {
 	display: none;
 }
 
+div#label3 {
+    width: 100%;
+    text-align: left;
+}
+
+.dropdown.dropdown-colorselector {
+    width: 10px;
+}
+
+/*Three.js stuff*/
+
+#big-ghost{
+  background-color:rgba(239, 28, 190, 0.6);
+  border:1px solid #aaf81a;
+  position:absolute;
+}
+
+.ghost-active {
+  display: block !important;
+}
+
+.ghost-select > span {
+  background-color: rgba(239, 28, 190, 0.6);
+  border: 1px solid #b20e8c;
+  width: 100%;
+  height: 100%;
+  float: left;
+}
+
+.ghost-select {
+  display: none;
+  z-index: 9000;
+  position: absolute !important;
+  cursor: default !important;
+}

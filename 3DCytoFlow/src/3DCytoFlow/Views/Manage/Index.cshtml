@@ -5,29 +5,34 @@
     ViewData["Title"] = "Manage your account";
 }
 
-<h2>@ViewData["Title"].</h2>
-<p class="text-success">@ViewData["StatusMessage"]</p>
-<div>
-    <h4>Change your account settings</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>Password:</dt>
-        <dd>
-            [
-            @if (Model.HasPassword)
-            {
-                <a asp-controller="Manage" asp-action="ChangePassword">Change</a>
-            }
-            else
-            {
-                <a asp-controller="Manage" asp-action="SetPassword">Create</a>
-            }
-            ]
-        </dd>
-        <dt>External Logins:</dt>
-        <dd>
+<div id="page-wrapper">
 
-            @Model.Logins.Count [<a asp-controller="Manage" asp-action="ManageLogins">Manage</a>]
-        </dd>
-    </dl>
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">@ViewBag.Title</h1>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <p class="text-success">@ViewData["StatusMessage"]</p>
+    <div class ="row">
+        <h4 class="col-lg-12">Change your account settings</h4>
+        <hr />
+        <dl class="dl-horizontal">
+            <dt>Password:</dt>
+            <dd>
+                [
+                @if (Model.HasPassword)
+            {
+                    <a asp-controller="Manage" asp-action="ChangePassword">Change</a>
+                }
+                else
+                {
+                    <a asp-controller="Manage" asp-action="SetPassword">Create</a>
+                }
+                ]
+            </dd>
+        </dl>
+    </div>
 </div>
+
+    
