@@ -23,11 +23,6 @@
         $("#loading").fadeIn();
     }
 
-    function navigateToIndex() {
-        window.location.href = '/Patients/Index';
-        showLoadingScreen();
-    }
-
     $(document).ready(function() {
         $('#side-menu').metisMenu();
     });
@@ -46,22 +41,7 @@
             </button>
             @Html.ActionLink("3D CytoFlow", "Index", "Home", new { area = "" }, new { @class = "navbar-brand", @onclick = "showLoadingScreen()" })
         </div>
-@*        <!-- Edit Patients Button -->*@
-@*        <div class="navbar-header">*@
-@*            @{*@
-@*                if (currentRequest == null)*@
-@*                {*@
-@*                    <a href="#" style="font-size: 14px; margin-right: 10px;" class="navbar-btn btn btn-primary" onclick="alert('Select a patient first')">Edit</a>*@
-@*                }*@
-@*                else*@
-@*                {*@
-@*                    var currentID = currentRequest.ToString();*@
-@**@
-@*                    <a href="@Url.Action("Index", "Home", new { id = currentID })" onclick="showLoadingScreen()" style="font-size: 14px; margin-right: 10px;" class="navbar-btn btn btn-primary">Edit</a>*@
-@*                }*@
-@*            }*@
-@**@
-@*        </div>*@
+
         @{
             if (currentRequest != null)
             {
@@ -83,18 +63,24 @@
                     <li>
                         @if (User.Identity.IsAuthenticated)
                         {
-                            using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+                            using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new {id = "logoutForm", @class = "navbar-right"}))
                             {
                                 @Html.AntiForgeryToken()
 
-                                <a href="javascript:document.getElementById('logoutForm').submit()"><img src="~/images/log_out.png" class="img-responsive" alt="Logout"> Log off</a>                               
+                                <a href="javascript:document.getElementById('logoutForm').submit()" onclick="showLoadingScreen();"><img src="~/images/log_out.png" style="padding-top: 3px;" class="img-responsive" alt="Logout"> Log off</a>
                             }
                         }
                         else
                         {
-                            <a href="@Url.Action("LogIn", "Account")"><img src="" class="img-responsive"> Login</a>
+                            <a href="@Url.Action("LogIn", "Account")" onclick="showLoadingScreen();" style="width: 150px; text-align: right; color: #337ab7;"><img style="padding-top: 3px;"src="~/images/log_in.png" class="img-responsive" alt="Login"> Login</a>
                         }
                     </li>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li>
+                            <a href="@Url.Action("Index", "Manage" )" onclick="showLoadingScreen();" style="width: 150px; text-align: right; color: #337ab7;"><img style="height: 25px; padding-left: 5px; padding-top: 3px;" src="~/images/gear.png" class="img-responsive" alt="Settings"> Settings</a>
+                        </li>
+                    }                    
                 </ul>
                 <!-- /.dropdown-user -->
             </li>
@@ -106,10 +92,12 @@
                 <ul class="nav" id="side-menu">               
                     <li>
                         <a href="@Url.Action("Index", "Patients")" ><img src="~/images/family6464blue.png" class="img-responsive" alt="Patients"> Patients</a>
-                        
+
                         <ul class="nav">
 
-                            <li><a href="@Url.Action("Create", "Patients", new { @class = "navbar-brand", @onclick = "showLoadingScreen()" })"><img src="~/images/plus6464.png" class="img-responsive" alt="Add"> Add</a></li>
+                            <li>
+                                <a href="@Url.Action("Create", "Patients")" onclick="showLoadingScreen()"><img src="~/images/plus6464.png" class="img-responsive" alt="Add"/> Add</a>
+                            </li>
 
                             @if (currentRequest == null)
                             {
@@ -118,8 +106,8 @@
                             else
                             {
                                 var currentID = currentRequest.ToString();
-                                
-                                <li><a href="@Url.Action("Edit", "Patients", new { id = currentID })"><img src="~/images/editblue6464.png" class="img-responsive" alt="Edit"> Edit</a></li>
+
+                                <li><a href="@Url.Action("Edit", "Patients", new {id = currentID})"><img src="~/images/editblue6464.png" class="img-responsive" alt="Edit"> Edit</a></li>
                             }
 
                         </ul>
@@ -128,13 +116,13 @@
                         @if (currentRequest == null)
                         {
 @*                            <a href="#" onclick="alert('Select a patient first')"><img src="~/images/results6464blue.png" class="img-responsive" alt="Results"> Analysis Results</a>*@
-                            <a href="@Url.Action("Index", "Analyses")"><img src="~/images/results6464blue.png" class="img-responsive" alt="Results"> Analysis Results</a>
+                            <a href="@Url.Action("Index", "Analyses")" onclick="showLoadingScreen()"><img src="~/images/results6464blue.png" class="img-responsive" alt="Results"> Analysis Results</a>
                         }
                         else
                         {
                             var currentID = currentRequest.ToString();
 
-                            <a href="@Url.Action("Details", "Analyses", new { id = currentID })"><img src="~/images/results6464blue.png" class="img-responsive" alt="Results"> Analysis Results</a>
+                            <a href="@Url.Action("Details", "Analyses", new { id = currentID })" onclick="showLoadingScreen()"><img src="~/images/results6464blue.png" class="img-responsive" alt="Results"> Analysis Results</a>
                         }                       
                     </li>
                     <li>

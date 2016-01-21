@@ -9,32 +9,60 @@
 
 <link rel="stylesheet" type="text/css" href="~/css/stylish.css">
 <link rel="stylesheet" type="text/css" href="~/css/semantic.min.css">
-<script src="~/js/three.min2.js"></script>
+<script src="~/js/three.min.js"></script>
 <script src="~/js/OrbitControls-Touch.js"></script>
 <script src="~/js/rAF.js"></script>
 <script src="~/js/lodash.min.js"></script>
 <script src="~/js/semantic.min.js"></script>
+<link rel="stylesheet" type="text/css" href="~/css/bootstrap-colorselector.css" />
+<script src="~/js/bootstrap-colorselector.js"></script>
 
+<style>
+    div#loader {
+        margin-left: 250px;
+    }
+
+    div.ui.large.indeterminate.loader::after, div.ui.large.indeterminate.loader::before {
+        margin-left: -250px;
+    }
+    div#page-wrapper {
+        min-height: calc(100vh - 70px);
+    }
+</style>
 <div id="page-wrapper">
     <div id="body3">
-        <div class="form-group" id="analysisGroup">
-            <div class="label " id="label2">Patient's Name - Data Upload Date</div>
-            <div>
-                <select class="form-control" name="status" id="analysisSelect">
-                    
-                    @foreach (var analysis in Model.Where(analysis => analysis.ResultFilePath != null))
-                    {
-                        if (string.IsNullOrWhiteSpace(directory))
+        <div class="form-group" id="analysisGroup">          
+            <div>               
+                @if (Model.Any(analysis => analysis.ResultFilePath != null))
+                {
+                    <div class="label " id="label2">Patient's Name - Data Upload Date</div>
+
+                    <select class="form-control" name="status" id="analysisSelect">
+
+                        @foreach (var analysis in Model.Where(analysis => analysis.ResultFilePath != null))
                         {
-                            directory = analysis.User.LastName + "-" + analysis.User.FirstName + "-" + analysis.User.Id + "/";
+                            if (string.IsNullOrWhiteSpace(directory))
+                            {
+                                directory = analysis.User.LastName + "-" + analysis.User.FirstName + "-" + analysis.User.Id + "/";
+                                directory = directory.ToLower();
+                            }
+
+                            var displayName = analysis.Patient.LastName + ", " + analysis.Patient.FirstName + " | " + analysis.Date.ToString("MM-dd-yyyy");
+
+                            <option>@displayName</option>
                         }
 
-                        var displayName = analysis.Patient.LastName + ", " + @analysis.Patient.FirstName + " - " + analysis.Date.ToString("MM-dd-yyyy");
-
-                        <option>@displayName</option>
-                    }
-
-                </select>
+                    </select>
+                }
+                @*                <select id="colorselector">*@
+                @*                    <option value="106" data-color="#A0522D">sienna</option>*@
+                @*                    <option value="47" data-color="#CD5C5C" selected="selected">indianred</option>*@
+                @*                    <option value="87" data-color="#FF4500">orangered</option>*@
+                @**@
+                @*                    <option value="15" data-color="#DC143C">crimson</option>*@
+                @*                    <option value="24" data-color="#FF8C00">darkorange</option>*@
+                @*                    <option value="78" data-color="#C71585">mediumvioletred</option>*@
+                @*                </select>*@
             </div>
         </div>
 
@@ -84,16 +112,55 @@
         <script src="~/js/ui.js"></script>
         <script>
             $(document).ready(function () {
-                plot(getFile($('#analysisSelect').val()));
 
+                @{
+                    if (Model.Any(analysis => analysis.ResultFilePath != null))
+                    {
+                        <text>
+                        DownloadCurrentResult();
+                        </text>
+                    }
+                }
+
+
+                for (var i = 0; i < colors.length; i++) {
+                    console.log(colors[i]);
+                }
+
+//                $('#colorselector').colorselector();
+                $('#element').colorselector('setColor', '#FF0000');
                 $('#analysisSelect').on('change', function () {
-                    plot(getFile(this.value));
+                    DownloadCurrentResult();
                 });
+
             });
 
-            function getFile(value) {
+            function DownloadCurrentResult() {
+
+                $("#loader").addClass("ui active dimmer");
+
+                $.ajax({
+                    type: "POST",
+                    async: true,
+                    url: "/File/DownloadResult?path=" + getPath($('#analysisSelect').val())
+                }).done(function (model) {
+
+                    if (model !== undefined && model !== "") {
+                        data = JSON.parse(model);
+                        plot(data);
+                    } else {
+                        alert("This file is corrupted");
+                    }
+                }).fail(function () {
+                    $("#loader").removeClass("ui active dimmer");
+                    alert("failed");
+                });
+            }
+
+            //get the right name of the blob
+            function getPath(value) {
                 data = null;
-                return '@(directory)' + value.replace(/ /g, '').replace(",", "-").toLowerCase() + ".json";
+                return '@(directory)' + value.replace(/ /g, '').replace(",", "-").replace("|", "/").toLowerCase() + ".json";
             }
         </script>
     </div>

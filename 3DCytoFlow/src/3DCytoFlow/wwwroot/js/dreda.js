@@ -193,15 +193,6 @@ function resetCamera() {
 ///////
 ///////
 
-function fetchData(name) {
-    $.ajaxSetup({ 'async': false });
-
-    $.getJSON("../Results/" + name, function (json) {
-        data = json;
-    });
-    console.log("Data Fetched");
-}
-
 function loadData() {
 
     // clear container
@@ -236,9 +227,9 @@ function plotData() {
 
     console.log("Initalized");
     // zip and group
-    
+
     var keys = Object.keys(data);
-    
+
     grouped = _.groupBy(organized, keys[3]); // group by color
     groupedSize = _.size(grouped);
     groupedKeys = Object.keys(grouped);

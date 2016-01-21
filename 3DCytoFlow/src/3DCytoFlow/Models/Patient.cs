@@ -37,7 +37,6 @@ namespace _3DCytoFlow
         public string LastName { get; set; }
 
         [Required]
-        [DataType(DataType.Date)]
         public System.DateTime DOB { get; set; }
 
         [EmailAddress]

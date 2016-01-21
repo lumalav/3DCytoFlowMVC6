@@ -19,7 +19,14 @@ namespace _3DCytoFlow.Controllers
         // GET: Analyses
         public IActionResult Index()
         {
-            return View(_context.Analyses.ToList());
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = GetUser();
+
+                return View(user.Analyses.ToList());
+            }
+
+            return RedirectToAction("LogIn", "Account");
         }
 
         // GET: Analyses/Details/5
@@ -117,5 +124,16 @@ namespace _3DCytoFlow.Controllers
             _context.SaveChanges();
             return RedirectToAction("Index");
         }
+
+        #region Helpers
+        /// <summary>
+        /// returns the current user
+        /// </summary>
+        /// <returns></returns>
+        private ApplicationUser GetUser()
+        {
+            return _context.Users.First(i => i.Email.Equals(User.Identity.Name));
+        }
+        #endregion
     }
 }

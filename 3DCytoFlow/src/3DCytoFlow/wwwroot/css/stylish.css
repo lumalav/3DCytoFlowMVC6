@@ -22,7 +22,7 @@ a > i {
 
 #data-canvas {
 	position: absolute;
-	width: calc(100% - 250px);
+    width: calc(100% - 15px);
 	height: 100%;
 	z-index: 1;
 }
