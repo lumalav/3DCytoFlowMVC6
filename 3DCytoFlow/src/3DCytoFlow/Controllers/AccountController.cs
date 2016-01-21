@@ -9,6 +9,14 @@ using Microsoft.Extensions.Logging;
 using _3DCytoFlow.Models;
 using _3DCytoFlow.Services;
 using _3DCytoFlow.ViewModels.Account;
+using Microsoft.WindowsAzure.Storage;
+using System;
+using System.IO;
+using System.Globalization;
+using System.Text;
+using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.WindowsAzure.Storage.RetryPolicies;
+using Newtonsoft.Json;
 
 namespace _3DCytoFlow.Controllers
 {
@@ -16,8 +24,6 @@ namespace _3DCytoFlow.Controllers
     [Route("User/[action]")]
     public class AccountController : Controller
     {
-        private readonly ApplicationDbContext _context = new ApplicationDbContext();
-
         const string Greeting = "\nHi User! This is 3DCytoFlow giving you an update on your recent request";
 
         private readonly UserManager<ApplicationUser> _userManager;
@@ -25,19 +31,24 @@ namespace _3DCytoFlow.Controllers
         private readonly IEmailSender _emailSender;
         private readonly ISmsSender _smsSender;
         private readonly ILogger _logger;
+        private readonly ApplicationDbContext _context;
+        private readonly string storageConnectionString;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender,
             ISmsSender smsSender,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _smsSender = smsSender;
             _logger = loggerFactory.CreateLogger<AccountController>();
+            _context = context;
+            storageConnectionString = "";
         }
 
         //
@@ -445,7 +456,7 @@ namespace _3DCytoFlow.Controllers
             {
                 var user = GetUser();
 
-                var model = new UploadFileModel { Patients = user.Patients };
+                var model = new UploadFileModel { Patients = _context.Patients.Where(x => x.User.UserName == user.UserName).ToArray() };
 
                 return View(model);
             }
@@ -473,303 +484,313 @@ namespace _3DCytoFlow.Controllers
         {
             return _context.Patients.First(i => i.FirstName.Equals(firstName) && i.LastName.Equals(lastName));
         }
+
         /// <summary>
         /// TODO:Improve. this will be triggered with entity change notifier: http://www.codeproject.com/Articles/496484/SqlDependency-with-Entity-Framework
         /// Downloads all the json files from the storage and saves them in the Results folder
         /// </summary>
-        /// <param name="user"></param>
-//        private void DownloadResults(ApplicationUser user)
-//        {
-//            // Retrieve storage account from connection string.
-//            var storageAccount = CloudStorageAccount.Parse(ConfigurationManager.AppSettings["StorageConnectionString"]);
-//
-//            //get the container
-//            var containerName = user.LastName + "-" + user.FirstName + "-" + user.Id;
-//
-//            var container = GetContainer(storageAccount, containerName.ToLower());
-//
-//            //List blobs and directories in this container
-//            var blobs = container.ListBlobs(useFlatBlobListing: true);
-//
-//            //prepare the location
-//            var directory = Server.MapPath("/Results/" + containerName);
-//
-//            foreach (var blob in blobs.Where(i => i.Uri.ToString().Contains(".json")).Cast<CloudBlockBlob>())
-//            {
-//                var filePath = blob.Name.Split('/');
-//                var patientName = filePath[0];
-//                var fileName = filePath[1];
-//
-//                //check if folder exists, if not create it
-//                if (!Directory.Exists(directory))
-//                    Directory.CreateDirectory(directory);
-//
-//                using (var fileStream = new FileStream(Server.MapPath("/Results/" + containerName + "/" + patientName + "-" + fileName), FileMode.Create))
-//                {
-//                    blob.DownloadToStream(fileStream);
-//                }
-//            }
-//        }
-//        /// <summary>
-//        /// Prepares the storage that will receive the .fcs file
-//        /// </summary>
-//        /// <param name="blocksCount"></param>
-//        /// <param name="fileName"></param>
-//        /// <param name="fileSize"></param>
-//        /// <param name="patient"></param>
-//        /// <returns></returns>
-//        [HttpPost]
-//        public ActionResult SetMetadata(int blocksCount, string fileName, long fileSize, string patient)
-//        {
-//            var storageAccount = CloudStorageAccount.Parse(ConfigurationManager.AppSettings["StorageConnectionString"]);
-//
-//            var patientCompleteName = patient.Split(' ');
-//
-//            var firstName = patientCompleteName[0];
-//            var lastName = patientCompleteName[1];
-//
-//            //container name will be lastname-name-id of the user. Everything in lowercase or Azure complains with a 400 error
-//            var user = GetUser();
-//            var containerName = user.LastName + "-" + user.FirstName + "-" + user.Id;
-//            var container = GetContainer(storageAccount, containerName.ToLower());
-//
-//            //get the patient
-//            var storedPatient = GetPatient(firstName, lastName);
-//
-//            //blob exact name and location
-//            var blobName = lastName + "-" + firstName + "/" + DateTime.Now.ToString("MM-dd-yyyy") + ".fcs";
-//
-//            //filename will be lastname-name-uploaddate.fcs of the patient
-//            var fileToUpload = new CloudFile()
-//            {
-//                OriginalFileName = fileName,
-//                Patient = storedPatient,
-//                BlockCount = blocksCount,
-//                FileName = blobName.ToLower(),
-//                Size = fileSize,
-//                BlockBlob = container.GetBlockBlobReference(blobName.ToLower()),
-//                StartTime = DateTime.Now,
-//                IsUploadCompleted = false,
-//                UploadStatusMessage = string.Empty
-//            };
-//
-//            IFormatter formatter = new BinaryFormatter();
-//
-//            using (var ms = new MemoryStream())
-//            {
-//                formatter.Serialize(ms, fileToUpload);
-//                HttpContext.Session.Set("CurrentFile", ms.ToArray());
-//            }
-//
-//            return Json(true);
-//        }
-//
-//        /// <summary>
-//        /// Uploads a chunk
-//        /// </summary>
-//        /// <param name="id"></param>
-//        /// <returns></returns>
-//        [HttpPost]
-//       // [ValidateInput(false)]
-//        public ActionResult UploadChunk(int id)
-//        {
-//            if (Request.ContentLength != null)
-//            {
-//                var chunk = new byte[Request.ContentLength.Value];
-//
-//                var input = new StreamReader(Request.Body).ReadToEnd();
-//
-//                JsonResult returnData;
-//
-//                const string fileSession = "CurrentFile";
-//
-//                var fileArray = HttpContext.Session.Get(fileSession);
-//
-//                if (fileArray != null)
-//                {
-//                    IFormatter formatter = new BinaryFormatter();
-//
-//                    CloudFile model;
-//
-//                    using (var ms = new MemoryStream(fileArray))
-//                    {
-//                        model = (CloudFile) formatter.Deserialize(ms);
-//                    }
-//
-//                    returnData = UploadCurrentChunk(model, chunk, id);
-//
-//                    if (returnData != null)
-//                    {
-//                        return returnData;
-//                    }
-//                    if (id == model.BlockCount)
-//                    {
-//                        return CommitAllChunks(model);
-//                    }
-//                }
-//                else
-//                {
-//                    returnData = Json(new
-//                    {
-//                        error = true,
-//                        isLastBlock = false,
-//                        message = string.Format(CultureInfo.CurrentCulture,
-//                            "Failed to Upload file.", "Session Timed out")
-//                    });
-//                    return returnData;
-//                }
-//            }
-//
-//            return Json(new { error = false, isLastBlock = false, message = string.Empty });
-//        }
-//
-//        /// <summary>
-//        /// Sends every chunk of the .fcs file and sends an sms to the user
-//        /// </summary>
-//        /// <param name="model"></param>
-//        /// <returns></returns>
-//        private ActionResult CommitAllChunks(CloudFile model)
-//        {
-//            model.IsUploadCompleted = true;
-//
-//            var errorInOperation = false;
-//
-//            try
-//            {
-//                var blockList = Enumerable.Range(1, (int)model.BlockCount).ToList().ConvertAll(rangeElement =>
-//                               Convert.ToBase64String(Encoding.UTF8.GetBytes(
-//                               string.Format(CultureInfo.InvariantCulture, "{0:D4}", rangeElement))));
-//
-//                model.BlockBlob.PutBlockList(blockList);
-//
-//                var duration = DateTime.Now - model.StartTime;
-//
-//                float fileSizeInKb = model.Size / 1024;
-//
-//                var fileSizeMessage = fileSizeInKb > 1024 ?
-//                    string.Concat((fileSizeInKb / 1024).ToString(CultureInfo.CurrentCulture), " MB") :
-//                    string.Concat(fileSizeInKb.ToString(CultureInfo.CurrentCulture), " KB");
-//
-//                var message = string.Format(CultureInfo.CurrentCulture,
-//                    "File uploaded successfully. {0} took {1} seconds to upload\nYou'll receive another SMS when the results are completed",
-//                    fileSizeMessage, duration.TotalSeconds);
-//
-//                //Get the user
-//                var user = GetUser();
-//                var fcsPath = user.LastName.ToLower() + "-" + user.FirstName.ToLower() + "-" + user.Id + "/" + model.FileName;
-//                //if the analysis did not exist before, add a new record to the db
-//                if (ThereIsNoPreviousAnalysis(model, fcsPath))
-//                {
-//                    var analysis = new Analysis
-//                    {
-//                        Date = DateTime.Now.Date,
-//                        FcsFilePath = fcsPath,
-//                        FcsUploadDate = DateTime.Now.Date.ToString("yy-MM-dd-yyyy"),
-//                        ResultFilePath = "",
-//                        ResultDate = DateTime.Now.Date,
-//                        Delta = 0.00
-//                    };
-//
-//                    var storedPatient = GetPatient(model.Patient.FirstName, model.Patient.LastName);
-//
-//                    storedPatient.Analyses.Add(analysis);
-//                    user.Analyses.Add(analysis);
-//                    _context.SaveChanges();
-//                }
-//                //otherwise, continue with the process and
-//                //notify the user about the success of the file upload
-////                SmsService.SendSms(new IdentityMessage
-////                {
-////                    Destination = user.Phone,
-////                    Body = Greeting + "\nStatus on: " + model.OriginalFileName + "\n" + message
-////                });
-//
-//                model.UploadStatusMessage = message;
-//            }
-//            catch (StorageException e)
-//            {
-//                model.UploadStatusMessage = "Failed to Upload file. Exception - " + e.Message;
-//                errorInOperation = true;
-//            }
-//            finally
-//            {
-//                HttpContext.Session.Remove("CurrentFile");
-//            }
-//            return Json(new
-//            {
-//                error = errorInOperation,
-//                isLastBlock = model.IsUploadCompleted,
-//                message = model.UploadStatusMessage
-//            });
-//        }
-//        /// <summary>
-//        /// returns if there is no previous analysis for this particular user and a particular date
-//        /// </summary>
-//        /// <param name="model"></param>
-//        /// <param name="fcsPath"></param>
-//        /// <returns></returns>
-//        private bool ThereIsNoPreviousAnalysis(CloudFile model, string fcsPath)
-//        {
-//            return
-//                !_context.Analyses.Any(
-//                    i =>
-//                        i.Patient.FirstName.Equals(model.Patient.FirstName) &&
-//                        i.Patient.LastName.Equals(model.Patient.LastName) && i.FcsFilePath.Equals(fcsPath));
-//        }
-//
-//        /// <summary>
-//        /// Uploads the current chunk to the storage
-//        /// </summary>
-//        /// <param name="model"></param>
-//        /// <param name="chunk"></param>
-//        /// <param name="id"></param>
-//        /// <returns></returns>
-//        private JsonResult UploadCurrentChunk(CloudFile model, byte[] chunk, int id)
-//        {
-//            using (var chunkStream = new MemoryStream(chunk))
-//            {
-//                var blockId = Convert.ToBase64String(Encoding.UTF8.GetBytes(
-//                        string.Format(CultureInfo.InvariantCulture, "{0:D4}", id)));
-//                try
-//                {
-//                    model.BlockBlob.PutBlock(
-//                        blockId,
-//                        chunkStream, null, null,
-//                        new BlobRequestOptions()
-//                        {
-//                            RetryPolicy = new LinearRetry(TimeSpan.FromSeconds(10), 3)
-//                        });
-//
-//                    return null;
-//                }
-//                catch (StorageException e)
-//                {
-//                    HttpContext.Session.Remove("CurrentFile");
-//                    model.IsUploadCompleted = true;
-//                    model.UploadStatusMessage = "Failed to Upload file. Exception - " + e.Message;
-//                    return Json(new { error = true, isLastBlock = false, message = model.UploadStatusMessage });
-//                }
-//            }
-//        }
-//        /// <summary>
-//        /// returns the container, if not it will create a new one
-//        /// </summary>
-//        /// <param name="account"></param>
-//        /// <param name="name"></param>
-//        /// <returns></returns>
-//        public CloudBlobContainer GetContainer(CloudStorageAccount account, string name)
-//        {
-//            //blob client now
-//            var blobClient = account.CreateCloudBlobClient();
-//
-//            //the container for this is companystyles
-//            var container = blobClient.GetContainerReference(name);
-//
-//            //Create a new container, if it does not exist
-//            container.CreateIfNotExists();
-//
-//            return container;
-//        }
+        /// <param name = "user" ></ param >
+        //private void DownloadResults(ApplicationUser user)
+        //{
+        //    // Retrieve storage account from connection string.
+        //    var storageAccount = CloudStorageAccount.Parse(ConfigurationManager.AppSettings["StorageConnectionString"]);
+
+        //    //get the container
+        //    var containerName = user.LastName + "-" + user.FirstName + "-" + user.Id;
+
+        //    var container = GetContainer(storageAccount, containerName.ToLower());
+
+        //    //List blobs and directories in this container
+        //    var blobs = container.ListBlobs(useFlatBlobListing: true);
+
+        //    //prepare the location
+        //    var directory = Server.MapPath("/Results/" + containerName);
+
+        //    foreach (var blob in blobs.Where(i => i.Uri.ToString().Contains(".json")).Cast<CloudBlockBlob>())
+        //    {
+        //        var filePath = blob.Name.Split('/');
+        //        var patientName = filePath[0];
+        //        var fileName = filePath[1];
+
+        //        //check if folder exists, if not create it
+        //        if (!Directory.Exists(directory))
+        //            Directory.CreateDirectory(directory);
+
+        //        using (var fileStream = new FileStream(Server.MapPath("/Results/" + containerName + "/" + patientName + "-" + fileName), FileMode.Create))
+        //        {
+        //            blob.DownloadToStream(fileStream);
+        //        }
+        //    }
+        //}
+        /// <summary>
+        /// Prepares the storage that will receive the .fcs file
+        /// </summary>
+        /// <param name="blocksCount"></param>
+        /// <param name="fileName"></param>
+        /// <param name="fileSize"></param>
+        /// <param name="patient"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult SetMetadata(int blocksCount, string fileName, long fileSize, string patient)
+        {
+            string hello = "hello";
+
+            var storageAccount = CloudStorageAccount.Parse(storageConnectionString);
+
+            var patientCompleteName = patient.Split(' ');
+
+            var firstName = patientCompleteName[0];
+            var lastName = patientCompleteName[1];
+
+            //container name will be lastname-name-id of the user. Everything in lowercase or Azure complains with a 400 error
+            var user = GetUser();
+            var containerName = user.LastName + "-" + user.FirstName + "-" + user.Id;
+            var container = GetContainer(storageAccount, containerName.ToLower());
+
+            //get the patient
+            var storedPatient = GetPatient(firstName, lastName);
+
+            //blob exact name and location
+            var blobName = lastName + "-" + firstName + "/" + DateTime.Now.ToString("MM-dd-yyyy") + ".fcs";
+
+            //filename will be lastname-name-uploaddate.fcs of the patient
+            var fileToUpload = new CloudFile()
+            {
+                OriginalFileName = fileName,
+                Patient = storedPatient,
+                BlockCount = blocksCount,
+                FileName = blobName.ToLower(),
+                Size = fileSize,
+                BlockBlob = container.GetBlockBlobReference(blobName.ToLower()),
+                StartTime = DateTime.Now,
+                IsUploadCompleted = false,
+                UploadStatusMessage = string.Empty
+            };
+
+            var fileByteArray = GetBytes(JsonConvert.SerializeObject(fileToUpload));
+
+            using (var ms = new MemoryStream())
+            {
+                HttpContext.Session.Set("CurrentFile", fileByteArray);
+            }
+
+            return Json(true);
+        }
+
+        static byte[] GetBytes(string str)
+        {
+            byte[] bytes = new byte[str.Length * sizeof(char)];
+            System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+            return bytes;
+        }
+
+        static string GetString(byte[] bytes)
+        {
+            char[] chars = new char[bytes.Length / sizeof(char)];
+            System.Buffer.BlockCopy(bytes, 0, chars, 0, bytes.Length);
+            return new string(chars);
+        }
+
+        /// <summary>
+        /// Uploads a chunk
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPost]
+        // [ValidateInput(false)]
+        public ActionResult UploadChunk(int id)
+        {
+            if (Request.ContentLength != null)
+            {
+                var chunk = new byte[Request.ContentLength.Value];
+
+                var input = new StreamReader(Request.Body).ReadToEnd();
+
+                JsonResult returnData;
+
+                const string fileSession = "CurrentFile";
+
+                var fileBytes = new byte[1024];                
+
+                if (HttpContext.Session.TryGetValue(fileSession, out fileBytes))
+                {
+                    CloudFile model = (CloudFile)JsonConvert.DeserializeObject(GetString(fileBytes));
+
+                    returnData = UploadCurrentChunk(model, chunk, id);
+
+                    if (returnData != null)
+                    {
+                        return returnData;
+                    }
+                    if (id == model.BlockCount)
+                    {
+                        return CommitAllChunks(model);
+                    }
+                }
+                else
+                {
+                    returnData = Json(new
+                    {
+                        error = true,
+                        isLastBlock = false,
+                        message = string.Format(CultureInfo.CurrentCulture,
+                            "Failed to Upload file.", "Session Timed out")
+                    });
+                    return returnData;
+                }
+            }
+
+            return Json(new { error = false, isLastBlock = false, message = string.Empty });
+        }
+
+        /// <summary>
+        /// Sends every chunk of the .fcs file and sends an sms to the user
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        private ActionResult CommitAllChunks(CloudFile model)
+        {
+            model.IsUploadCompleted = true;
+
+            var errorInOperation = false;
+
+            try
+            {
+                var blockList = Enumerable.Range(1, (int)model.BlockCount).ToList().Select(rangeElement =>
+                               Convert.ToBase64String(Encoding.UTF8.GetBytes(
+                               string.Format(CultureInfo.InvariantCulture, "{0:D4}", rangeElement))));
+
+                model.BlockBlob.PutBlockListAsync(blockList);
+
+                var duration = DateTime.Now - model.StartTime;
+
+                float fileSizeInKb = model.Size / 1024;
+
+                var fileSizeMessage = fileSizeInKb > 1024 ?
+                    string.Concat((fileSizeInKb / 1024).ToString(CultureInfo.CurrentCulture), " MB") :
+                    string.Concat(fileSizeInKb.ToString(CultureInfo.CurrentCulture), " KB");
+
+                var message = string.Format(CultureInfo.CurrentCulture,
+                    "File uploaded successfully. {0} took {1} seconds to upload\nYou'll receive another SMS when the results are completed",
+                    fileSizeMessage, duration.TotalSeconds);
+
+                //Get the user
+                var user = GetUser();
+                var fcsPath = user.LastName.ToLower() + "-" + user.FirstName.ToLower() + "-" + user.Id + "/" + model.FileName;
+                //if the analysis did not exist before, add a new record to the db
+                if (ThereIsNoPreviousAnalysis(model, fcsPath))
+                {
+                    var analysis = new Analysis
+                    {
+                        Date = DateTime.Now.Date,
+                        FcsFilePath = fcsPath,
+                        FcsUploadDate = DateTime.Now.Date.ToString("yy-MM-dd-yyyy"),
+                        ResultFilePath = "",
+                        ResultDate = DateTime.Now.Date,
+                        Delta = 0.00
+                    };
+
+                    var storedPatient = GetPatient(model.Patient.FirstName, model.Patient.LastName);
+
+                    storedPatient.Analyses.Add(analysis);
+                    user.Analyses.Add(analysis);
+                    _context.SaveChanges();
+                }
+                //otherwise, continue with the process and
+                //notify the user about the success of the file upload
+                //                SmsService.SendSms(new IdentityMessage
+                //                {
+                //                    Destination = user.Phone,
+                //                    Body = Greeting + "\nStatus on: " + model.OriginalFileName + "\n" + message
+                //                });
+
+                model.UploadStatusMessage = message;
+            }
+            catch (StorageException e)
+            {
+                model.UploadStatusMessage = "Failed to Upload file. Exception - " + e.Message;
+                errorInOperation = true;
+            }
+            finally
+            {
+                HttpContext.Session.Remove("CurrentFile");
+            }
+            return Json(new
+            {
+                error = errorInOperation,
+                isLastBlock = model.IsUploadCompleted,
+                message = model.UploadStatusMessage
+            });
+        }
+        /// <summary>
+        /// returns if there is no previous analysis for this particular user and a particular date
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="fcsPath"></param>
+        /// <returns></returns>
+        private bool ThereIsNoPreviousAnalysis(CloudFile model, string fcsPath)
+        {
+            return
+                !_context.Analyses.Any(
+                    i =>
+                        i.Patient.FirstName.Equals(model.Patient.FirstName) &&
+                        i.Patient.LastName.Equals(model.Patient.LastName) && i.FcsFilePath.Equals(fcsPath));
+        }
+
+        /// <summary>
+        /// Uploads the current chunk to the storage
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="chunk"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        private JsonResult UploadCurrentChunk(CloudFile model, byte[] chunk, int id)
+        {
+            using (var chunkStream = new MemoryStream(chunk))
+            {
+                var blockId = Convert.ToBase64String(Encoding.UTF8.GetBytes(
+                        string.Format(CultureInfo.InvariantCulture, "{0:D4}", id)));
+                try
+                {
+                    model.BlockBlob.PutBlockAsync(
+                        blockId,
+                        chunkStream, null, null,
+                        new BlobRequestOptions()
+                        {
+                            RetryPolicy = new LinearRetry(TimeSpan.FromSeconds(10), 3)
+                        },
+                        null);
+
+                    return null;
+                }
+                catch (StorageException e)
+                {
+                    HttpContext.Session.Remove("CurrentFile");
+                    model.IsUploadCompleted = true;
+                    model.UploadStatusMessage = "Failed to Upload file. Exception - " + e.Message;
+                    return Json(new { error = true, isLastBlock = false, message = model.UploadStatusMessage });
+                }
+            }
+        }
+        /// <summary>
+        /// returns the container, if not it will create a new one
+        /// </summary>
+        /// <param name="account"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public CloudBlobContainer GetContainer(CloudStorageAccount account, string name)
+        {
+            //blob client now
+            var blobClient = account.CreateCloudBlobClient();
+
+            //the container for this is companystyles
+            var container = blobClient.GetContainerReference(name);
+
+            //Create a new container, if it does not exist
+            container.CreateIfNotExistsAsync();
+
+            return container;
+        }
         private void AddErrors(IdentityResult result)
         {
             foreach (var error in result.Errors)

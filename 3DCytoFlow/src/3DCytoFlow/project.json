@@ -36,14 +36,6 @@
   },
 
   "frameworks": {
-    "dnx451": {
-      "dependencies": {
-        "Microsoft.WindowsAzure.ConfigurationManager": "3.1.0",
-        "Twilio": "4.4.1",
-        "Twilio.Mvc": "3.1.15",
-        "Twilio.TwiML": "3.4.0"
-      }
-    },
     "dnxcore50": { }
   },
 
