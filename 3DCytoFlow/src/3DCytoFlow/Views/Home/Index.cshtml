@@ -1,12 +1,7 @@
-﻿@model _3DCytoFlow.Models.CloudFilesModel
+﻿@model CloudFilesModel
 @{
     ViewBag.Title = "Home Page";
 }
-
-@{
-    ViewData["Title"] = "Home Page";
-}
-
 
 <div id="page-wrapper">
 
@@ -22,17 +17,4 @@
         <p><a href="http://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a>
         </p>
     </div>
-
-@*    <div class="row">*@
-@*        <h3>Current Files</h3>*@
-@*        <ul>*@
-@*            @foreach (var item in Model.Files)*@
-@*            {*@
-@*                <li>*@
-@*                    <a href="@item.URL">@item.FileName</a> (@item.Size bytes)*@
-@*                </li>*@
-@*            }*@
-@*        </ul>*@
-@*        @Html.ActionLink("Upload Another File", "UploadFile", "Account")*@
-@*    </div>*@
 </div>

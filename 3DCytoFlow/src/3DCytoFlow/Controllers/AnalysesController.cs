@@ -21,8 +21,8 @@ namespace _3DCytoFlow.Controllers
         // GET: Analyses
         public IActionResult Index()
         {
-            var user = GetUser();
-
+            if (User.Identity.IsAuthenticated)
+            {
             var patients = _context.Patients;
             var analysisViews = new List<AnalysisViewModel>();
 
@@ -46,6 +46,9 @@ namespace _3DCytoFlow.Controllers
             }
 
             return View(analysisViews);
+            }
+
+            return RedirectToAction("LogIn", "Account");
         }
 
         // GET: Analyses/Details/5

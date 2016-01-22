@@ -9,24 +9,44 @@
 
 <link rel="stylesheet" type="text/css" href="~/css/stylish.css">
 <link rel="stylesheet" type="text/css" href="~/css/semantic.min.css">
-<script src="~/js/three.min2.js"></script>
+<script src="~/js/three.min.js"></script>
 <script src="~/js/OrbitControls-Touch.js"></script>
 <script src="~/js/rAF.js"></script>
 <script src="~/js/lodash.min.js"></script>
 <script src="~/js/semantic.min.js"></script>
+<link rel="stylesheet" type="text/css" href="~/css/bootstrap-colorselector.css" />
+<script src="~/js/bootstrap-colorselector.js"></script>
 
+<style>
+    div#loader {
+        margin-left: 15px;
+    }
+
+    div.ui.large.indeterminate.loader::after, div.ui.large.indeterminate.loader::before {
+        margin-left: -50px;
+    }
+
+    div#page-wrapper {
+        min-height: calc(100vh - 70px);
+    }
+
+</style>
 <div id="page-wrapper">
     <div id="body3">
-        <div class="form-group" id="analysisGroup">
-            <div class="label " id="label2">Patient's Name - Data Upload Date</div>
-            <div>
+        <div class="form-group" id="analysisGroup">          
+            <div>               
+@*                @if (Model.Any(analysis => analysis.ResultFilePath != null))*@
+@*                {*@
+                    <div class="label" id="label2">Patient's Name - Data Upload Date</div>
+
                 <select class="form-control" name="status" id="analysisSelect">
-                    
+
                     @foreach (var analysis in Model.Where(x => x.ResultFilePath != null && !x.ResultFilePath.Equals("") ))
                     {
                         if (string.IsNullOrWhiteSpace(directory))
                         {
                             directory = analysis.UserLastName + "-" + analysis.UserFirstName + "-" + analysis.UserId + "/";
+                            directory = directory.ToLower();
                         }
 
                         var displayName = analysis.PatientLastName + ", " + @analysis.PatientFirstName + " - " + analysis.Date.ToString("MM-dd-yyyy");
@@ -35,6 +55,15 @@
                     }
 
                 </select>
+                <div class="label" id="label3">Clusters</div>
+
+                <input id="clusterInput" class="form-control" type="text" placeholder="cluster name">
+                <div>
+                    <input type="submit" id="clusterButton" onclick="addCluster();" value="Add" class="btn btn-primary"/>
+                    <input type="submit" id="clusterButton2" onclick="removeCluster();"value="Remove" class="btn btn-primary" />
+                </div>
+                
+@*                }*@
             </div>
         </div>
 
@@ -66,7 +95,8 @@
             </div>
 
             <div class="ui divider"></div>
-            <div id="clusterInfo"></div>
+            <div id="clusterInfo">          
+            </div>
 
         </div>
 
@@ -75,6 +105,7 @@
         <!--PUSHER -->
         <div class="pusher">
             <canvas id="data-canvas"></canvas>
+            <div class="ghost-select"><span></span></div>
             <div id="loader">
                 <div class="ui large indeterminate loader"></div>
             </div>
@@ -83,17 +114,85 @@
         <script src="~/js/dreda.js"></script>
         <script src="~/js/ui.js"></script>
         <script>
+            var selectedColor;
             $(document).ready(function () {
-                plot(getFile($('#analysisSelect').val()));
-
+                //download current result
+                @{
+                    if (Model.Any(analysis => analysis.ResultFilePath != null))
+                    {
+                        <text>
+                        DownloadCurrentResult();
+                        selectedColor = colors[0];
+                        //fill the color selector
+                        fillColorSelector();
+                        </text>
+                    }
+                }
+                       
+                //remove after testing
+                selectedColor = colors[0];
+                //fill the color selector
+                fillColorSelector();
+                //remove after testing
                 $('#analysisSelect').on('change', function () {
-                    plot(getFile(this.value));
+                    DownloadCurrentResult();
                 });
+
             });
 
-            function getFile(value) {
+            function DownloadCurrentResult() {
+
+                $("#loader").addClass("ui active dimmer");
+
+                $.ajax({
+                    type: "POST",
+                    async: true,
+                    url: "/File/DownloadResult?path=" + getPath($('#analysisSelect').val())
+                }).done(function (model) {
+
+                    if (model !== undefined && model !== "") {
+                        data = JSON.parse(model);
+                        plot(data);
+                    } else {
+                        alert("This file is corrupted");
+                    }
+                }).fail(function () {
+                    $("#loader").removeClass("ui active dimmer");
+                    alert("failed");
+                });
+            }
+
+            function fillColorSelector() {
+                $('#clusterInput').after('<select class="form-control" id="colorselector" style="margin: 10px;"></select>');
+
+                for (var i = 0; i < colors.length; i++) {
+                    $('#colorselector').append('<option value="'+ i +'" data-color="' + colors[i].toUpperCase() + '"></option>');
+                }
+
+                $('#colorselector').colorselector({
+                    callback: function (value, color, title) {
+                        selectedColor = color;
+                    }
+                });
+            }
+
+            function addCluster() {
+               // $("#loader").addClass("ui active dimmer");
+                $('#clusterInfo').append('<div style="color:' + selectedColor + ';">' + $("#clusterInput").val() + '</div>');
+                //TODO: Make ajax call to save the cluster
+            }
+
+            function removeCluster() {
+//                $("#loader").addClass("ui active dimmer");
+
+                $('#clusterInfo').children().last().remove();
+                //TODO: Make ajax call to remove the cluster
+            }
+
+            //get the right name of the blob
+            function getPath(value) {
                 data = null;
-                return '@(directory)' + value.replace(/ /g, '').replace(",", "-").toLowerCase() + ".json";
+                return '@(directory)' + value.replace(/ /g, '').replace(",", "-").replace("|", "/").toLowerCase() + ".json";
             }
         </script>
     </div>

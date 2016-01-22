@@ -1,10 +1,6 @@
 using System.Linq;
 using Microsoft.AspNet.Mvc;
-using Microsoft.AspNet.Mvc.Rendering;
-using Microsoft.Data.Entity;
-using _3DCytoFlow;
 using _3DCytoFlow.Models;
-using System.Security.Claims;
 
 namespace _3DCytoFlow.Controllers
 {

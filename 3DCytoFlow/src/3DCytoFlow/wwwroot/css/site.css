@@ -454,6 +454,9 @@ a:hover{
 #side-menu {
     margin-top: 5px;
 }
+#logoutForm {
+    width: 150px;
+}
 /*
 @media (min-width: 768px) {
     #side-menu li {

@@ -1,4 +1,4 @@
-@model _3DCytoFlow.Analysis
+@model Analysis
 
 @{
     ViewData["Title"] = "Edit";
@@ -41,13 +41,6 @@
             </div>
         </div>
         <div class="form-group">
-            <label asp-for="Patient_Id" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
-                <input asp-for="Patient_Id" class="form-control" />
-                <span asp-validation-for="Patient_Id" class="text-danger" />
-            </div>
-        </div>
-        <div class="form-group">
             <label asp-for="ResultDate" class="col-md-2 control-label"></label>
             <div class="col-md-10">
                 <input asp-for="ResultDate" class="form-control" />
@@ -59,13 +52,6 @@
             <div class="col-md-10">
                 <input asp-for="ResultFilePath" class="form-control" />
                 <span asp-validation-for="ResultFilePath" class="text-danger" />
-            </div>
-        </div>
-        <div class="form-group">
-            <label asp-for="User_Id" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
-                <input asp-for="User_Id" class="form-control" />
-                <span asp-validation-for="User_Id" class="text-danger" />
             </div>
         </div>
         <div class="form-group">
