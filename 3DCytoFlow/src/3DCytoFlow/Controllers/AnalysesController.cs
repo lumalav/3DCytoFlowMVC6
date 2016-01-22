@@ -23,29 +23,30 @@ namespace _3DCytoFlow.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-            var patients = _context.Patients;
-            var analysisViews = new List<AnalysisViewModel>();
+                var user = GetUser();
+                var patients = _context.Patients;
+                var analysisViews = new List<AnalysisViewModel>();
 
-            foreach( Analysis a in _context.Analyses.Include<Analysis, Patient>( x=>x.Patient ).Include(x=>x.User).Where(x=>x.User.Id == user.Id) )
-            {
-
-                var patient = a.Patient;
-
-                analysisViews.Add(new AnalysisViewModel
+                foreach( Analysis a in _context.Analyses.Include<Analysis, Patient>( x=>x.Patient ).Include(x=>x.User).Where(x=>x.User.Id == user.Id) )
                 {
-                    Id = a.Id,
-                    UserId = a.User.Id,
-                    UserFirstName = a.User.FirstName,
-                    UserLastName = a.User.LastName,
-                    PatientId = patient.Id,
-                    PatientFirstName = patient.FirstName,
-                    PatientLastName = patient.LastName,
-                    Date = a.Date,
-                    ResultFilePath = a.ResultFilePath
-                });
-            }
 
-            return View(analysisViews);
+                    var patient = a.Patient;
+
+                    analysisViews.Add(new AnalysisViewModel
+                    {
+                        Id = a.Id,
+                        UserId = a.User.Id,
+                        UserFirstName = a.User.FirstName,
+                        UserLastName = a.User.LastName,
+                        PatientId = patient.Id,
+                        PatientFirstName = patient.FirstName,
+                        PatientLastName = patient.LastName,
+                        Date = a.Date,
+                        ResultFilePath = a.ResultFilePath
+                    });
+                }
+
+                return View(analysisViews);
             }
 
             return RedirectToAction("LogIn", "Account");

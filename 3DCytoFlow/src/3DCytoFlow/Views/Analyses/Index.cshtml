@@ -34,12 +34,10 @@
 <div id="page-wrapper">
     <div id="body3">
         <div class="form-group" id="analysisGroup">          
-            <div>               
-@*                @if (Model.Any(analysis => analysis.ResultFilePath != null))*@
-@*                {*@
-                    <div class="label" id="label2">Patient's Name - Data Upload Date</div>
+            <div>
+                 <div class="label" id="label2">Patient's Name - Data Upload Date</div>
 
-                <select class="form-control" name="status" id="analysisSelect">
+                 <select class="form-control" name="status" id="analysisSelect">
 
                     @foreach (var analysis in Model.Where(x => x.ResultFilePath != null && !x.ResultFilePath.Equals("") ))
                     {
@@ -55,6 +53,7 @@
                     }
 
                 </select>
+
                 <div class="label" id="label3">Clusters</div>
 
                 <input id="clusterInput" class="form-control" type="text" placeholder="cluster name">
@@ -62,8 +61,6 @@
                     <input type="submit" id="clusterButton" onclick="addCluster();" value="Add" class="btn btn-primary"/>
                     <input type="submit" id="clusterButton2" onclick="removeCluster();"value="Remove" class="btn btn-primary" />
                 </div>
-                
-@*                }*@
             </div>
         </div>
 

@@ -63,7 +63,7 @@ var uploadMetaData = function (file)
     $.ajax({
         type: "POST",
         async: false,
-        url: "/User/SetMetadata?blocksCount=" + numberOfBlocks + "&fileName=" + name + "&fileSize=" + size + "&patient=" + patient
+        url: "/File/SetMetadata?blocksCount=" + numberOfBlocks + "&fileName=" + name + "&fileSize=" + size + "&patient=" + patient
     }).done(function (state)
     {
         if (state === true)
@@ -108,7 +108,7 @@ var sendFile = function (file, chunkSize)
         }
         var jqxhr = $.ajax({
             async: true,
-            url: ("/User/UploadChunk?id=" + currentChunk),
+            url: ("/File/UploadChunk?id=" + currentChunk),
             data: fileChunk,
             cache: false,
             contentType: false,
