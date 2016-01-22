@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using _3DCytoFlow.Models;
 using _3DCytoFlow.Services;
 using Microsoft.AspNet.Identity;
+using _3DCytoFlow.Controllers;
 
 namespace _3DCytoFlow
 {
@@ -59,6 +60,9 @@ namespace _3DCytoFlow
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
+
+            // Add StorageSettings
+            services.Configure<StorageSettings>(Configuration.GetSection("StorageSettings"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

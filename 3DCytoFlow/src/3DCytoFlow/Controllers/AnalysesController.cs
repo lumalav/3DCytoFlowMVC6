@@ -4,6 +4,8 @@ using Microsoft.AspNet.Mvc.Rendering;
 using Microsoft.Data.Entity;
 using _3DCytoFlow;
 using _3DCytoFlow.Models;
+using System.Collections.Generic;
+using _3DCytoFlow.ViewModels.Analysis;
 
 namespace _3DCytoFlow.Controllers
 {
@@ -19,7 +21,31 @@ namespace _3DCytoFlow.Controllers
         // GET: Analyses
         public IActionResult Index()
         {
-            return View(_context.Analyses.ToList());
+            var user = GetUser();
+
+            var patients = _context.Patients;
+            var analysisViews = new List<AnalysisViewModel>();
+
+            foreach( Analysis a in _context.Analyses.Include<Analysis, Patient>( x=>x.Patient ).Include(x=>x.User).Where(x=>x.User.Id == user.Id) )
+            {
+
+                var patient = a.Patient;
+
+                analysisViews.Add(new AnalysisViewModel
+                {
+                    Id = a.Id,
+                    UserId = a.User.Id,
+                    UserFirstName = a.User.FirstName,
+                    UserLastName = a.User.LastName,
+                    PatientId = patient.Id,
+                    PatientFirstName = patient.FirstName,
+                    PatientLastName = patient.LastName,
+                    Date = a.Date,
+                    ResultFilePath = a.ResultFilePath
+                });
+            }
+
+            return View(analysisViews);
         }
 
         // GET: Analyses/Details/5
@@ -117,5 +143,16 @@ namespace _3DCytoFlow.Controllers
             _context.SaveChanges();
             return RedirectToAction("Index");
         }
+
+        #region Helpers
+        /// <summary>
+        /// returns the current user
+        /// </summary>
+        /// <returns></returns>
+        private ApplicationUser GetUser()
+        {
+            return _context.Users.First(i => i.UserName.Equals(User.Identity.Name));
+        }
+        #endregion
     }
 }

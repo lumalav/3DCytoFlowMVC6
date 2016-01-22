@@ -1,6 +1,6 @@
 ﻿@using System.Threading.Tasks
-@using _3DCytoFlow
-@model IEnumerable<Analysis>
+@using _3DCytoFlow.ViewModels.Analysis
+@model List<AnalysisViewModel>
 
 @{
     ViewBag.Title = "Results";
@@ -22,14 +22,14 @@
             <div>
                 <select class="form-control" name="status" id="analysisSelect">
                     
-                    @foreach (var analysis in Model.Where(analysis => analysis.ResultFilePath != null))
+                    @foreach (var analysis in Model.Where(x => x.ResultFilePath != null && !x.ResultFilePath.Equals("") ))
                     {
                         if (string.IsNullOrWhiteSpace(directory))
                         {
-                            directory = analysis.User.LastName + "-" + analysis.User.FirstName + "-" + analysis.User.Id + "/";
+                            directory = analysis.UserLastName + "-" + analysis.UserFirstName + "-" + analysis.UserId + "/";
                         }
 
-                        var displayName = analysis.Patient.LastName + ", " + @analysis.Patient.FirstName + " - " + analysis.Date.ToString("MM-dd-yyyy");
+                        var displayName = analysis.PatientLastName + ", " + @analysis.PatientFirstName + " - " + analysis.Date.ToString("MM-dd-yyyy");
 
                         <option>@displayName</option>
                     }

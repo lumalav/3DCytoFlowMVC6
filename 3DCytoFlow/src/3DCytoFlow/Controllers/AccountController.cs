@@ -17,6 +17,8 @@ using System.Text;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.RetryPolicies;
 using Newtonsoft.Json;
+using Microsoft.Extensions.OptionsModel;
+using System.Collections.Generic;
 
 namespace _3DCytoFlow.Controllers
 {
@@ -40,7 +42,8 @@ namespace _3DCytoFlow.Controllers
             IEmailSender emailSender,
             ISmsSender smsSender,
             ILoggerFactory loggerFactory,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            IOptions<StorageSettings> storageSettings)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -48,7 +51,7 @@ namespace _3DCytoFlow.Controllers
             _smsSender = smsSender;
             _logger = loggerFactory.CreateLogger<AccountController>();
             _context = context;
-            storageConnectionString = "";
+            storageConnectionString = storageSettings.Value.StorageStringConnection;
         }
 
         //
@@ -117,7 +120,10 @@ namespace _3DCytoFlow.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var user = new ApplicationUser { UserName = model.Email, Email = model.Email,
+                                                Address = model.WorkAddress, FirstName = model.FirstName, LastName = model.LastName,
+                                                City = model.City, DOB = model.DOB, Phone = model.Phone, Zip = model.Zip};
+
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -486,42 +492,63 @@ namespace _3DCytoFlow.Controllers
         }
 
         /// <summary>
-        /// TODO:Improve. this will be triggered with entity change notifier: http://www.codeproject.com/Articles/496484/SqlDependency-with-Entity-Framework
         /// Downloads all the json files from the storage and saves them in the Results folder
-        /// </summary>
-        /// <param name = "user" ></ param >
-        //private void DownloadResults(ApplicationUser user)
-        //{
-        //    // Retrieve storage account from connection string.
-        //    var storageAccount = CloudStorageAccount.Parse(ConfigurationManager.AppSettings["StorageConnectionString"]);
+        /// </summary> 
+        [HttpPost]
+        public async Task<ActionResult> DownloadResult(string path)
+        {
+            var jsonString = "";
+            //prepare container name
+            var index = path.IndexOf('/');
 
-        //    //get the container
-        //    var containerName = user.LastName + "-" + user.FirstName + "-" + user.Id;
+            var containerName = path.Substring(0, index);
 
-        //    var container = GetContainer(storageAccount, containerName.ToLower());
+            //prepare blobName
+            var blobName = path.Substring(index + 1);
 
-        //    //List blobs and directories in this container
-        //    var blobs = container.ListBlobs(useFlatBlobListing: true);
+            // Retrieve storage account from web.config
+            var storageAccount = CloudStorageAccount.Parse(storageConnectionString);
 
-        //    //prepare the location
-        //    var directory = Server.MapPath("/Results/" + containerName);
+            //retrieve container
+            var container = await GetContainer(storageAccount, containerName);
 
-        //    foreach (var blob in blobs.Where(i => i.Uri.ToString().Contains(".json")).Cast<CloudBlockBlob>())
-        //    {
-        //        var filePath = blob.Name.Split('/');
-        //        var patientName = filePath[0];
-        //        var fileName = filePath[1];
+            IEnumerable<IListBlobItem> blobs;
 
-        //        //check if folder exists, if not create it
-        //        if (!Directory.Exists(directory))
-        //            Directory.CreateDirectory(directory);
+            //List blobs and directories in this container
+            BlobContinuationToken token = null;
+            do
+            {
+                var result = await container.ListBlobsSegmentedAsync(token);
+                token = result.ContinuationToken;
+                blobs = result.Results;
+                //Now do something with the blobs
+            } while (token != null);
 
-        //        using (var fileStream = new FileStream(Server.MapPath("/Results/" + containerName + "/" + patientName + "-" + fileName), FileMode.Create))
-        //        {
-        //            blob.DownloadToStream(fileStream);
-        //        }
-        //    }
-        //}
+            //prepare the location
+            foreach (var blob in blobs.Where(i => i.Uri.ToString().Contains(".json")).Cast<CloudBlockBlob>().Where(i => i.Name.Equals(blobName)))
+            {
+                using (var stream = new MemoryStream())
+                {
+                    await blob.DownloadToStreamAsync(stream);
+
+                    stream.Position = 0;
+
+                    var serializer = new JsonSerializer();
+
+                    using (var sr = new StreamReader(stream))
+                    {
+                        using (var jsonTextReader = new JsonTextReader(sr))
+                        {
+                            var result = serializer.Deserialize(jsonTextReader);
+                            jsonString = JsonConvert.SerializeObject(result);
+                        }
+                    }
+                }
+            }
+
+            return Content(jsonString);
+        }
+
         /// <summary>
         /// Prepares the storage that will receive the .fcs file
         /// </summary>
@@ -531,10 +558,8 @@ namespace _3DCytoFlow.Controllers
         /// <param name="patient"></param>
         /// <returns></returns>
         [HttpPost]
-        public ActionResult SetMetadata(int blocksCount, string fileName, long fileSize, string patient)
+        public async Task<ActionResult> SetMetadata(int blocksCount, string fileName, long fileSize, string patient)
         {
-            string hello = "hello";
-
             var storageAccount = CloudStorageAccount.Parse(storageConnectionString);
 
             var patientCompleteName = patient.Split(' ');
@@ -544,8 +569,9 @@ namespace _3DCytoFlow.Controllers
 
             //container name will be lastname-name-id of the user. Everything in lowercase or Azure complains with a 400 error
             var user = GetUser();
-            var containerName = user.LastName + "-" + user.FirstName + "-" + user.Id;
-            var container = GetContainer(storageAccount, containerName.ToLower());
+            //var containerName = user.LastName + "-" + user.FirstName + "-" + user.Id;
+            var containerName = user.LastName.ToLower() + "-" + user.FirstName.ToLower() + "-" + user.Id;
+            var container = await GetContainer(storageAccount, containerName.ToLower());
 
             //get the patient
             var storedPatient = GetPatient(firstName, lastName);
@@ -557,11 +583,12 @@ namespace _3DCytoFlow.Controllers
             var fileToUpload = new CloudFile()
             {
                 OriginalFileName = fileName,
-                Patient = storedPatient,
+                Patient = storedPatient.Id,
                 BlockCount = blocksCount,
                 FileName = blobName.ToLower(),
                 Size = fileSize,
-                BlockBlob = container.GetBlockBlobReference(blobName.ToLower()),
+                ContainerName = containerName,
+                BlobName = blobName.ToLower(),
                 StartTime = DateTime.Now,
                 IsUploadCompleted = false,
                 UploadStatusMessage = string.Empty
@@ -569,10 +596,7 @@ namespace _3DCytoFlow.Controllers
 
             var fileByteArray = GetBytes(JsonConvert.SerializeObject(fileToUpload));
 
-            using (var ms = new MemoryStream())
-            {
-                HttpContext.Session.Set("CurrentFile", fileByteArray);
-            }
+            HttpContext.Session.Set("CurrentFile", fileByteArray);
 
             return Json(true);
         }
@@ -598,25 +622,34 @@ namespace _3DCytoFlow.Controllers
         /// <returns></returns>
         [HttpPost]
         // [ValidateInput(false)]
-        public ActionResult UploadChunk(int id)
+        public async Task<ActionResult> UploadChunk(int id)
         {
             if (Request.ContentLength != null)
             {
-                var chunk = new byte[Request.ContentLength.Value];
+                var request = Request.Form.Files["Slice"];
 
-                var input = new StreamReader(Request.Body).ReadToEnd();
+                var chunk = new byte[request.Length];
+
+                request.OpenReadStream().Read(chunk, 0, Convert.ToInt32(request.Length));
 
                 JsonResult returnData;
 
                 const string fileSession = "CurrentFile";
 
-                var fileBytes = new byte[1024];                
+                var fileBytes = new byte[1024];
 
                 if (HttpContext.Session.TryGetValue(fileSession, out fileBytes))
                 {
-                    CloudFile model = (CloudFile)JsonConvert.DeserializeObject(GetString(fileBytes));
+                    var fileString = GetString(fileBytes);
 
-                    returnData = UploadCurrentChunk(model, chunk, id);
+                    CloudFile model = JsonConvert.DeserializeObject<CloudFile>(fileString);
+
+                    // Get the blob
+                    var storageAccount = CloudStorageAccount.Parse(storageConnectionString);
+                    var container = await GetContainer(storageAccount, model.ContainerName);
+                    CloudBlockBlob bBlob = container.GetBlockBlobReference(model.BlobName);
+
+                    returnData = await UploadCurrentChunk(model, chunk, id, bBlob);
 
                     if (returnData != null)
                     {
@@ -624,7 +657,7 @@ namespace _3DCytoFlow.Controllers
                     }
                     if (id == model.BlockCount)
                     {
-                        return CommitAllChunks(model);
+                        return await CommitAllChunks(model, bBlob);
                     }
                 }
                 else
@@ -648,7 +681,7 @@ namespace _3DCytoFlow.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        private ActionResult CommitAllChunks(CloudFile model)
+        private async Task<ActionResult> CommitAllChunks(CloudFile model, CloudBlockBlob blockBlob)
         {
             model.IsUploadCompleted = true;
 
@@ -660,7 +693,8 @@ namespace _3DCytoFlow.Controllers
                                Convert.ToBase64String(Encoding.UTF8.GetBytes(
                                string.Format(CultureInfo.InvariantCulture, "{0:D4}", rangeElement))));
 
-                model.BlockBlob.PutBlockListAsync(blockList);
+                //model.BlockBlob.PutBlockListAsync(blockList);
+                await blockBlob.PutBlockListAsync(blockList);
 
                 var duration = DateTime.Now - model.StartTime;
 
@@ -676,10 +710,14 @@ namespace _3DCytoFlow.Controllers
 
                 //Get the user
                 var user = GetUser();
+                //var fcsPath = user.LastName.ToLower() + "-" + user.FirstName.ToLower() + "-" + user.Id + "/" + model.FileName;
                 var fcsPath = user.LastName.ToLower() + "-" + user.FirstName.ToLower() + "-" + user.Id + "/" + model.FileName;
                 //if the analysis did not exist before, add a new record to the db
                 if (ThereIsNoPreviousAnalysis(model, fcsPath))
                 {
+
+                    var storedPatient = _context.Patients.First(x => x.Id == model.Patient);
+
                     var analysis = new Analysis
                     {
                         Date = DateTime.Now.Date,
@@ -689,8 +727,6 @@ namespace _3DCytoFlow.Controllers
                         ResultDate = DateTime.Now.Date,
                         Delta = 0.00
                     };
-
-                    var storedPatient = GetPatient(model.Patient.FirstName, model.Patient.LastName);
 
                     storedPatient.Analyses.Add(analysis);
                     user.Analyses.Add(analysis);
@@ -733,8 +769,7 @@ namespace _3DCytoFlow.Controllers
             return
                 !_context.Analyses.Any(
                     i =>
-                        i.Patient.FirstName.Equals(model.Patient.FirstName) &&
-                        i.Patient.LastName.Equals(model.Patient.LastName) && i.FcsFilePath.Equals(fcsPath));
+                        i.Patient.Id.Equals(model.Patient) );
         }
 
         /// <summary>
@@ -744,7 +779,7 @@ namespace _3DCytoFlow.Controllers
         /// <param name="chunk"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        private JsonResult UploadCurrentChunk(CloudFile model, byte[] chunk, int id)
+        private async Task<JsonResult> UploadCurrentChunk(CloudFile model, byte[] chunk, int id, CloudBlockBlob blobBlock)
         {
             using (var chunkStream = new MemoryStream(chunk))
             {
@@ -752,7 +787,16 @@ namespace _3DCytoFlow.Controllers
                         string.Format(CultureInfo.InvariantCulture, "{0:D4}", id)));
                 try
                 {
-                    model.BlockBlob.PutBlockAsync(
+                    //model.BlockBlob.PutBlockAsync(
+                    //    blockId,
+                    //    chunkStream, null, null,
+                    //    new BlobRequestOptions()
+                    //    {
+                    //        RetryPolicy = new LinearRetry(TimeSpan.FromSeconds(10), 3)
+                    //    },
+                    //    null);
+
+                    await blobBlock.PutBlockAsync(
                         blockId,
                         chunkStream, null, null,
                         new BlobRequestOptions()
@@ -778,7 +822,7 @@ namespace _3DCytoFlow.Controllers
         /// <param name="account"></param>
         /// <param name="name"></param>
         /// <returns></returns>
-        public CloudBlobContainer GetContainer(CloudStorageAccount account, string name)
+        public async Task<CloudBlobContainer> GetContainer(CloudStorageAccount account, string name)
         {
             //blob client now
             var blobClient = account.CreateCloudBlobClient();
@@ -787,7 +831,7 @@ namespace _3DCytoFlow.Controllers
             var container = blobClient.GetContainerReference(name);
 
             //Create a new container, if it does not exist
-            container.CreateIfNotExistsAsync();
+            await container.CreateIfNotExistsAsync();
 
             return container;
         }
@@ -817,5 +861,10 @@ namespace _3DCytoFlow.Controllers
         }
 
         #endregion
+    }
+
+    public class StorageSettings
+    {
+        public string StorageStringConnection { get; set; }
     }
 }

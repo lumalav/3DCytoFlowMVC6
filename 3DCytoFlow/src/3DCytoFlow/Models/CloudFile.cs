@@ -9,11 +9,13 @@ namespace _3DCytoFlow.Models
         public string URL { get; set; }
         public long Size { get; set; }
         public long BlockCount { get; set; }
-        public CloudBlockBlob BlockBlob { get; set; }
+        //public CloudBlockBlob BlockBlob { get; set; }
+        public string ContainerName;
+        public string BlobName;
         public DateTime StartTime { get; set; }
         public string UploadStatusMessage { get; set; }
         public bool IsUploadCompleted { get; set; }
-        public Patient Patient { get; set; }
+        public int Patient { get; set; }
         public string OriginalFileName { get; set; }
 
         public static CloudFile CreateFromIListBlobItem(IListBlobItem item)
