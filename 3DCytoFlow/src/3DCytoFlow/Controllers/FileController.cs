@@ -89,15 +89,15 @@ namespace _3DCytoFlow.Controllers
             //retrieve container
             var container = await GetContainer(storageAccount, containerName);
 
-            IEnumerable<IListBlobItem> blobs;
+            List<IListBlobItem> blobs = new List<IListBlobItem>();
 
             //List blobs and directories in this container
             BlobContinuationToken token = null;
             do
             {
-                var result = await container.ListBlobsSegmentedAsync(token);
+                var result = await container.ListBlobsSegmentedAsync("",true, BlobListingDetails.None, 500, token, null, null);
                 token = result.ContinuationToken;
-                blobs = result.Results;
+                blobs.AddRange(result.Results);
                 //Now do something with the blobs
             } while (token != null);
 

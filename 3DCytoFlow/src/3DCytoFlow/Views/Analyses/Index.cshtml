@@ -127,10 +127,6 @@
                 }
                        
                 //remove after testing
-                selectedColor = colors[0];
-                //fill the color selector
-                fillColorSelector();
-                //remove after testing
                 $('#analysisSelect').on('change', function () {
                     DownloadCurrentResult();
                 });
@@ -151,6 +147,7 @@
                         data = JSON.parse(model);
                         plot(data);
                     } else {
+                        $("#loader").removeClass("ui active dimmer");
                         alert("This file is corrupted");
                     }
                 }).fail(function () {
