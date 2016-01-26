@@ -63,10 +63,13 @@ namespace _3DCytoFlow
 
             // Add StorageSettings
             services.Configure<StorageSettings>(Configuration.GetSection("StorageSettings"));
+
+            // Add the database seeder service
+            services.AddTransient<ISeeder, DbSeeder>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, ISeeder seeder, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             app.UseSession();
 
@@ -110,6 +113,9 @@ namespace _3DCytoFlow
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            // Seed the database using the seeder
+            seeder.EnsureSeedData();
         }
 
         // Entry point for the application.
