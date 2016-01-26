@@ -47,16 +47,6 @@ namespace _3DCytoFlow.Controllers
             return RedirectToAction("LogIn", "Account");
         }
 
-        #region Helpers
-        /// <summary>
-        /// returns the current user
-        /// </summary>
-        /// <returns></returns>
-        private ApplicationUser GetUser()
-        {
-            return _context.Users.First(i => i.UserName.Equals(User.Identity.Name));
-        }
-
         /// <summary>
         /// returns a patient with the provided name
         /// </summary>
@@ -102,7 +92,7 @@ namespace _3DCytoFlow.Controllers
             } while (token != null);
 
             //prepare the location
-            foreach (var blob in blobs.Where(i => i.Uri.ToString().Contains(".json")).Cast<CloudBlockBlob>().Where(i => i.Name.Equals(blobName)))
+            foreach (var blob in blobs.Where(i => i.Uri.ToString().Contains(blobName)).Cast<CloudBlockBlob>())
             {
                 using (var stream = new MemoryStream())
                 {
@@ -124,7 +114,7 @@ namespace _3DCytoFlow.Controllers
             }
 
             return Content(jsonString);
-        }
+            }
 
         /// <summary>
         /// Prepares the storage that will receive the .fcs file
@@ -393,6 +383,17 @@ namespace _3DCytoFlow.Controllers
                 }
             }
         }
+
+        #region Helpers
+        /// <summary>
+        /// returns the current user
+        /// </summary>
+        /// <returns></returns>
+        private ApplicationUser GetUser()
+        {
+            return _context.Users.First(i => i.UserName.Equals(User.Identity.Name));
+        }
+
         /// <summary>
         /// returns the container, if not it will create a new one
         /// </summary>

@@ -41,7 +41,7 @@ namespace _3DCytoFlow.Controllers
                         PatientId = patient.Id,
                         PatientFirstName = patient.FirstName,
                         PatientLastName = patient.LastName,
-                        Date = a.Date,
+                        Date = a.ResultDate,
                         ResultFilePath = a.ResultFilePath
                     });
                 }
