@@ -9,7 +9,7 @@ var canvas = document.getElementById('data-canvas');
 
 // custom globals for data
 var data;
-var organized = [];
+var organized = [], objects = [];
 var grouped;
 var groupedSize;
 var groupedKeys;
@@ -146,6 +146,19 @@ function init() {
     line = new THREE.Line(lineGeometry, lineMaterial);
     scene.add(line);
 
+    //add cube
+    //if graph gets messed in the future, add three.min V71
+    var geometryCube = cube(200);
+
+    geometryCube.computeLineDistances();
+
+    objects.push(object);
+    scene.add(object);
+
+    var object = new THREE.LineSegments(geometryCube, new THREE.LineDashedMaterial({ color: 0xffaa00, dashSize: 3, gapSize: 1, linewidth: 2 }));
+
+    objects.push(object);
+    scene.add(object);
 }
 
 
@@ -293,4 +306,52 @@ function getLimits() {
     return _.max(potentialEdges);
 }
 
+function cube(size) {
+
+    var h = size * 0.5;
+
+    var geometry = new THREE.Geometry();
+
+    geometry.vertices.push(
+        new THREE.Vector3(-h, -h, -h),
+        new THREE.Vector3(-h, h, -h),
+
+        new THREE.Vector3(-h, h, -h),
+        new THREE.Vector3(h, h, -h),
+
+        new THREE.Vector3(h, h, -h),
+        new THREE.Vector3(h, -h, -h),
+
+        new THREE.Vector3(h, -h, -h),
+        new THREE.Vector3(-h, -h, -h),
+
+
+        new THREE.Vector3(-h, -h, h),
+        new THREE.Vector3(-h, h, h),
+
+        new THREE.Vector3(-h, h, h),
+        new THREE.Vector3(h, h, h),
+
+        new THREE.Vector3(h, h, h),
+        new THREE.Vector3(h, -h, h),
+
+        new THREE.Vector3(h, -h, h),
+        new THREE.Vector3(-h, -h, h),
+
+        new THREE.Vector3(-h, -h, -h),
+        new THREE.Vector3(-h, -h, h),
+
+        new THREE.Vector3(-h, h, -h),
+        new THREE.Vector3(-h, h, h),
+
+        new THREE.Vector3(h, h, -h),
+        new THREE.Vector3(h, h, h),
+
+        new THREE.Vector3(h, -h, -h),
+        new THREE.Vector3(h, -h, h)
+     );
+
+    return geometry;
+
+}
 

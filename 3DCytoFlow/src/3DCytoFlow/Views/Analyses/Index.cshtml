@@ -35,32 +35,36 @@
     <div id="body3">
         <div class="form-group" id="analysisGroup">          
             <div>
-                 <div class="label" id="label2">Patient's Name - Data Upload Date</div>
-
-                 <select class="form-control" name="status" id="analysisSelect">
-
-                    @foreach (var analysis in Model.Where(x => x.ResultFilePath != null && !x.ResultFilePath.Equals("") ))
+                @{
+                    if (Model.Any(analysis => analysis.ResultFilePath != null && !analysis.ResultFilePath.Equals("")))
                     {
-                        if (string.IsNullOrWhiteSpace(directory))
-                        {
-                            directory = analysis.UserLastName + "-" + analysis.UserFirstName + "-" + analysis.UserId + "/";
-                            directory = directory.ToLower();
-                        }
+                        <div class="label" id="label2">Patient's Name - Data Upload Date</div>
+                        <select class="form-control" name="status" id="analysisSelect">
 
-                        var displayName = analysis.PatientLastName + ", " + @analysis.PatientFirstName + " - " + analysis.Date.ToString("MM-dd-yyyy");
+                            @foreach (var analysis in Model.Where(x => x.ResultFilePath != null && !x.ResultFilePath.Equals("")))
+                            {
+                                if (string.IsNullOrWhiteSpace(directory))
+                                {
+                                    directory = analysis.UserLastName + "-" + analysis.UserFirstName + "-" + analysis.UserId + "/";
+                                    directory = directory.ToLower();
+                                }
 
-                        <option>@displayName</option>
+                                var displayName = analysis.PatientLastName + ", " + @analysis.PatientFirstName + " - " + analysis.Date.ToString("MM-dd-yyyy");
+
+                                <option>@displayName</option>
+                            }
+
+                        </select>
+
+                        <div class="label" id="label3">Clusters</div>
+
+                        <input id="clusterInput" class="form-control" type="text" placeholder="cluster name">
+                        <div>
+                            <input type="submit" id="clusterButton" onclick="addCluster();" value="Add" class="btn btn-primary" />
+                            <input type="submit" id="clusterButton2" onclick="removeCluster();" value="Remove" class="btn btn-primary" />
+                        </div>
                     }
-
-                </select>
-
-                <div class="label" id="label3">Clusters</div>
-
-                <input id="clusterInput" class="form-control" type="text" placeholder="cluster name">
-                <div>
-                    <input type="submit" id="clusterButton" onclick="addCluster();" value="Add" class="btn btn-primary"/>
-                    <input type="submit" id="clusterButton2" onclick="removeCluster();"value="Remove" class="btn btn-primary" />
-                </div>
+                }                 
             </div>
         </div>
 
@@ -115,7 +119,7 @@
             $(document).ready(function () {
                 //download current result
                 @{
-                    if (Model.Any(analysis => analysis.ResultFilePath != null))
+                    if (Model.Any(analysis => analysis.ResultFilePath != null && !analysis.ResultFilePath.Equals("")))
                     {
                         <text>
                         DownloadCurrentResult();
