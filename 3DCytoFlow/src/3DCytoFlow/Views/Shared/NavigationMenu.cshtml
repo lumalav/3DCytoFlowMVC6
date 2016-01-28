@@ -89,9 +89,14 @@
         <!-- /.navbar-top-links -->
         <div class="navbar-default sidebar" role="navigation">
             <div class="sidebar-nav navbar-collapse">
-                <ul class="nav" id="side-menu">               
+                <ul class="nav" id="side-menu">
                     <li>
-                        <a href="@Url.Action("Index", "Patients")" ><img src="~/images/family6464blue.png" class="img-responsive" alt="Patients"> Patients</a>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a href="@Url.Action("Register", "Account")" onclick="showLoadingScreen()"><img src="~/images/user.png" class="img-responsive" alt="Register" /> Register</a>
+                        }
+
+                        <a href="@Url.Action("Index", "Patients")"><img src="~/images/family6464blue.png" class="img-responsive" alt="Patients"> Patients</a>
 
                         <ul class="nav">
 

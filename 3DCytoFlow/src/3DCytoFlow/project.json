@@ -36,8 +36,13 @@
   },
 
   "frameworks": {
-    "dnx451": { },
-    "dnxcore50": { }
+    "dnx451": {
+      "dependencies": {
+        "Twilio": "4.4.1",
+        "Twilio.Mvc": "3.1.15",
+        "Twilio.TwiML": "3.4.0"
+      }
+    }
   },
 
   "exclude": [

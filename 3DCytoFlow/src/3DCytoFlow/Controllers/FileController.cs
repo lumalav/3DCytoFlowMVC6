@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using _3DCytoFlow.Services;
 
 // For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -20,15 +21,15 @@ namespace _3DCytoFlow.Controllers
 {
     public class FileController : Controller
     {
-        private UserManager<ApplicationUser> _userManager;
-        private ApplicationDbContext _context;
-        private string storageConnectionString;
+        public UserManager<ApplicationUser> Manager { get; }
+        private readonly ApplicationDbContext _context;
+        private readonly string _storageConnectionString;
 
         public FileController( ApplicationDbContext context, IOptions<StorageSettings> options, UserManager<ApplicationUser> userManager)
         {
-            _userManager = userManager;
+            Manager = userManager;
             _context = context;
-            storageConnectionString = options.Value.StorageStringConnection;
+            _storageConnectionString = options.Value.StorageStringConnection;
         }
 
         //
@@ -74,7 +75,7 @@ namespace _3DCytoFlow.Controllers
             var blobName = path.Substring(index + 1);
 
             // Retrieve storage account from web.config
-            var storageAccount = CloudStorageAccount.Parse(storageConnectionString);
+            var storageAccount = CloudStorageAccount.Parse(_storageConnectionString);
 
             //retrieve container
             var container = await GetContainer(storageAccount, containerName);
@@ -127,7 +128,7 @@ namespace _3DCytoFlow.Controllers
         [HttpPost]
         public async Task<ActionResult> SetMetadata(int blocksCount, string fileName, long fileSize, string patient)
         {
-            var storageAccount = CloudStorageAccount.Parse(storageConnectionString);
+            var storageAccount = CloudStorageAccount.Parse(_storageConnectionString);
 
             var patientCompleteName = patient.Split(' ');
 
@@ -171,14 +172,14 @@ namespace _3DCytoFlow.Controllers
         static byte[] GetBytes(string str)
         {
             byte[] bytes = new byte[str.Length * sizeof(char)];
-            System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+            Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
             return bytes;
         }
 
         static string GetString(byte[] bytes)
         {
             char[] chars = new char[bytes.Length / sizeof(char)];
-            System.Buffer.BlockCopy(bytes, 0, chars, 0, bytes.Length);
+            Buffer.BlockCopy(bytes, 0, chars, 0, bytes.Length);
             return new string(chars);
         }
 
@@ -212,7 +213,7 @@ namespace _3DCytoFlow.Controllers
                     CloudFile model = JsonConvert.DeserializeObject<CloudFile>(fileString);
 
                     // Get the blob
-                    var storageAccount = CloudStorageAccount.Parse(storageConnectionString);
+                    var storageAccount = CloudStorageAccount.Parse(_storageConnectionString);
                     var container = await GetContainer(storageAccount, model.ContainerName);
                     CloudBlockBlob bBlob = container.GetBlockBlobReference(model.BlobName);
 
@@ -247,6 +248,7 @@ namespace _3DCytoFlow.Controllers
         /// Sends every chunk of the .fcs file and sends an sms to the user
         /// </summary>
         /// <param name="model"></param>
+        /// <param name="blockBlob"></param>
         /// <returns></returns>
         private async Task<ActionResult> CommitAllChunks(CloudFile model, CloudBlockBlob blockBlob)
         {
@@ -289,7 +291,7 @@ namespace _3DCytoFlow.Controllers
                     {
                         Date = DateTime.Now.Date,
                         FcsFilePath = fcsPath,
-                        FcsUploadDate = DateTime.Now.Date.ToString("yy-MM-dd-yyyy"),
+                        FcsUploadDate = DateTime.Now.Date.ToString("MM-dd-yyyy"),
                         ResultFilePath = "",
                         ResultDate = DateTime.Now.Date,
                         Delta = 0.00
@@ -415,10 +417,5 @@ namespace _3DCytoFlow.Controllers
         }
 
         #endregion
-    }
-
-    public class StorageSettings
-    {
-        public string StorageStringConnection { get; set; }
     }
 }

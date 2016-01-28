@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Hosting;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -11,8 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using _3DCytoFlow.Models;
 using _3DCytoFlow.Services;
-using Microsoft.AspNet.Identity;
-using _3DCytoFlow.Controllers;
 
 namespace _3DCytoFlow
 {
@@ -63,6 +58,12 @@ namespace _3DCytoFlow
 
             // Add StorageSettings
             services.Configure<StorageSettings>(Configuration.GetSection("StorageSettings"));
+
+            // Add EmailSettings
+            services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
+
+            // Add SMSSettings
+            services.Configure<SMSSettings>(Configuration.GetSection("SMSSettings"));
 
             // Add the database seeder service
             services.AddTransient<ISeeder, DbSeeder>();

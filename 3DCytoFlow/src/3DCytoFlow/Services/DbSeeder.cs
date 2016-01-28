@@ -1,23 +1,20 @@
-﻿using _3DCytoFlow.Models;
+﻿using System.Linq;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using _3DCytoFlow.Models;
 
 namespace _3DCytoFlow.Services
 {
     public class DbSeeder : ISeeder
     {
-        private ApplicationDbContext _context;
-        private UserManager<ApplicationUser> _userManager;
-        private RoleManager<IdentityRole> _roleManager;
+        public ApplicationDbContext Context { get; }
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
 
         public DbSeeder(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
-            _context = context;
+            Context = context;
             _userManager = userManager;
             _roleManager = roleManager;
         }
@@ -63,18 +60,18 @@ namespace _3DCytoFlow.Services
             if (!manuelExists) await _userManager.CreateAsync(manuel, "Hello1234*");
             if (!ryanExists) await _userManager.CreateAsync(ryan, "Hello1234*");
 
-            luis = _userManager.Users.First(x => x.UserName == "lumalav@gmail.com");
-            manuel = _userManager.Users.First(x => x.UserName == "manogonzalez1994@gmail.com");
-            ryan = _userManager.Users.First(x => x.UserName == "ryangonyon@knights.ucf.edu");
-
-
-            bool luisAsAdmin = await _userManager.IsInRoleAsync(luis, "Admin");
-            bool manuelAsAdmin = await _userManager.IsInRoleAsync(manuel, "Admin");
-            bool ryanAsAdmin = await _userManager.IsInRoleAsync(ryan, "Admin");
-
-            if (!luisAsAdmin) await _userManager.AddToRoleAsync(luis, "Admin");
-            if (!manuelAsAdmin) await _userManager.AddToRoleAsync(manuel, "Admin");
-            if (!ryanAsAdmin) await _userManager.AddToRoleAsync(ryan, "Admin");
+//            luis = _userManager.Users.First(x => x.UserName == "lumalav@gmail.com");
+//            manuel = _userManager.Users.First(x => x.UserName == "manogonzalez1994@gmail.com");
+//            ryan = _userManager.Users.First(x => x.UserName == "ryangonyon@knights.ucf.edu");
+//
+//
+//            bool luisAsAdmin = await _userManager.IsInRoleAsync(luis, "Admin");
+//            bool manuelAsAdmin = await _userManager.IsInRoleAsync(manuel, "Admin");
+//            bool ryanAsAdmin = await _userManager.IsInRoleAsync(ryan, "Admin");
+//
+//            if (!luisAsAdmin) await _userManager.AddToRoleAsync(luis, "Admin");
+//            if (!manuelAsAdmin) await _userManager.AddToRoleAsync(manuel, "Admin");
+//            if (!ryanAsAdmin) await _userManager.AddToRoleAsync(ryan, "Admin");
         }
     }
 

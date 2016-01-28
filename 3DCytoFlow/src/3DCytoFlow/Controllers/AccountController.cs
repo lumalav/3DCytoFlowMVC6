@@ -9,17 +9,7 @@ using Microsoft.Extensions.Logging;
 using _3DCytoFlow.Models;
 using _3DCytoFlow.Services;
 using _3DCytoFlow.ViewModels.Account;
-using Microsoft.WindowsAzure.Storage;
-using System;
-using System.IO;
-using System.Globalization;
-using System.Text;
-using Microsoft.WindowsAzure.Storage.Blob;
-using Microsoft.WindowsAzure.Storage.RetryPolicies;
-using Newtonsoft.Json;
 using Microsoft.Extensions.OptionsModel;
-using System.Collections.Generic;
-
 namespace _3DCytoFlow.Controllers
 {
     [Authorize]
@@ -33,8 +23,8 @@ namespace _3DCytoFlow.Controllers
         private readonly IEmailSender _emailSender;
         private readonly ISmsSender _smsSender;
         private readonly ILogger _logger;
-        private readonly ApplicationDbContext _context;
-        private readonly string storageConnectionString;
+        private readonly string _userEmailAccount;
+        private readonly string _userEmailPassword;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -42,14 +32,77 @@ namespace _3DCytoFlow.Controllers
             IEmailSender emailSender,
             ISmsSender smsSender,
             ILoggerFactory loggerFactory,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            IOptions<EmailSettings> options )
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _smsSender = smsSender;
             _logger = loggerFactory.CreateLogger<AccountController>();
-            _context = context;
+            _userEmailAccount = options.Value.UserName;
+            _userEmailPassword = options.Value.Password;
+        }
+
+        //
+        // GET: /Account/InvitationRequest
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult InvitationRequest(string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
+        }
+        //
+        // POST
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> InvitationRequest(InvitationViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = new ApplicationUser
+                {
+                    UserName = model.Email,
+                    Email = model.Email,
+                    Address = model.WorkAddress,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    City = model.City,
+                    DOB = model.DOB,
+                    Phone = model.Phone,
+                    Zip = model.Zip
+                };
+
+                var appUser = await _userManager.FindByNameAsync(model.Email);
+                if (appUser != null)
+                {
+                    ModelState.AddModelError(string.Empty, "Sorry. This email is already registered");
+                    return View(model);
+                }
+
+                var message = new AuthMessageSender.Message
+                {
+                    Subject = "Register User",
+                    Body = "Please add me: <br>" +
+                           "First Name: " + user.FirstName + "<br>" +
+                           "Last Name: " + user.LastName + "<br>" +
+                           "DOB: " + user.DOB + "<br>" +
+                           "Email: " + user.Email + "<br>" +
+                           "Address: " + user.Address + "<br>" +
+                           "City: " + user.City + "<br>" +
+                           "Zip: " + user.Zip + "<br>"
+                };
+
+                await _emailSender.SendEmailAsync(_userEmailAccount, message.Subject, message.Body, _userEmailAccount,
+                    _userEmailPassword);
+
+                return View("ThankYou");
+            }
+
+            // If we got this far, something failed, redisplay form
+            return View(model);
         }
 
         //
@@ -74,7 +127,20 @@ namespace _3DCytoFlow.Controllers
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+                var user = await _userManager.FindByNameAsync(model.Email);
+                if (user == null)
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    return View(model);
+                }
+                else if (!await _userManager.IsEmailConfirmedAsync(user))
+                {
+                    ViewBag.errorMessage = "Your email have not been confirmed.";
+                    return View("Error");
+                }
+
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+
                 if (result.Succeeded)
                 {
                     _logger.LogInformation(1, "User logged in.");
@@ -134,12 +200,19 @@ namespace _3DCytoFlow.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
                     // Send an email with this link
-                    //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    //var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                    //await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
-                    //    "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>");
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code }, Request.Scheme);
+
+                    var message = new AuthMessageSender.Message                   
+                    {
+                        Subject = "Confirm account",
+                        Body = "Please confirm " + user.FirstName + " " + user.LastName + " account by clicking: <a href='" + callbackUrl + "'>this link</a>"
+                    };
+
+                    await _emailSender.SendEmailAsync(model.Email, message.Subject, message.Body, _userEmailAccount,
+                        _userEmailPassword);
+
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     _logger.LogInformation(3, "User created a new account with password.");
                     return RedirectToAction(nameof(HomeController.Index), "Home");
@@ -294,13 +367,20 @@ namespace _3DCytoFlow.Controllers
                     return View("ForgotPasswordConfirmation");
                 }
 
-                // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
                 // Send an email with this link
-                //var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-                //var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                //await _emailSender.SendEmailAsync(model.Email, "Reset Password",
-                //   "Please reset your password by clicking here: <a href=\"" + callbackUrl + "\">link</a>");
-                //return View("ForgotPasswordConfirmation");
+                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code }, Request.Scheme);
+
+                var message = new AuthMessageSender.Message
+                {
+                    Subject = "Reset Password",
+                    Body = "Please reset your password by clicking:  <a href='" + callbackUrl + "'>this link</a>"
+                };
+
+                await _emailSender.SendEmailAsync(model.Email, message.Subject, message.Body, _userEmailAccount,
+                    _userEmailPassword);
+
+                return View("ForgotPasswordConfirmation");
             }
 
             // If we got this far, something failed, redisplay form
@@ -404,7 +484,7 @@ namespace _3DCytoFlow.Controllers
             var message = "Your security code is: " + code;
             if (model.SelectedProvider == "Email")
             {
-                await _emailSender.SendEmailAsync(await _userManager.GetEmailAsync(user), "Security Code", message);
+                await _emailSender.SendEmailAsync(await _userManager.GetEmailAsync(user), "Security Code", message, _userEmailAccount, _userEmailPassword);
             }
             else if (model.SelectedProvider == "Phone")
             {
