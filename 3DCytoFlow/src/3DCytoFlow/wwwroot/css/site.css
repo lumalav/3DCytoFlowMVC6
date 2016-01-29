@@ -457,7 +457,7 @@ a:hover{
 #logoutForm {
     width: 150px;
 }
-/*
+
 @media (min-width: 768px) {
     #side-menu li {
         position: relative;
@@ -486,4 +486,4 @@ a:hover{
         float: left;
         width: 100%;
     }
-}*/
+}
