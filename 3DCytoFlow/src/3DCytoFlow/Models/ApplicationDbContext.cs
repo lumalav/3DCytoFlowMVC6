@@ -21,6 +21,6 @@ namespace _3DCytoFlow.Models
         public DbSet<Analysis> Analyses { get; set; }
         public DbSet<Cluster> Clusters { get; set; }
         public DbSet<Patient> Patients { get; set; }
-        public DbSet<UserRole> UserRole { get; set; }
+        public DbSet<VirtualMachine> VirtualMachines { get; set; }
     }
 }

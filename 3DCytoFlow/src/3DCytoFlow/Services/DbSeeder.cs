@@ -60,18 +60,17 @@ namespace _3DCytoFlow.Services
             if (!manuelExists) await _userManager.CreateAsync(manuel, "Hello1234*");
             if (!ryanExists) await _userManager.CreateAsync(ryan, "Hello1234*");
 
-//            luis = _userManager.Users.First(x => x.UserName == "lumalav@gmail.com");
-//            manuel = _userManager.Users.First(x => x.UserName == "manogonzalez1994@gmail.com");
-//            ryan = _userManager.Users.First(x => x.UserName == "ryangonyon@knights.ucf.edu");
-//
-//
-//            bool luisAsAdmin = await _userManager.IsInRoleAsync(luis, "Admin");
-//            bool manuelAsAdmin = await _userManager.IsInRoleAsync(manuel, "Admin");
-//            bool ryanAsAdmin = await _userManager.IsInRoleAsync(ryan, "Admin");
-//
-//            if (!luisAsAdmin) await _userManager.AddToRoleAsync(luis, "Admin");
-//            if (!manuelAsAdmin) await _userManager.AddToRoleAsync(manuel, "Admin");
-//            if (!ryanAsAdmin) await _userManager.AddToRoleAsync(ryan, "Admin");
+            luis = _userManager.Users.First(x => x.UserName == "lumalav@gmail.com");
+            manuel = _userManager.Users.First(x => x.UserName == "manogonzalez1994@gmail.com");
+            ryan = _userManager.Users.First(x => x.UserName == "ryangonyon@knights.ucf.edu");
+
+            bool luisAsAdmin = await _userManager.IsInRoleAsync(luis, "Admin");
+            bool manuelAsAdmin = await _userManager.IsInRoleAsync(manuel, "Admin");
+            bool ryanAsAdmin = await _userManager.IsInRoleAsync(ryan, "Admin");
+
+            if (!luisAsAdmin) await _userManager.AddToRoleAsync(luis, "Admin");
+            if (!manuelAsAdmin) await _userManager.AddToRoleAsync(manuel, "Admin");
+            if (!ryanAsAdmin) await _userManager.AddToRoleAsync(ryan, "Admin");
         }
     }
 

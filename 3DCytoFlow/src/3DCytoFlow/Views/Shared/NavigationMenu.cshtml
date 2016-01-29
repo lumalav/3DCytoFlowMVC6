@@ -93,10 +93,12 @@
                     <li>
                         @if (User.IsInRole("Admin"))
                         {
-                            <a href="@Url.Action("Register", "Account")" onclick="showLoadingScreen()"><img src="~/images/user.png" class="img-responsive" alt="Register" /> Register</a>
+                            <a href="@Url.Action("Register", "Account")" onclick="showLoadingScreen()"><img src="~/images/user.png" class="img-responsive" alt="Register"> Register</a>
                         }
-
-                        <a href="@Url.Action("Index", "Patients")"><img src="~/images/family6464blue.png" class="img-responsive" alt="Patients"> Patients</a>
+                    </li>
+                    <li>
+                        <li>
+                        <a href="@Url.Action("Index", "Patients")" onclick="showLoadingScreen()"><img src="~/images/family6464blue.png" class="img-responsive" alt="Patients"> Patients</a>
 
                         <ul class="nav">
 

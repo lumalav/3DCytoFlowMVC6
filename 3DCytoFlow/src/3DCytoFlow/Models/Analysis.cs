@@ -33,5 +33,7 @@ namespace _3DCytoFlow
         public virtual ICollection<Cluster> Clusters { get; set; }
         public virtual Patient Patient { get; set; }
         public virtual ApplicationUser User { get; set; }
+
+        public virtual VirtualMachine VirtualMachine { get; set; }
     }
 }
