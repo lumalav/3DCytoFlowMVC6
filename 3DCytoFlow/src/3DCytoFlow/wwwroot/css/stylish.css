@@ -52,7 +52,7 @@ a > i {
     position: absolute;
 }
 
-#analysisSelect, .btn-colorselector, #clusterInput, #clusterButton, #clusterButton2 {
+#analysisSelect, .btn-colorselector, #clusterInput, #clusterButton, #clusterButton2, #deleteButton {
     margin: 10px;
 }
 .label {

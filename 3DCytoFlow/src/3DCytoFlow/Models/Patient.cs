@@ -37,6 +37,7 @@ namespace _3DCytoFlow
         public string LastName { get; set; }
 
         [Required]
+        [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode = true)]
         public System.DateTime DOB { get; set; }
 
         [EmailAddress]

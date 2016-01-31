@@ -274,7 +274,7 @@ namespace _3DCytoFlow.Controllers
                     string.Concat(fileSizeInKb.ToString(CultureInfo.CurrentCulture), " KB");
 
                 var message = string.Format(CultureInfo.CurrentCulture,
-                    "File uploaded successfully. {0} took {1} seconds to upload\nYou'll receive another SMS when the results are completed",
+                    "File uploaded successfully. {0} took {1} seconds to upload\n",
                     fileSizeMessage, duration.TotalSeconds);
 
                 //Get the user

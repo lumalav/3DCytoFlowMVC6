@@ -16,8 +16,6 @@ namespace _3DCytoFlow.Controllers
     [Route("User/[action]")]
     public class AccountController : Controller
     {
-        const string Greeting = "\nHi User! This is 3DCytoFlow giving you an update on your recent request";
-
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
@@ -25,6 +23,9 @@ namespace _3DCytoFlow.Controllers
         private readonly ILogger _logger;
         private readonly string _userEmailAccount;
         private readonly string _userEmailPassword;
+        private readonly string _sid;
+        private readonly string _authToken;
+        private readonly string _number;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -32,16 +33,19 @@ namespace _3DCytoFlow.Controllers
             IEmailSender emailSender,
             ISmsSender smsSender,
             ILoggerFactory loggerFactory,
-            ApplicationDbContext context,
-            IOptions<EmailSettings> options )
+            IOptions<EmailSettings> emailOptions,
+            IOptions<SMSSettings> smsOptions )
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _smsSender = smsSender;
             _logger = loggerFactory.CreateLogger<AccountController>();
-            _userEmailAccount = options.Value.UserName;
-            _userEmailPassword = options.Value.Password;
+            _userEmailAccount = emailOptions.Value.UserName;
+            _userEmailPassword = emailOptions.Value.Password;
+            _sid = smsOptions.Value.Sid;
+            _authToken = smsOptions.Value.Token;
+            _number = smsOptions.Value.Number;
         }
 
         //
@@ -88,7 +92,7 @@ namespace _3DCytoFlow.Controllers
                     Body = "Please add me: <br>" +
                            "First Name: " + user.FirstName + "<br>" +
                            "Last Name: " + user.LastName + "<br>" +
-                           "DOB: " + user.DOB + "<br>" +
+                           "DOB: " + user.DOB.ToString("d") + "<br>" +
                            "Email: " + user.Email + "<br>" +
                            "Address: " + user.Address + "<br>" +
                            "City: " + user.City + "<br>" +
@@ -133,9 +137,25 @@ namespace _3DCytoFlow.Controllers
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                     return View(model);
                 }
-                else if (!await _userManager.IsEmailConfirmedAsync(user))
+                if (!await _userManager.IsEmailConfirmedAsync(user))
                 {
-                    ViewBag.errorMessage = "Your email have not been confirmed.";
+                    ViewBag.errorMessage = "Your email has not been confirmed. If you did not receive the email, another is in its way to: " + model.Email;
+
+                    // Send an email with this link
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code }, Request.Scheme);
+
+                    var message = new AuthMessageSender.Message
+                    {
+                        Subject = "Confirm account",
+                        Body = "Please confirm " + user.FirstName + " " + user.LastName + " account by clicking: <a href='" + callbackUrl + "'>this link</a></br>" +
+                               "You can login using the following password: " + model.Password + "</br>" +
+                               "Please, once logged in change your password for security reasons. Enjoy"
+                    };
+
+                    await _emailSender.SendEmailAsync(model.Email, message.Subject, message.Body, _userEmailAccount,
+                        _userEmailPassword);
+
                     return View("Error");
                 }
 
@@ -155,11 +175,9 @@ namespace _3DCytoFlow.Controllers
                     _logger.LogWarning(2, "User account locked out.");
                     return View("Lockout");
                 }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return View(model);
-                }
+
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                return View(model);
             }
 
             // If we got this far, something failed, redisplay form
@@ -198,6 +216,7 @@ namespace _3DCytoFlow.Controllers
                 };
 
                 var result = await _userManager.CreateAsync(user, model.Password);
+              
                 if (result.Succeeded)
                 {
                     // Send an email with this link
@@ -207,11 +226,17 @@ namespace _3DCytoFlow.Controllers
                     var message = new AuthMessageSender.Message                   
                     {
                         Subject = "Confirm account",
-                        Body = "Please confirm " + user.FirstName + " " + user.LastName + " account by clicking: <a href='" + callbackUrl + "'>this link</a>"
+                        Body = "Please confirm " + user.FirstName + " " + user.LastName + " account by clicking: <a href='" + callbackUrl + "'>this link</a></br>" + 
+                               "You can login using the following password: " + model.Password + "</br>" + 
+                               "Please, once logged in change your password for security reasons. Enjoy"
                     };
 
                     await _emailSender.SendEmailAsync(model.Email, message.Subject, message.Body, _userEmailAccount,
                         _userEmailPassword);
+
+                    message.Body = "You have been registered into 3DCytoFlow! Please, check your email to confirm your account";
+
+                    _smsSender.SendSms(message, _sid, _authToken, _number, user.Phone);
 
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     _logger.LogInformation(3, "User created a new account with password.");
@@ -275,14 +300,12 @@ namespace _3DCytoFlow.Controllers
             {
                 return View("Lockout");
             }
-            else
-            {
-                // If the user does not have an account, then ask the user to create an account.
-                ViewData["ReturnUrl"] = returnUrl;
-                ViewData["LoginProvider"] = info.LoginProvider;
-                var email = info.ExternalPrincipal.FindFirstValue(ClaimTypes.Email);
-                return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { Email = email });
-            }
+            
+            // If the user does not have an account, then ask the user to create an account.
+            ViewData["ReturnUrl"] = returnUrl;
+            ViewData["LoginProvider"] = info.LoginProvider;
+            var email = info.ExternalPrincipal.FindFirstValue(ClaimTypes.Email);
+            return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { Email = email });
         }
 
         //
@@ -488,7 +511,7 @@ namespace _3DCytoFlow.Controllers
             }
             else if (model.SelectedProvider == "Phone")
             {
-                await _smsSender.SendSmsAsync(await _userManager.GetPhoneNumberAsync(user), message);
+               await _smsSender.SendSmsAsync(await _userManager.GetPhoneNumberAsync(user), message);
             }
 
             return RedirectToAction(nameof(VerifyCode), new { Provider = model.SelectedProvider, ReturnUrl = model.ReturnUrl, RememberMe = model.RememberMe });
@@ -534,11 +557,9 @@ namespace _3DCytoFlow.Controllers
                 _logger.LogWarning(7, "User account locked out.");
                 return View("Lockout");
             }
-            else
-            {
-                ModelState.AddModelError("", "Invalid code.");
-                return View(model);
-            }
+
+            ModelState.AddModelError("", "Invalid code.");
+            return View(model);
         }
 
         private void AddErrors(IdentityResult result)
@@ -549,21 +570,14 @@ namespace _3DCytoFlow.Controllers
             }
         }
 
-        private async Task<ApplicationUser> GetCurrentUserAsync()
-        {
-            return await _userManager.FindByIdAsync(HttpContext.User.GetUserId());
-        }
-
         private IActionResult RedirectToLocal(string returnUrl)
         {
             if (Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);
             }
-            else
-            {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
-            }
+
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
     }
 }

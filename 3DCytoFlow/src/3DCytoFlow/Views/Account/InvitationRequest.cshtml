@@ -1,3 +1,4 @@
+@using _3DCytoFlow.ViewModels.Account
 @model InvitationViewModel
 
 @{
@@ -13,8 +14,8 @@
 
 <div id="page-wrapper">
     <div class="row">
-        <div class="col-lg-12">
-            <h1 class="page-header">@ViewBag.Title</h1>
+        <div class="col-md-offset-1 col-lg-12">
+            <h1>@ViewBag.Title</h1>
         </div>
         <!-- /.col-lg-12 -->
     </div>
@@ -90,7 +91,6 @@
             </div>
     }
 </div>
-
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }

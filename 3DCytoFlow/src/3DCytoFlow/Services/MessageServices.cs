@@ -4,6 +4,7 @@ using System.Net.Mail;
 using System.Net.Mime;
 using Microsoft.AspNet.Identity;
 using System.Net;
+using Twilio;
 
 namespace _3DCytoFlow.Services
 {
@@ -46,8 +47,14 @@ namespace _3DCytoFlow.Services
 
         public Task SendSmsAsync(string number, string message)
         {
-            // Plug in your SMS service here to send a text message.
             return Task.FromResult(0);
+        }
+
+        public void SendSms(Message message, string accountSid, string authToken, string number, string to)
+        {
+            var twilio = new TwilioRestClient(accountSid, authToken);
+
+            twilio.SendMessage(number, to, message.Body, "");
         }
     }
 }

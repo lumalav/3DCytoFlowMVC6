@@ -31,6 +31,7 @@
     }
 
 </style>
+
 <div id="page-wrapper">
     <div id="body3">
         <div class="form-group" id="analysisGroup">          
@@ -40,7 +41,6 @@
                     {
                         <div class="label" id="label2">Patient's Name - Data Upload Date</div>
                         <select class="form-control" name="status" id="analysisSelect">
-
                             @foreach (var analysis in Model.Where(x => x.ResultFilePath != null && !x.ResultFilePath.Equals("")))
                             {
                                 if (string.IsNullOrWhiteSpace(directory))
@@ -51,7 +51,7 @@
 
                                 var displayName = analysis.PatientLastName + ", " + @analysis.PatientFirstName + " | " + analysis.Date.ToString("MM-dd-yyyy");
 
-                                <option>@displayName</option>
+                                <option value ="@analysis.Id">@displayName</option>
                             }
 
                         </select>
@@ -60,10 +60,11 @@
 
                         <input id="clusterInput" class="form-control" type="text" placeholder="cluster name">
                         <div>
-                            <input type="submit" id="clusterButton" onclick="addCluster();" value="Add" class="btn btn-primary" />
-                            <input type="submit" id="clusterButton2" onclick="removeCluster();" value="Remove" class="btn btn-primary" />
+                            <input type="submit" id="clusterButton" onclick="addCluster();" value="Add" class="btn btn-primary"/>
+                            <input type="submit" id="clusterButton2" onclick="removeCluster();" value="Remove" class="btn btn-primary"/>
                         </div>
-                    }
+                        <input id="deleteButton" analysis="@Model.First().Id" class="btn btn-danger" type="button" value="Delete" />
+                      }
                 }                 
             </div>
         </div>
@@ -132,7 +133,15 @@
                        
                 //remove after testing
                 $('#analysisSelect').on('change', function () {
+                    $('#deleteButton').attr('analysis', this.value);
                     DownloadCurrentResult();
+                });
+
+                $('#deleteButton').click(function (e) {
+
+                    var id = $(this).attr("analysis");
+
+                    location.href = '@Url.Content("~/Analyses/Delete/")' + id;
                 });
 
             });
@@ -152,7 +161,7 @@
                         plot(data);
                     } else {
                         $("#loader").removeClass("ui active dimmer");
-                        alert("This file is corrupted");
+                        alert("This file is corrupted. Press the red button to delete it");
                     }
                 }).fail(function () {
                     $("#loader").removeClass("ui active dimmer");
