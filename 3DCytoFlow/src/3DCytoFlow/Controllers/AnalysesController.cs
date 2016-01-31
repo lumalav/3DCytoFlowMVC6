@@ -1,10 +1,9 @@
-using System.Linq;
-using Microsoft.AspNet.Mvc;
-using Microsoft.AspNet.Mvc.Rendering;
-using Microsoft.Data.Entity;
-using _3DCytoFlow;
-using _3DCytoFlow.Models;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using Microsoft.AspNet.Mvc;
+using Microsoft.Data.Entity;
+using _3DCytoFlow.Models;
 using _3DCytoFlow.ViewModels.Analysis;
 
 namespace _3DCytoFlow.Controllers
@@ -50,89 +49,37 @@ namespace _3DCytoFlow.Controllers
             return RedirectToAction("LogIn", "Account");
         }
 
-        // GET: Analyses/Details/5
-        public IActionResult Details(int? id)
-        {
-            if (id == null)
-            {
-                return HttpNotFound();
-            }
-
-            Analysis analysis = _context.Analyses.Single(m => m.Id == id);
-            if (analysis == null)
-            {
-                return HttpNotFound();
-            }
-
-            return View(analysis);
-        }
-
-        // GET: Analyses/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Analyses/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Create(Analysis analysis)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Analyses.Add(analysis);
-                _context.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(analysis);
-        }
-
-        // GET: Analyses/Edit/5
-        public IActionResult Edit(int? id)
-        {
-            if (id == null)
-            {
-                return HttpNotFound();
-            }
-
-            Analysis analysis = _context.Analyses.Single(m => m.Id == id);
-            if (analysis == null)
-            {
-                return HttpNotFound();
-            }
-            return View(analysis);
-        }
-
-        // POST: Analyses/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(Analysis analysis)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Update(analysis);
-                _context.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(analysis);
-        }
-
         // GET: Analyses/Delete/5
         [ActionName("Delete")]
         public IActionResult Delete(int? id)
         {
-            if (id == null)
+            if (User.Identity.IsAuthenticated)
             {
-                return HttpNotFound();
+                if (id == null)
+                {
+                    return HttpNotFound();
+                }
+
+                var analysis = _context.Analyses.Single(m => m.Id == id);
+
+                if (analysis == null)
+                {
+                    return HttpNotFound();
+                }
+
+                var userId = User.GetUserId();
+
+                //TODO: FIX
+                if (!analysis.User.Id.Equals(userId))
+                {
+                    ViewBag.errorMessage = "You don't have permission to do that";
+                    return View("Error");
+                }
+
+                return View(analysis);
             }
 
-            Analysis analysis = _context.Analyses.Single(m => m.Id == id);
-            if (analysis == null)
-            {
-                return HttpNotFound();
-            }
-
-            return View(analysis);
+            return RedirectToAction("LogIn", "Account");
         }
 
         // POST: Analyses/Delete/5

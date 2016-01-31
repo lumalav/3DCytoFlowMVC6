@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Security.Claims;
 using Microsoft.AspNet.Mvc;
 using _3DCytoFlow.Models;
 
@@ -29,18 +30,33 @@ namespace _3DCytoFlow.Controllers
         // GET: Patients/Details/5
         public IActionResult Details(int? id)
         {
-            if (id == null)
+            if (User.Identity.IsAuthenticated)
             {
-                return HttpNotFound();
+                if (id == null)
+                {
+                    return HttpNotFound();
+                }
+
+                var userId = User.GetUserId();
+
+                Patient patient = _context.Patients.Single(m => m.Id == id);
+
+                if (patient == null)
+                {
+                    return HttpNotFound();
+                }
+
+                //TODO:Fix
+                if (!patient.User.Id.Equals(userId))
+                {
+                    ViewBag.errorMessage = "You don't have permission to do that";
+                    return View("Error");
+                }
+
+                return View(patient);
             }
 
-            Patient patient = _context.Patients.Single(m => m.Id == id);
-            if (patient == null)
-            {
-                return HttpNotFound();
-            }
-
-            return View(patient);
+            return RedirectToAction("LogIn", "Account");
         }
 
         // GET: Patients/Create
@@ -72,17 +88,32 @@ namespace _3DCytoFlow.Controllers
         // GET: Patients/Edit/5
         public IActionResult Edit(int? id)
         {
-            if (id == null)
+            if (User.Identity.IsAuthenticated)
             {
-                return HttpNotFound();
-            }
+                if (id == null)
+                {
+                    return HttpNotFound();
+                }
+                var userId = User.GetUserId();
 
-            var patient = _context.Patients.Single(m => m.Id == id);
-            if (patient == null)
-            {
-                return HttpNotFound();
+                var patient = _context.Patients.Single(m => m.Id == id);
+
+                if (patient == null)
+                {
+                    return HttpNotFound();
+                }
+
+                //TODO:Fix
+                if (!patient.User.Id.Equals(userId))
+                {
+                    ViewBag.errorMessage = "You don't have permission to do that";
+                    return View("Error");
+                }
+
+                return View(patient);
             }
-            return View(patient);
+            
+            return RedirectToAction("LogIn", "Account");
         }
 
         // POST: Patients/Edit/5
@@ -105,18 +136,32 @@ namespace _3DCytoFlow.Controllers
         [ActionName("Delete")]
         public IActionResult Delete(int? id)
         {
-            if (id == null)
+            if (User.Identity.IsAuthenticated)
             {
-                return HttpNotFound();
-            }
+                if (id == null)
+                {
+                    return HttpNotFound();
+                }
+                var userId = User.GetUserId();
 
-            var patient = _context.Patients.Single(m => m.Id == id);
-            if (patient == null)
-            {
-                return HttpNotFound();
-            }
+                var patient = _context.Patients.Single(m => m.Id == id);
 
-            return View(patient);
+                if (patient == null)
+                {
+                    return HttpNotFound();
+                }
+
+                //TODO:Fix
+                if (!patient.User.Id.Equals(userId))
+                {
+                    ViewBag.errorMessage = "You don't have permission to do that";
+                    return View("Error");
+                }
+
+                return View(patient);
+            }
+            
+            return RedirectToAction("LogIn", "Account");
         }
 
         // POST: Patients/Delete/5

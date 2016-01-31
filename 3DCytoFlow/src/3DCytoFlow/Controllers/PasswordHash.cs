@@ -27,10 +27,9 @@
  */
 
 using System;
-using System.Text;
 using System.Security.Cryptography;
 
-namespace PasswordHash
+namespace _3DCytoFlow.Controllers
 {
     /// <summary>
     /// Salted password hashing with PBKDF2-SHA1.

@@ -22,13 +22,22 @@ namespace _3DCytoFlow.Controllers
         // GET: VirtualMachines
         public IActionResult Index()
         {
-            return View(_context.VirtualMachines.ToList().Select(x => new DetailsViewModel { id = x.Id, name = x.MachineName }));
+            if (User.Identity.IsAuthenticated)
+            {
+                return View(_context.VirtualMachines.ToList().Select(x => new DetailsViewModel { id = x.Id, name = x.MachineName }));
+            }
+            return RedirectToAction("LogIn", "Account");
         }
 
         // GET: VirtualMachines/Create
         public IActionResult Create()
         {
-            return View();
+            if (User.Identity.IsAuthenticated)
+            {
+                return View();
+            }
+
+            return RedirectToAction("LogIn", "Account");
         }
 
         // POST: /Account/Register
@@ -40,7 +49,7 @@ namespace _3DCytoFlow.Controllers
             if (ModelState.IsValid)
             {
                 // Hash the password
-                var psw = PasswordHash.PasswordHash.CreateHash(model.Password);
+                var psw = PasswordHash.CreateHash(model.Password);
 
                 var machine = new VirtualMachine
                 {
@@ -62,36 +71,45 @@ namespace _3DCytoFlow.Controllers
         [AllowAnonymous]
         public IActionResult GetToken([FromQuery]string username, string psw)
         {
-            var vm = _context.VirtualMachines.First(x => x.MachineName == username);
-
-            if ( vm != null )
+            if (User.Identity.IsAuthenticated)
             {
-                if( PasswordHash.PasswordHash.ValidatePassword(psw, vm.HashedPassword ) )
+                var vm = _context.VirtualMachines.First(x => x.MachineName == username);
+
+                if (vm != null)
                 {
-                    return Json(vm.Id);
+                    if (PasswordHash.ValidatePassword(psw, vm.HashedPassword))
+                    {
+                        return Json(vm.Id);
+                    }
+                    return HttpBadRequest();
                 }
-                return HttpBadRequest();
+
+                return HttpNotFound();
             }
 
-            return HttpNotFound();  
+            return RedirectToAction("LogIn", "Account");
         }
 
         // GET: VirtualMachines/Delete/5
         [ActionName("Delete")]
         public IActionResult Delete(string id)
         {
-            if (id == null)
+            if (User.Identity.IsAuthenticated)
             {
-                return HttpNotFound();
-            }
+                if (id == null)
+                {
+                    return HttpNotFound();
+                }
 
-            VirtualMachine virtualMachine = _context.VirtualMachines.Single(m => m.Id == id);
-            if (virtualMachine == null)
-            {
-                return HttpNotFound();
-            }
+                VirtualMachine virtualMachine = _context.VirtualMachines.Single(m => m.Id == id);
+                if (virtualMachine == null)
+                {
+                    return HttpNotFound();
+                }
 
-            return View(new DetailsViewModel { id = virtualMachine.Id, name = virtualMachine.MachineName } );
+                return View(new DetailsViewModel { id = virtualMachine.Id, name = virtualMachine.MachineName });
+            }
+            return RedirectToAction("LogIn", "Account");
         }
 
         // POST: VirtualMachines/Delete/5
