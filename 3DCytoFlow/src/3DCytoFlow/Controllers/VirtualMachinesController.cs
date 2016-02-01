@@ -69,23 +69,18 @@ namespace _3DCytoFlow.Controllers
         [AllowAnonymous]
         public IActionResult GetToken([FromQuery]string username, string psw)
         {
-            if (User.Identity.IsAuthenticated)
+            var vm = _context.VirtualMachines.First(x => x.MachineName == username);
+
+            if (vm != null)
             {
-                var vm = _context.VirtualMachines.First(x => x.MachineName == username);
-
-                if (vm != null)
+                if (PasswordHash.ValidatePassword(psw, vm.HashedPassword))
                 {
-                    if (PasswordHash.ValidatePassword(psw, vm.HashedPassword))
-                    {
-                        return Json(vm.Id);
-                    }
-                    return HttpBadRequest();
+                    return Json(vm.Id);
                 }
-
-                return HttpNotFound();
+                return HttpBadRequest();
             }
 
-            return RedirectToAction("LogIn", "Account");
+            return HttpNotFound();
         }
 
         // GET: VirtualMachines/Delete/5

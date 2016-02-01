@@ -62,12 +62,16 @@ var cameraXToEdgeRatio = -1.1;
 
 // cluster selection
 var raycaster = new THREE.Raycaster();
+var outlineCube;
 var selectionCube;
 var mouse = new THREE.Vector2();
 var initMouseDown;
 var finalMouseDown;
 var mouseDown = 0;
 var selectionPlaneXY, selectionPlaneXZ, selectionPlaneYZ;
+var firstTimeSelection = true;
+var selecting = false;
+var pointCloud;
 
 // calls
 init();
@@ -157,9 +161,9 @@ function init() {
     scene.add(line);
 
     // add the selection planes to be on the sides of the selection cube
-    selectionPlaneXY = new THREE.Mesh(new THREE.PlaneGeometry(1, 1, 1, 1), new THREE.MeshBasicMaterial({ color: 'red', transparent: true, opacity: 0.5, side: THREE.DoubleSide }));
-    selectionPlaneXZ = new THREE.Mesh(new THREE.PlaneGeometry(1, 1, 1, 1), new THREE.MeshBasicMaterial({ color: 'green', transparent: true, opacity: 0.5, side: THREE.DoubleSide }));
-    selectionPlaneYZ = new THREE.Mesh(new THREE.PlaneGeometry(1, 1, 1, 1), new THREE.MeshBasicMaterial({ color: 'blue', transparent: true, opacity: 0.5, side: THREE.DoubleSide }));
+    selectionPlaneXY = new THREE.Mesh(new THREE.PlaneGeometry(1, 1, 1, 1), new THREE.MeshBasicMaterial({ color: 'red', transparent: true, opacity: 0.5, side: THREE.DoubleSide, alphaTest: 0.5 }));
+    selectionPlaneXZ = new THREE.Mesh(new THREE.PlaneGeometry(1, 1, 1, 1), new THREE.MeshBasicMaterial({ color: 'yellow', transparent: true, opacity: 0.5, side: THREE.DoubleSide, alphaTest: 0.5 }));
+    selectionPlaneYZ = new THREE.Mesh(new THREE.PlaneGeometry(1, 1, 1, 1), new THREE.MeshBasicMaterial({ color: 'blue', transparent: true, opacity: 0.5, side: THREE.DoubleSide, alphaTest: 0.5 }));
     selectionPlaneXY.scale = 0.3;
     selectionPlaneXY.rotateX(0);
     selectionPlaneXZ.scale = 0.3;
@@ -169,10 +173,14 @@ function init() {
     scene.add(selectionPlaneXY);
     scene.add(selectionPlaneXZ);
     scene.add(selectionPlaneYZ);
-    
+    selectionPlaneXY.visible = false;
+    selectionPlaneXZ.visible = false;
+    selectionPlaneYZ.visible = false;
 
-    //objects.push(object);
-    //scene.add(object);
+    selectionCube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1, 20, 20 ,20), new THREE.MeshBasicMaterial({ color: 'red', opacity: 0.8 }));
+    scene.add(selectionCube);
+
+    selectionCube.visible = false;
 }
 
 
@@ -200,79 +208,133 @@ window.addEventListener("keyup", function (event) {
     }
 }, false);
 
-
+var sizeX, sizeY, sizeZ;
+var posX, posY, posZ;
 function update() {
     controls.update();
 
     // UPDATE
     if (mouseDown == 1) {
-        var sizeX = finalMouseDown.x - initMouseDown.x;
-        var sizeY = finalMouseDown.y - initMouseDown.y;
-        var sizeZ = finalMouseDown.z - initMouseDown.z;
 
         if (initMouseDown.normal.z == 1 || initMouseDown.normal.z == -1) {
+            sizeX = finalMouseDown.x - initMouseDown.x;
+            sizeY = finalMouseDown.y - initMouseDown.y;
+
             selectionPlaneXY.scale.x = Math.abs(sizeX);
             selectionPlaneXY.scale.y = Math.abs(sizeY);
 
-            selectionPlaneXY.position.x = initMouseDown.x + sizeX / 2;
-            selectionPlaneXY.position.y = initMouseDown.y + sizeY / 2;
+            posX = initMouseDown.x + sizeX / 2;
+            posY = initMouseDown.y + sizeY / 2;
+
             selectionPlaneXY.position.z = initMouseDown.z + 0.0001 * initMouseDown.normal.z;
 
-            // Extra planes
-            selectionPlaneYZ.scale.x = Math.abs(edge * 2);
-            selectionPlaneYZ.scale.y = Math.abs(sizeY);
+            if (firstTimeSelection === true) {
+                sizeZ = edge * 2;
 
-            selectionPlaneXZ.scale.x = Math.abs(sizeX);
-            selectionPlaneXZ.scale.y = Math.abs(edge * 2);
+                // Extra planes
+                selectionPlaneYZ.scale.x = Math.abs(edge * 2);
+                selectionPlaneYZ.scale.y = Math.abs(sizeY);
 
-            selectionPlaneYZ.position.y = selectionCube.position.y;
-            selectionPlaneYZ.position.z = selectionCube.position.z;
+                selectionPlaneXZ.scale.x = Math.abs(sizeX);
+                selectionPlaneXZ.scale.y = Math.abs(edge * 2);
 
-            selectionPlaneXZ.position.x = selectionCube.position.x;
-            selectionPlaneXZ.position.z = selectionCube.position.z;
+                selectionPlaneYZ.position.y = posY;
+                selectionPlaneYZ.position.z = selectionCube.position.z;
+
+                selectionPlaneXZ.position.x = posX;
+                selectionPlaneXZ.position.z = outlineCube.position.z;
+            }
         }
         else if (initMouseDown.normal.y == 1 || initMouseDown.normal.y == -1) {
+            sizeX = finalMouseDown.x - initMouseDown.x;
+            sizeZ = finalMouseDown.z - initMouseDown.z;
+
             selectionPlaneXZ.scale.x = Math.abs(sizeX);
             selectionPlaneXZ.scale.y = Math.abs(sizeZ);
 
-            selectionPlaneXZ.position.x = initMouseDown.x + sizeX / 2;
+            posX = initMouseDown.x + sizeX / 2;
+            posZ = initMouseDown.z + sizeZ / 2;
+
             selectionPlaneXZ.position.y = initMouseDown.y + 0.0001 * initMouseDown.normal.y;
-            selectionPlaneXZ.position.z = initMouseDown.z + sizeZ / 2;
 
-            // Extra planes
-            selectionPlaneYZ.scale.x = Math.abs(sizeZ);
-            selectionPlaneYZ.scale.y = Math.abs(edge * 2);
+            if (firstTimeSelection === true) {
+                sizeY = edge * 2;
 
-            selectionPlaneXY.scale.x = Math.abs(sizeX);
-            selectionPlaneXY.scale.y = Math.abs(edge * 2);
+                // Extra planes
+                selectionPlaneYZ.scale.x = Math.abs(sizeZ);
+                selectionPlaneYZ.scale.y = Math.abs(edge * 2);
 
-            selectionPlaneXY.position.x = selectionCube.position.x;
-            selectionPlaneXY.position.y = selectionCube.position.y;
+                selectionPlaneXY.scale.x = Math.abs(sizeX);
+                selectionPlaneXY.scale.y = Math.abs(edge * 2);
 
-            selectionPlaneYZ.position.y = selectionCube.position.y;
-            selectionPlaneYZ.position.z = selectionCube.position.z;
+                selectionPlaneXY.position.x = selectionPlaneXZ.position.x;
+                selectionPlaneXY.position.y = posY;
+
+                selectionPlaneYZ.position.y = outlineCube.position.y;
+                selectionPlaneYZ.position.z = posZ;
+            }
         }
         else if (initMouseDown.normal.x == 1 || initMouseDown.normal.x == -1) {
+            sizeY = finalMouseDown.y - initMouseDown.y;
+            sizeZ = finalMouseDown.z - initMouseDown.z;
+
             selectionPlaneYZ.scale.x = Math.abs(sizeZ);
             selectionPlaneYZ.scale.y = Math.abs(sizeY);
 
-            selectionPlaneYZ.position.x = initMouseDown.x + 0.0001 * initMouseDown.normal.x;
-            selectionPlaneYZ.position.y = initMouseDown.y = sizeZ / 2;
-            selectionPlaneYZ.position.z = initMouseDown.z = sizeY / 2;
+            posY = initMouseDown.y + sizeY / 2;
+            posZ = initMouseDown.z + sizeZ / 2;
 
-            // Extra planes
-            selectionPlaneXY.scale.x = Math.abs(edge * 2);
+            selectionPlaneYZ.position.x = initMouseDown.x + 0.0001 * initMouseDown.normal.x;
+
+            if (firstTimeSelection === true) {
+                sizeX = Math.abs(edge * 2);
+
+                // Extra planes
+                selectionPlaneXY.scale.x = Math.abs(edge * 2);
+                selectionPlaneXY.scale.y = Math.abs(sizeY);
+
+                selectionPlaneXZ.scale.x = Math.abs(edge * 2);
+                selectionPlaneXZ.scale.y = Math.abs(sizeZ);
+
+                selectionPlaneXY.position.x = outlineCube.position.x;
+                selectionPlaneXY.position.y = posY;
+
+                selectionPlaneXZ.position.x = outlineCube.position.x;
+                selectionPlaneXZ.position.z = posZ;
+            }
+        }
+
+        if (firstTimeSelection === false) {
+            console.log("NOT A FIRST TIME");
+
+            selectionPlaneXY.scale.x = Math.abs(sizeX);
             selectionPlaneXY.scale.y = Math.abs(sizeY);
 
-            selectionPlaneXZ.scale.x = Math.abs(edge * 2);
+            selectionPlaneXY.position.x = posX;
+            selectionPlaneXY.position.y = posY;
+
+            selectionPlaneXZ.scale.x = Math.abs(sizeX);
             selectionPlaneXZ.scale.y = Math.abs(sizeZ);
 
-            selectionPlaneXY.position.x = selectionCube.position.x;
-            selectionPlaneXY.position.y = selectionCube.position.y;
+            selectionPlaneXZ.position.x = posX;
+            selectionPlaneXZ.position.z = posZ;
 
-            selectionPlaneXZ.position.x = selectionCube.position.x;
-            selectionPlaneXZ.position.z = selectionCube.position.z;
+            selectionPlaneYZ.scale.x = Math.abs(sizeZ);
+            selectionPlaneYZ.scale.y = Math.abs(sizeY);
+
+            selectionPlaneYZ.position.y = posY;
+            selectionPlaneYZ.position.z = posZ;
         }
+
+        // Selection Cube
+        selectionCube.scale.x = sizeX;
+        selectionCube.scale.y = sizeY;
+        selectionCube.scale.z = sizeZ;
+
+        selectionCube.position.x = posX;
+        selectionCube.position.y = posY;
+        selectionCube.position.z = posZ;
+
     }
 
 
@@ -301,6 +363,8 @@ canvas.addEventListener("mousedown", function ( event )
 {
     if (!(selecting === true)) return;
 
+    pointCloud.Material.
+
     // calculate mouse position in normalized device coordinates
     // (-1 to +1) for both components
     mouse.x = ( event.layerX / canvas.clientWidth) * 2 - 1;
@@ -310,7 +374,7 @@ canvas.addEventListener("mousedown", function ( event )
     raycaster.setFromCamera(mouse, camera);
 
     // calculate objects intersecting the picking ray
-    var intersects = raycaster.intersectObjects([selectionCube], true);
+    var intersects = raycaster.intersectObjects([outlineCube], true);
 
     if (intersects.length > 0) {
         var normal;
@@ -327,8 +391,12 @@ canvas.addEventListener("mousedown", function ( event )
 // mouse up
 canvas.addEventListener("mousemove", function (event)
 {
-    if( mouseDown == 1 )
-    {
+    if( mouseDown == 1 ) {
+        selectionPlaneXY.visible = true;
+        selectionPlaneXZ.visible = true;
+        selectionPlaneYZ.visible = true;
+        selectionCube.visible = true;
+
         // calculate mouse position in normalized device coordinates
         // (-1 to +1) for both components
         mouse.x = ( event.layerX / canvas.clientWidth)*2 - 1;
@@ -338,7 +406,7 @@ canvas.addEventListener("mousemove", function (event)
         raycaster.setFromCamera(mouse, camera);
 
         // calculate objects intersecting the picking ray
-        var intersects = raycaster.intersectObjects([selectionCube]);
+        var intersects = raycaster.intersectObjects([outlineCube]);
 
         if (intersects.length > 0) {
             var normal;
@@ -354,7 +422,10 @@ canvas.addEventListener("mousemove", function (event)
 window.addEventListener("mouseup", function (event)
 {
     mouseDown = 0;
-
+    if (selecting === true) {
+        firstTimeSelection = false;
+        selecting = false;
+    }
 });
 
 
@@ -451,24 +522,15 @@ function plotData() {
             map: sprite
         });
 
-        // Use this to change the entire material 
-        //pointCloudMaterial.color.setHSL( 3.0, 0.8, 0.8 );
-
-        var pointCloud = new THREE.PointCloud(pointGeometry, pointCloudMaterial);
+        pointCloud = new THREE.PointCloud(pointGeometry, pointCloudMaterial);
         scene.add(pointCloud);
         console.log(colors[i]);
     }
 
     //add cube
-    //if graph gets messed in the future, add three.min V71
-    selectionCube = cube(edge*2);
+    outlineCube = cube(edge * 2);
 
-    //sgeometryCube.computeLineDistances();
-
-    //var object = new THREE.LineSegments(geometryCube, new THREE.LineDashedMaterial({ color: 0xffaa00, dashSize: 3, gapSize: 1, linewidth: 2 }));
-
-    //objects.push(object);
-    scene.add(selectionCube);
+    scene.add(outlineCube);
 
     resizeCamera();
 
@@ -496,46 +558,6 @@ function cube(size) {
     var cubeText = THREE.ImageUtils.loadTexture('images/threejsimages/cubeOutline.png');
     var cube = new THREE.Mesh(new THREE.CubeGeometry(size, size, size), new THREE.MeshBasicMaterial({map:cubeText, transparent:true, opacity:0.5}));
 
-    /*geometry.vertices.push(
-        new THREE.Vector3(-h, -h, -h),
-        new THREE.Vector3(-h, h, -h),
-
-        new THREE.Vector3(-h, h, -h),
-        new THREE.Vector3(h, h, -h),
-
-        new THREE.Vector3(h, h, -h),
-        new THREE.Vector3(h, -h, -h),
-
-        new THREE.Vector3(h, -h, -h),
-        new THREE.Vector3(-h, -h, -h),
-
-
-        new THREE.Vector3(-h, -h, h),
-        new THREE.Vector3(-h, h, h),
-
-        new THREE.Vector3(-h, h, h),
-        new THREE.Vector3(h, h, h),
-
-        new THREE.Vector3(h, h, h),
-        new THREE.Vector3(h, -h, h),
-
-        new THREE.Vector3(h, -h, h),
-        new THREE.Vector3(-h, -h, h),
-
-        new THREE.Vector3(-h, -h, -h),
-        new THREE.Vector3(-h, -h, h),
-
-        new THREE.Vector3(-h, h, -h),
-        new THREE.Vector3(-h, h, h),
-
-        new THREE.Vector3(h, h, -h),
-        new THREE.Vector3(h, h, h),
-
-        new THREE.Vector3(h, -h, -h),
-        new THREE.Vector3(h, -h, h)
-     );*/
-
     return cube;
-
 }
 
