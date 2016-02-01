@@ -11,7 +11,12 @@ namespace _3DCytoFlow.Controllers
 
         public IActionResult Instructions()
         {
-            return View();
+            if (User.Identity.IsAuthenticated)
+            {
+                return View();
+            }
+
+            return RedirectToAction("LogIn", "Account");
         }
 
         public IActionResult Error()
