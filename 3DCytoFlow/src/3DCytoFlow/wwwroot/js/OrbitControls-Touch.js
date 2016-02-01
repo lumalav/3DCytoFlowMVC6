@@ -316,7 +316,7 @@ THREE.OrbitControls = function ( object, domElement, localElement ) {
 
 	}
 
-	function onMouseMove( event ) {
+	function onMouseMove(event) {
 
 		if ( scope.enabled === false ) return;
 

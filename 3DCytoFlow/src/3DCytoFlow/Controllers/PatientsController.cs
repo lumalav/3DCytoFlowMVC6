@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNet.Mvc;
+using Microsoft.Data.Entity;
 using _3DCytoFlow.Models;
 
 namespace _3DCytoFlow.Controllers
@@ -144,7 +145,7 @@ namespace _3DCytoFlow.Controllers
                 }
                 var userId = User.GetUserId();
 
-                var patient = _context.Patients.Single(m => m.Id == id);
+                var patient = _context.Analyses.Include(x => x.User).Single(m => m.Id == id);
 
                 if (patient == null)
                 {

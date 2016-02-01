@@ -85,6 +85,7 @@ $(".ui.undo").click(function () {
 });
 
 //area select
+/*
 $(".pusher").mousedown(function (e) {
 
     $("#big-ghost").remove();
@@ -100,7 +101,7 @@ $(".pusher").mousedown(function (e) {
     $(document).bind("mouseup", selectElements);
     $(document).bind("mousemove", openSelector);
 
-});
+});*/
 
 
 function openSelector(e) {

@@ -51,7 +51,7 @@
 
                                 var displayName = analysis.PatientLastName + ", " + @analysis.PatientFirstName + " | " + analysis.Date.ToString("MM-dd-yyyy");
 
-                                <option value ="@analysis.Id">@displayName</option>
+                                <option value ="@displayName">@displayName</option>
                             }
 
                         </select>
@@ -167,6 +167,11 @@
                     $("#loader").removeClass("ui active dimmer");
                     alert("failed");
                 });
+            }
+
+            function get_content() {
+                var html = document.getElementById("txt").innerHTML;
+                document.getElementById("txt").innerHTML = html.replace(/<[^>]*>/g, "");
             }
 
             function fillColorSelector() {
