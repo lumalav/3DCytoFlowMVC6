@@ -1,7 +1,6 @@
-# 3DCytoFlowMVC6
 Senior Design Project in MVC6
 
-TODO:
+**TODO:**
 
 -Fix overwriting of analysis records when uploading data to the same patient.
 
