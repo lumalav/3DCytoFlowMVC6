@@ -1,10 +1,8 @@
 using System.Linq;
-using Microsoft.AspNet.Mvc;
-using Microsoft.AspNet.Mvc.Rendering;
-using Microsoft.Data.Entity;
-using _3DCytoFlow.Models;
-using Microsoft.AspNet.Authorization;
 using System.Threading.Tasks;
+using Microsoft.AspNet.Authorization;
+using Microsoft.AspNet.Mvc;
+using _3DCytoFlow.Models;
 using _3DCytoFlow.ViewModels.VirtualMachine;
 
 namespace _3DCytoFlow.Controllers
@@ -12,7 +10,7 @@ namespace _3DCytoFlow.Controllers
     [Authorize(Roles ="Admin")]
     public class VirtualMachinesController : Controller
     {
-        private ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
 
         public VirtualMachinesController(ApplicationDbContext context)
         {

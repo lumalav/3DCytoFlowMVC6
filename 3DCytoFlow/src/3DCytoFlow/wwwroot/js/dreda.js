@@ -152,9 +152,6 @@ function init() {
 
     geometryCube.computeLineDistances();
 
-    objects.push(object);
-    scene.add(object);
-
     var object = new THREE.LineSegments(geometryCube, new THREE.LineDashedMaterial({ color: 0xffaa00, dashSize: 3, gapSize: 1, linewidth: 2 }));
 
     objects.push(object);

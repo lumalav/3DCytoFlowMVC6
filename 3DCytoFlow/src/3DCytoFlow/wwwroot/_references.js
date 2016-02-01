@@ -20,7 +20,6 @@
 /// <reference path="js/semantic.min.js" />
 /// <reference path="js/site.js" />
 /// <reference path="js/spin.js" />
-/// <reference path="js/three.min.js" />
 /// <reference path="js/trackballcontrols.js" />
 /// <reference path="js/tweenlite.min.js" />
 /// <reference path="js/ui.js" />

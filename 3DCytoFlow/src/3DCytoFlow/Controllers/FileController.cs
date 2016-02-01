@@ -86,7 +86,7 @@ namespace _3DCytoFlow.Controllers
             BlobContinuationToken token = null;
             do
             {
-                var result = await container.ListBlobsSegmentedAsync("",true, BlobListingDetails.None, 500, token, null, null);
+                var result = await container.ListBlobsSegmentedAsync("", true, BlobListingDetails.None, 500, token, null, null);
                 token = result.ContinuationToken;
                 blobs.AddRange(result.Results);
                 //Now do something with the blobs
@@ -115,7 +115,7 @@ namespace _3DCytoFlow.Controllers
             }
 
             return Content(jsonString);
-            }
+        }
 
         /// <summary>
         /// Prepares the storage that will receive the .fcs file
@@ -139,7 +139,7 @@ namespace _3DCytoFlow.Controllers
             var user = GetUser();
             //var containerName = user.LastName + "-" + user.FirstName + "-" + user.Id;
             var containerName = user.LastName.ToLower() + "-" + user.FirstName.ToLower() + "-" + user.Id;
-            var container = await GetContainer(storageAccount, containerName.ToLower());
+        //    var container = await GetContainer(storageAccount, containerName.ToLower());
 
             //get the patient
             var storedPatient = GetPatient(firstName, lastName);

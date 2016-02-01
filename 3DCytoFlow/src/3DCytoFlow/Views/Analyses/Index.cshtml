@@ -33,14 +33,14 @@
 </style>
 
 <div id="page-wrapper">
-    <div id="body3">
-        <div class="form-group" id="analysisGroup">          
+    <div id="body3" class="noselect">
+        <div class="form-group noselect" id="analysisGroup">          
             <div>
                 @{
                     if (Model.Any(analysis => analysis.ResultFilePath != null && !analysis.ResultFilePath.Equals("")))
                     {
-                        <div class="label" id="label2">Patient's Name - Data Upload Date</div>
-                        <select class="form-control" name="status" id="analysisSelect">
+                        <div class="label noselect" id="label2">Patient's Name - Data Upload Date</div>
+                        <select class="form-control noselect" name="status" id="analysisSelect">
                             @foreach (var analysis in Model.Where(x => x.ResultFilePath != null && !x.ResultFilePath.Equals("")))
                             {
                                 if (string.IsNullOrWhiteSpace(directory))
@@ -51,58 +51,58 @@
 
                                 var displayName = analysis.PatientLastName + ", " + @analysis.PatientFirstName + " | " + analysis.Date.ToString("MM-dd-yyyy");
 
-                                <option value ="@analysis.Id">@displayName</option>
+                                <option class="noselect" value ="@analysis.Id">@displayName</option>
                             }
 
                         </select>
 
-                        <div class="label" id="label3">Clusters</div>
+                        <div class="label noselect" id="label3">Clusters</div>
 
-                        <input id="clusterInput" class="form-control" type="text" placeholder="cluster name">
+                        <input id="clusterInput" class="form-control noselect" type="text" placeholder="cluster name">
                         <div>
-                            <input type="submit" id="clusterButton" onclick="addCluster();" value="Add" class="btn btn-primary"/>
-                            <input type="submit" id="clusterButton2" onclick="removeCluster();" value="Remove" class="btn btn-primary"/>
+                            <input type="submit" id="clusterButton" onclick="addCluster();" value="Add" class="btn btn-primary noselect"/>
+                            <input type="submit" id="clusterButton2" onclick="removeCluster();" value="Remove" class="btn btn-primary noselect"/>
                         </div>
-                        <input id="deleteButton" analysis="@Model.First().Id" class="btn btn-danger" type="button" value="Delete" />
+                        <input id="deleteButton" analysis="@Model.First().Id" class="btn btn-danger noselect" type="button" value="Delete" />
                       }
                 }                 
             </div>
         </div>
 
         <div id="info-box" class="hidden">
-            <div class="ui segment">
-                <div class="ui green inverted statistic">
-                    <div id="statsSize" class="value">
+            <div class="ui segment noselect">
+                <div class="ui green inverted statistic noselect">
+                    <div id="statsSize" class="value noselect">
                         0
                     </div>
-                    <div class="label">
+                    <div class="label noselect">
                         Points Plotted
                     </div>
                 </div>
-                <div class="ui blue inverted statistic">
-                    <div id="clusterSize" class="value">
+                <div class="ui blue inverted statistic noselect">
+                    <div id="clusterSize" class="value noselect">
                         0
                     </div>
-                    <div class="label">
+                    <div class="label noselect">
                         Clusters
                     </div>
                 </div>
             </div>
-            <div class="ui divider"></div>
-            <i class="ui white big undo icon"></i>
+            <div class="ui divider noselect"></div>
+            <i class="ui white big undo icon noselect"></i>
 
-            <div class="ui inverted toggle checkbox">
-                <label id="rotateLabel">Rotate</label>
-                <input type="checkbox" name="rotateCheckbox" checked="checked" onClick="rotateToggle()">
+            <div class="ui inverted toggle checkbox noselect">
+                <label id="rotateLabel" class="noselect">Rotate</label>
+                <input type="checkbox" class="noselect" name="rotateCheckbox" checked="checked" onClick="rotateToggle()">
             </div>
 
-            <div class="ui divider"></div>
-            <div id="clusterInfo">          
+            <div class="ui divider noselect"></div>
+            <div id="clusterInfo" class="noselect">          
             </div>
 
         </div>
 
-        <i class="fixed big white info icon" id="infoButt"></i>
+        <i class="fixed big white info icon noselect" id="infoButt"></i>
 
         <!--PUSHER -->
         <div class="pusher">
@@ -153,7 +153,7 @@
                 $.ajax({
                     type: "POST",
                     async: true,
-                    url: "/File/DownloadResult?path=" + getPath($('#analysisSelect').val())
+                    url: "/File/DownloadResult?path=" + getPath($('#analysisSelect').text())
                 }).done(function (model) {
 
                     if (model !== undefined && model !== "") {
