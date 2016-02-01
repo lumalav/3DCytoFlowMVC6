@@ -1,0 +1,72 @@
+@{
+    ViewBag.Title = "Instructions";
+}
+<style>
+    .im {
+        margin-left: 9px;
+        margin-top: 9px;
+    }
+</style>
+<div id="page-wrapper">
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">@ViewBag.Title</h1>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <ul class="timeline">
+        <li>
+            <div class="timeline-badge" style="background-color: #dddddd;">
+                <a href="@Url.Action("Create", "Patients")" onclick="showLoadingScreen()"><img src="~/images/plus3232.png" class="img-responsive im" alt="Add" /></a>
+            </div>
+            <div class="timeline-panel">
+                <div class="timeline-heading">
+                    <h4 class="timeline-title">Add a Patient</h4>
+                    <p>
+                        <small class="text-muted"><i class="fa fa-clock-o"></i> You can change any of his information later</small>
+                    </p>
+                </div>
+            </div>
+        </li>
+        <li class="timeline-inverted">
+            <div class="timeline-badge" style="background-color: #dddddd;">
+                <a href="@Url.Action("UploadFile", "File")" onclick="showLoadingScreen()"><img src="~/images/upload3232.png" class="img-responsive im" alt="Upload"></a>
+            </div>
+            <div class="timeline-panel">
+                <div class="timeline-heading">
+                    <h4 class="timeline-title">Upload some Flow Cytometry Data</h4>
+                    <p>
+                        <small class="text-muted"><i class="fa fa-clock-o"></i> We need those .fcs files!</small>
+                    </p>
+                </div>
+            </div>
+        </li>
+        <li>
+            <div class="timeline-badge" style="background-color: #dddddd;">
+                <i><img src="~/images/clock.png" class="img-responsive im" alt="Wait" /></i>
+            </div>
+            <div class="timeline-panel">
+                <div class="timeline-heading">
+                    <h4 class="timeline-title">Wait a few minutes!</h4>
+                    <p>
+                        <small class="text-muted"><i class="fa fa-clock-o"></i> Don't worry, we'll text you when its ready</small>
+                    </p>
+                </div>
+            </div>
+        </li>
+        <li class="timeline-inverted">
+            <div class="timeline-badge" style="background-color: #dddddd;">
+                <a href="@Url.Action("Index", "Analyses")" onclick="showLoadingScreen()"><img src="~/images/chart_dot3232.png" class="img-responsive im" alt="Results"></a>
+            </div>
+            <div class="timeline-panel">
+                <div class="timeline-heading">
+                    <h4 class="timeline-title">Check the results!</h4>
+                    <p>
+                        <small class="text-muted"><i class="fa fa-clock-o"></i> The state-of-the-art 3-dimensional graph that 3DCytoFlow offers will let you analyze data in a new way!</small>
+                    </p>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>

@@ -40,7 +40,15 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            @Html.ActionLink("3D CytoFlow", "Index", "Home", new { area = "" }, new { @class = "navbar-brand", @onclick = "showLoadingScreen()" })
+            @if (User.Identity.IsAuthenticated)
+            {
+                @Html.ActionLink("3D CytoFlow", "Instructions", "Home", new {area = ""}, new {@class = "navbar-brand", @onclick = "showLoadingScreen()"})
+            }
+            else
+            {
+                @Html.ActionLink("3D CytoFlow", "Index", "Home", new { area = "" }, new { @class = "navbar-brand", @onclick = "showLoadingScreen()" })
+            }
+
         </div>
         <!-- /.Loggin stuff -->
         <ul class="nav navbar-top-links navbar-right">
@@ -108,7 +116,7 @@
                             </ul>
                         </li>
                         <li>
-                            <a href="@Url.Action("Index", "Analyses")" onclick="showLoadingScreen()"><img src="~/images/results6464blue.png" class="img-responsive" alt="Results"> Analysis Results</a>
+                            <a href="@Url.Action("Index", "Analyses")" onclick="showLoadingScreen()"><img src="~/images/chart_dot6464.png" class="img-responsive" alt="Results"> Analysis Results</a>
                         </li>
                         <li>
                             <a href="@Url.Action("UploadFile", "File")" onclick="showLoadingScreen()"><img src="~/images/upload6464blue.png" class="img-responsive" alt="Upload"> Upload Data</a>

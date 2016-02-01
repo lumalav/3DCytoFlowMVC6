@@ -164,7 +164,7 @@ namespace _3DCytoFlow.Controllers
                 if (result.Succeeded)
                 {
                     _logger.LogInformation(1, "User logged in.");
-                    return RedirectToLocal(returnUrl);
+                    return RedirectToAction("Instructions", "Home");
                 }
                 if (result.RequiresTwoFactor)
                 {

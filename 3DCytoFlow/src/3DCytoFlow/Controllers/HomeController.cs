@@ -9,6 +9,11 @@ namespace _3DCytoFlow.Controllers
             return View();
         }
 
+        public IActionResult Instructions()
+        {
+            return View();
+        }
+
         public IActionResult Error()
         {
             return View();
