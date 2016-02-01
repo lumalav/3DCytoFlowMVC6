@@ -9,6 +9,16 @@ namespace _3DCytoFlow.Controllers
             return View();
         }
 
+        public IActionResult Instructions()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                return View();
+            }
+
+            return RedirectToAction("LogIn", "Account");
+        }
+
         public IActionResult Error()
         {
             return View();

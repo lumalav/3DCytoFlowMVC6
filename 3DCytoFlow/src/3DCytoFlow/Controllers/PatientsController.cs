@@ -40,14 +40,13 @@ namespace _3DCytoFlow.Controllers
 
                 var userId = User.GetUserId();
 
-                Patient patient = _context.Patients.Single(m => m.Id == id);
+                Patient patient = _context.Patients.Include(i => i.User).Single(m => m.Id == id);
 
                 if (patient == null)
                 {
                     return HttpNotFound();
                 }
 
-                //TODO:Fix
                 if (!patient.User.Id.Equals(userId))
                 {
                     ViewBag.errorMessage = "You don't have permission to do that";
@@ -97,14 +96,13 @@ namespace _3DCytoFlow.Controllers
                 }
                 var userId = User.GetUserId();
 
-                var patient = _context.Patients.Single(m => m.Id == id);
+                var patient = _context.Patients.Include(i => i.User).Single(m => m.Id == id);
 
                 if (patient == null)
                 {
                     return HttpNotFound();
                 }
 
-                //TODO:Fix
                 if (!patient.User.Id.Equals(userId))
                 {
                     ViewBag.errorMessage = "You don't have permission to do that";
@@ -145,14 +143,13 @@ namespace _3DCytoFlow.Controllers
                 }
                 var userId = User.GetUserId();
 
-                var patient = _context.Analyses.Include(x => x.User).Single(m => m.Id == id);
+                var patient = _context.Patients.Include(i => i.User).Single(m => m.Id == id);
 
                 if (patient == null)
                 {
                     return HttpNotFound();
                 }
 
-                //TODO:Fix
                 if (!patient.User.Id.Equals(userId))
                 {
                     ViewBag.errorMessage = "You don't have permission to do that";

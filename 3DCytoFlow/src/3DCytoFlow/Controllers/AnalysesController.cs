@@ -60,7 +60,7 @@ namespace _3DCytoFlow.Controllers
                     return HttpNotFound();
                 }
 
-                var analysis = _context.Analyses.Single(m => m.Id == id);
+                var analysis = _context.Analyses.Include(x => x.User).Single(m => m.Id == id);
 
                 if (analysis == null)
                 {
@@ -69,7 +69,6 @@ namespace _3DCytoFlow.Controllers
 
                 var userId = User.GetUserId();
 
-                //TODO: FIX
                 if (!analysis.User.Id.Equals(userId))
                 {
                     ViewBag.errorMessage = "You don't have permission to do that";
