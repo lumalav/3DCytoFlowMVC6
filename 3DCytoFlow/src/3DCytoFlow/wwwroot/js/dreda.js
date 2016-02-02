@@ -363,8 +363,6 @@ canvas.addEventListener("mousedown", function ( event )
 {
     if (!(selecting === true)) return;
 
-    pointCloud.Material.
-
     // calculate mouse position in normalized device coordinates
     // (-1 to +1) for both components
     mouse.x = ( event.layerX / canvas.clientWidth) * 2 - 1;
