@@ -158,7 +158,11 @@
 
                     if (model !== undefined && model !== "") {
                         data = JSON.parse(model);
+                        //plot the graph
                         plot(data);
+
+                        //add the clusters
+                        getClusters();
                     } else {
                         $("#loader").removeClass("ui active dimmer");
                         alert("This file is corrupted. Press the red button to delete it");
@@ -189,22 +193,118 @@
             }
 
             function addCluster() {
-               // $("#loader").addClass("ui active dimmer");
-                $('#clusterInfo').append('<div style="color:' + selectedColor + ';">' + $("#clusterInput").val() + '</div>');
-                //TODO: Make ajax call to save the cluster
+
+                //get the cluster name
+                var clusterName = $("#clusterInput").val();
+
+                //if the name is empty don't do anything else
+                if (clusterName === undefined || clusterName === "") return;
+                
+                //loading animation
+                $("#loader").addClass("ui active dimmer");
+
+                //get the id of the current analysis
+                var analysisId = $('#deleteButton').attr('analysis');
+
+                //TODO:this is a fake model to simulate a real cluster being passed to the server
+                var fakeModel = { Id: analysisId, Name: clusterName, Depth: 15.52, Width: 23.58, Height: 50.8, X: 15.0, Y: 17.6, Z: 9 };
+                var jsonModel = JSON.stringify(fakeModel);
+                //END
+               
+                $.ajax({
+                    type: "POST",
+                    async: true,
+                    url: "/Clusters/SaveCluster?model=" + jsonModel
+                }).done(function (model) {
+                    //if everything worked, remove the loading screen and add the cluster to the list of clusters
+                    $("#loader").removeClass("ui active dimmer");
+                    $('#clusterInfo').append('<div style="color:' + selectedColor + ';">' + clusterName + '</div>');
+                }).fail(function () {
+                    //if failed, remove the loading screen and notify user
+                    $("#loader").removeClass("ui active dimmer");
+                    alert("failed to add cluster");
+                });
             }
 
             function removeCluster() {
-//                $("#loader").addClass("ui active dimmer");
+                //get the cluster name
+                var clusterName = $('#clusterInfo').children().last().text();
 
-                $('#clusterInfo').children().last().remove();
-                //TODO: Make ajax call to remove the cluster
+                //if the name is empty don't do anything else
+                if (clusterName === undefined || clusterName === "") return;
+
+                //loading screen
+                $("#loader").addClass("ui active dimmer");
+
+                //get the id of the current analysis
+                var analysisId = $('#deleteButton').attr('analysis');
+
+                //TODO:this is a fake model to simulate a real cluster being passed to the server
+                var fakeModel = { Id: analysisId, Name: clusterName };
+                var jsonModel = JSON.stringify(fakeModel);
+                //END
+
+                $.ajax({
+                    type: "POST",
+                    async: true,
+                    url: "/Clusters/RemoveCluster?model=" + jsonModel
+                }).done(function (model) {
+                    //if everything worked, remove the loading screen and remove the cluster from the list of clusters
+                    $("#loader").removeClass("ui active dimmer");
+                    $('#clusterInfo').children().last().remove();
+                }).fail(function () {
+                    //if failed, remove the loading screen and notify user
+                    $("#loader").removeClass("ui active dimmer");
+                    alert("failed to remove cluster");
+                });                  
+            }
+
+            function getClusters() {
+                //get the id of the current analysis
+                var analysisId = $('#deleteButton').attr('analysis');
+
+                //if there is no id return
+                if (analysisId === undefined || analysisId === "") return;
+
+                //loading screen
+                $("#loader").addClass("ui active dimmer");
+
+                $.ajax({
+                    type: "GET",
+                    async: true,
+                    url: "/Clusters/GetClusters?id=" + analysisId
+                }).done(function (model) {
+
+                    if (model !== undefined) {
+                        //if everything worked, remove the loading screen and add the clusters to the list of clusters
+                        var json = JSON.parse(model);
+                        for (var i = 0; i < json.length; i++) {
+
+                            var cluster = json[i];
+
+                            var color = getRandomColor();
+
+                            $('#clusterInfo').append('<div style="color:' + color.toUpperCase() + ';">' + cluster.Name + '</div>');
+                        }
+                       
+                        $("#loader").removeClass("ui active dimmer");
+                    }
+
+                }).fail(function () {
+                    //if failed, remove the loading screen and notify user
+                    $("#loader").removeClass("ui active dimmer");
+                    alert("failed to retrieve clusters");
+                });
             }
 
             //get the right name of the blob
             function getPath(value) {
                 data = null;
                 return '@(directory)' + value.replace(/ /g, '').replace(",", "-").replace("|", "/").toLowerCase() + ".json";
+            }
+
+            function getRandomColor() {
+                return colors[Math.floor(Math.random() * colors.length)];
             }
         </script>
     </div>

@@ -7,11 +7,13 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using Newtonsoft.Json;
+
 namespace _3DCytoFlow
 {
     using System;
     using System.Collections.Generic;
-    
+
     public partial class Cluster
     {
         public int Id { get; set; }
@@ -22,7 +24,8 @@ namespace _3DCytoFlow
         public double Width { get; set; }
         public double Height { get; set; }
         public double Depth { get; set; }
-    
+
+        [JsonIgnore] 
         public virtual Analysis Analysis { get; set; }
     }
 }

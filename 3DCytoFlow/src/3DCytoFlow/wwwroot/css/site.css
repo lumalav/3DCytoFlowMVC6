@@ -466,7 +466,7 @@ a:hover{
     #side-menu > li ul {
         position: absolute;
         left: 100%;
-        top: 0px;
+        top: -2px;
         min-width: 200px;
         display: none;
     }
