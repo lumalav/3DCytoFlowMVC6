@@ -1,11 +1,7 @@
-using System;
 using System.Linq;
-using System.Reflection;
 using Microsoft.AspNet.Mvc;
 using Microsoft.Data.Entity;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using _3DCytoFlow;
 using _3DCytoFlow.Models;
 
 namespace _3DCytoFlow.Controllers
@@ -33,6 +29,7 @@ namespace _3DCytoFlow.Controllers
                 string strDepth = obj.Depth;
                 string strHeight = obj.Height;
                 string strWidth = obj.Width;
+                string strColor = obj.Color;
 
                 string strX = obj.X;
                 string strY = obj.Y;
@@ -44,7 +41,7 @@ namespace _3DCytoFlow.Controllers
                 //create the object with all the values parsed from the model
                 var cluster = new Cluster
                 {
-                    Name = obj.Name,
+                    Name = obj.Name + "#" + strColor,
                     Depth = double.Parse(strDepth),
                     Height = double.Parse(strHeight),
                     Width = double.Parse(strWidth),
@@ -87,10 +84,10 @@ namespace _3DCytoFlow.Controllers
                 var analysis = _context.Analyses.Include(i => i.Clusters).First(i => i.Id == analysisId);
 
                 //get cluster
-                var cluster = analysis.Clusters.First(i => i.Name.Equals(strName));
+                var cluster = analysis.Clusters.First(i => i.Name.Contains(strName));
 
                 //remove the cluster
-                analysis.Clusters.Remove(cluster);
+                _context.Clusters.Remove(cluster);
 
                 //save the changes
                 _context.SaveChanges();
