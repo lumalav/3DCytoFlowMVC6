@@ -5,7 +5,8 @@ var gulp = require("gulp"),
     rimraf = require("rimraf"),
     concat = require("gulp-concat"),
     cssmin = require("gulp-cssmin"),
-    uglify = require("gulp-uglify");
+    uglify = require("gulp-uglify"),
+    gutil = require("gulp-util");
 
 var paths = {
     webroot: "./wwwroot/"
@@ -31,7 +32,7 @@ gulp.task("clean", ["clean:js", "clean:css"]);
 gulp.task("min:js", function () {
     return gulp.src([paths.js, "!" + paths.minJs], { base: "." })
         .pipe(concat(paths.concatJsDest))
-        .pipe(uglify())
+        .pipe(uglify().on("error", gutil.log))
         .pipe(gulp.dest("."));
 });
 

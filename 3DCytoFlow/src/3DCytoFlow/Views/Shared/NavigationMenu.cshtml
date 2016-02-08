@@ -46,7 +46,7 @@
             }
             else
             {
-                @Html.ActionLink("3D CytoFlow", "Index", "Home", new { area = "" }, new { @class = "navbar-brand", @onclick = "showLoadingScreen()" })
+                @Html.ActionLink("3D CytoFlow", "Index", "Home", new {area = ""}, new {@class = "navbar-brand", @onclick = "showLoadingScreen()"})
             }
 
         </div>
@@ -55,7 +55,7 @@
             <!-- /.dropdown -->
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    <img src="~/images/user.png" class="img-responsive" alt="User">  <i class="fa fa-caret-down"></i>
+                    <img src="~/images/user.png" class="img-responsive" alt="User"> <i class="fa fa-caret-down"></i>
                 </a>
                 <ul class="dropdown-menu dropdown-user">
                     <li>
@@ -76,9 +76,9 @@
                     @if (User.Identity.IsAuthenticated)
                     {
                         <li>
-                            <a href="@Url.Action("Index", "Manage" )" onclick="showLoadingScreen();" style="width: 150px; text-align: right; color: #337ab7;"><img style="height: 25px; padding-left: 5px; padding-top: 3px;" src="~/images/gear.png" class="img-responsive" alt="Settings"> Settings</a>
+                            <a href="@Url.Action("Index", "Manage")" onclick="showLoadingScreen();" style="width: 150px; text-align: right; color: #337ab7;"><img style="height: 25px; padding-left: 5px; padding-top: 3px;" src="~/images/gear.png" class="img-responsive" alt="Settings"> Settings</a>
                         </li>
-                    }                    
+                    }
                 </ul>
                 <!-- /.dropdown-user -->
             </li>
@@ -111,7 +111,7 @@
                                     <a href="@Url.Action("Index", "Patients")" onclick="showLoadingScreen()"><img src="~/images/editblue6464.png" class="img-responsive" alt="Index"> Index</a>
                                 </li>
                                 <li>
-                                    <a href="@Url.Action("Create", "Patients")" onclick="showLoadingScreen()"><img src="~/images/plus6464.png" class="img-responsive" alt="Add" /> Add</a>
+                                    <a href="@Url.Action("Create", "Patients")" onclick="showLoadingScreen()"><img src="~/images/plus6464.png" class="img-responsive" alt="Add"/> Add</a>
                                 </li>
                             </ul>
                         </li>
@@ -125,7 +125,7 @@
                 </div>
                 <!-- /.sidebar-collapse -->
             </div>
-        }       
+        }
         <!-- /.navbar-static-side -->
     </nav>
 </div>

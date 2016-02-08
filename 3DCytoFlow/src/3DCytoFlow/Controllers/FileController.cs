@@ -139,7 +139,7 @@ namespace _3DCytoFlow.Controllers
             var user = GetUser();
             //var containerName = user.LastName + "-" + user.FirstName + "-" + user.Id;
             var containerName = user.LastName.ToLower() + "-" + user.FirstName.ToLower() + "-" + user.Id;
-        //    var container = await GetContainer(storageAccount, containerName.ToLower());
+            var container = await GetContainer(storageAccount, containerName.ToLower());
 
             //get the patient
             var storedPatient = GetPatient(firstName, lastName);

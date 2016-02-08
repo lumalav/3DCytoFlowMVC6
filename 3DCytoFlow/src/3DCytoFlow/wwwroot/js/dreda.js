@@ -554,7 +554,7 @@ function getLimits() {
 function cube(size) {
 
     var cubeText = THREE.ImageUtils.loadTexture('images/threejsimages/cubeOutline.png');
-    var cube = new THREE.Mesh(new THREE.CubeGeometry(size, size, size), new THREE.MeshBasicMaterial({map:cubeText, transparent:true, opacity:0.5}));
+    var cube = new THREE.Mesh(new THREE.CubeGeometry(size, size, size), new THREE.MeshBasicMaterial({ map: cubeText, transparent: true, opacity: 0.5 }));
 
     return cube;
 }
