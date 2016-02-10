@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Renci.SshNet;
 using _3DCytoFlow.Services;
 
 // For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
@@ -301,13 +302,13 @@ namespace _3DCytoFlow.Controllers
                     user.Analyses.Add(analysis);
                     _context.SaveChanges();
                 }
-                //otherwise, continue with the process and
-                //notify the user about the success of the file upload
-                //                SmsService.SendSms(new IdentityMessage
-                //                {
-                //                    Destination = user.Phone,
-                //                    Body = Greeting + "\nStatus on: " + model.OriginalFileName + "\n" + message
-                //                });
+                /*
+                using (var client = new SshClient("hostnameOrIp", "username", "password"))
+                {
+                    client.Connect();
+                    client.RunCommand("etc/init.d/networking restart");
+                    client.Disconnect();
+                }*/
 
                 model.UploadStatusMessage = message;
             }

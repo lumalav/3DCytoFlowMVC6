@@ -2006,6 +2006,15 @@
           "lib/net451/RestSharp.dll": {}
         }
       },
+      "SSH.NET/2014.4.6-beta2": {
+        "type": "package",
+        "compile": {
+          "lib/net40/Renci.SshNet.dll": {}
+        },
+        "runtime": {
+          "lib/net40/Renci.SshNet.dll": {}
+        }
+      },
       "System.Collections/4.0.0": {
         "type": "package",
         "compile": {
@@ -4315,6 +4324,15 @@
         },
         "runtime": {
           "lib/net451/RestSharp.dll": {}
+        }
+      },
+      "SSH.NET/2014.4.6-beta2": {
+        "type": "package",
+        "compile": {
+          "lib/net40/Renci.SshNet.dll": {}
+        },
+        "runtime": {
+          "lib/net40/Renci.SshNet.dll": {}
         }
       },
       "System.Collections/4.0.0": {
@@ -6628,6 +6646,15 @@
           "lib/net451/RestSharp.dll": {}
         }
       },
+      "SSH.NET/2014.4.6-beta2": {
+        "type": "package",
+        "compile": {
+          "lib/net40/Renci.SshNet.dll": {}
+        },
+        "runtime": {
+          "lib/net40/Renci.SshNet.dll": {}
+        }
+      },
       "System.Collections/4.0.0": {
         "type": "package",
         "compile": {
@@ -8610,6 +8637,27 @@
         "RestSharp.nuspec"
       ]
     },
+    "SSH.NET/2014.4.6-beta2": {
+      "type": "package",
+      "sha512": "uRgy6E4wztMn+btKuY15zKmPd9fqQJbCcVVMk20ZggbmpXb1pqTXLiwcTqYcJEJteMj5NFVhIGGY9VtHoFiZPQ==",
+      "files": [
+        "lib/net35/Renci.SshNet.dll",
+        "lib/net35/Renci.SshNet.xml",
+        "lib/net40/Renci.SshNet.dll",
+        "lib/net40/Renci.SshNet.xml",
+        "lib/sl4/Renci.SshNet.dll",
+        "lib/sl4/Renci.SshNet.xml",
+        "lib/sl4-windowsphone71/Renci.SshNet.dll",
+        "lib/sl4-windowsphone71/Renci.SshNet.xml",
+        "lib/sl5/Renci.SshNet.dll",
+        "lib/sl5/Renci.SshNet.xml",
+        "lib/windowsphone8/Renci.SshNet.dll",
+        "lib/windowsphone8/Renci.SshNet.xml",
+        "SSH.NET.2014.4.6-beta2.nupkg",
+        "SSH.NET.2014.4.6-beta2.nupkg.sha512",
+        "SSH.NET.nuspec"
+      ]
+    },
     "System.Collections/4.0.0": {
       "type": "package",
       "sha512": "i2vsGDIEbWdHcUSNDPKZP/ZWod6o740el7mGTCy0dqbCxQh74W4QoC+klUwPEtGEFuvzJ7bJgvwJqscosVNyZQ==",
@@ -9522,6 +9570,7 @@
       "Microsoft.Extensions.Logging.Console >= 1.0.0-rc1-final",
       "Microsoft.Extensions.Logging.Debug >= 1.0.0-rc1-final",
       "Microsoft.VisualStudio.Web.BrowserLink.Loader >= 14.0.0-rc1-final",
+      "SSH.NET >= 2014.4.6-beta2",
       "WindowsAzure.Storage >= 6.2.2-preview"
     ],
     "DNX,Version=v4.5.1": [
