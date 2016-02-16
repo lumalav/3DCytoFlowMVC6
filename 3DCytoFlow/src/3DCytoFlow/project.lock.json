@@ -2006,15 +2006,6 @@
           "lib/net451/RestSharp.dll": {}
         }
       },
-      "SSH.NET/2014.4.6-beta2": {
-        "type": "package",
-        "compile": {
-          "lib/net40/Renci.SshNet.dll": {}
-        },
-        "runtime": {
-          "lib/net40/Renci.SshNet.dll": {}
-        }
-      },
       "System.Collections/4.0.0": {
         "type": "package",
         "compile": {
@@ -2264,7 +2255,7 @@
           "lib/net45/_._": {}
         }
       },
-      "Twilio/4.4.1": {
+      "Twilio/4.5.0": {
         "type": "package",
         "dependencies": {
           "RestSharp": "105.2.2"
@@ -4326,15 +4317,6 @@
           "lib/net451/RestSharp.dll": {}
         }
       },
-      "SSH.NET/2014.4.6-beta2": {
-        "type": "package",
-        "compile": {
-          "lib/net40/Renci.SshNet.dll": {}
-        },
-        "runtime": {
-          "lib/net40/Renci.SshNet.dll": {}
-        }
-      },
       "System.Collections/4.0.0": {
         "type": "package",
         "compile": {
@@ -4584,7 +4566,7 @@
           "lib/net45/_._": {}
         }
       },
-      "Twilio/4.4.1": {
+      "Twilio/4.5.0": {
         "type": "package",
         "dependencies": {
           "RestSharp": "105.2.2"
@@ -6646,15 +6628,6 @@
           "lib/net451/RestSharp.dll": {}
         }
       },
-      "SSH.NET/2014.4.6-beta2": {
-        "type": "package",
-        "compile": {
-          "lib/net40/Renci.SshNet.dll": {}
-        },
-        "runtime": {
-          "lib/net40/Renci.SshNet.dll": {}
-        }
-      },
       "System.Collections/4.0.0": {
         "type": "package",
         "compile": {
@@ -6904,7 +6877,7 @@
           "lib/net45/_._": {}
         }
       },
-      "Twilio/4.4.1": {
+      "Twilio/4.5.0": {
         "type": "package",
         "dependencies": {
           "RestSharp": "105.2.2"
@@ -8637,27 +8610,6 @@
         "RestSharp.nuspec"
       ]
     },
-    "SSH.NET/2014.4.6-beta2": {
-      "type": "package",
-      "sha512": "uRgy6E4wztMn+btKuY15zKmPd9fqQJbCcVVMk20ZggbmpXb1pqTXLiwcTqYcJEJteMj5NFVhIGGY9VtHoFiZPQ==",
-      "files": [
-        "lib/net35/Renci.SshNet.dll",
-        "lib/net35/Renci.SshNet.xml",
-        "lib/net40/Renci.SshNet.dll",
-        "lib/net40/Renci.SshNet.xml",
-        "lib/sl4/Renci.SshNet.dll",
-        "lib/sl4/Renci.SshNet.xml",
-        "lib/sl4-windowsphone71/Renci.SshNet.dll",
-        "lib/sl4-windowsphone71/Renci.SshNet.xml",
-        "lib/sl5/Renci.SshNet.dll",
-        "lib/sl5/Renci.SshNet.xml",
-        "lib/windowsphone8/Renci.SshNet.dll",
-        "lib/windowsphone8/Renci.SshNet.xml",
-        "SSH.NET.2014.4.6-beta2.nupkg",
-        "SSH.NET.2014.4.6-beta2.nupkg.sha512",
-        "SSH.NET.nuspec"
-      ]
-    },
     "System.Collections/4.0.0": {
       "type": "package",
       "sha512": "i2vsGDIEbWdHcUSNDPKZP/ZWod6o740el7mGTCy0dqbCxQh74W4QoC+klUwPEtGEFuvzJ7bJgvwJqscosVNyZQ==",
@@ -9485,17 +9437,21 @@
         "System.Threading.nuspec"
       ]
     },
-    "Twilio/4.4.1": {
+    "Twilio/4.5.0": {
       "type": "package",
-      "sha512": "LbkNvHKcXla5A15NoHhwO7yCI5nym0hg6v18SAGG4RlAmfI6I1kiJoJI0gMmS2pYqhjUyKb9F40buBd4fYzifA==",
+      "sha512": "EpbTv1QGky0479rkyEnNk/ijd0dMm9+HFAt9hDOl8mrm2ui7nVCAfAt9+uIU/ROCWYh5nNmC6mqI9ZzjD2ucWA==",
       "files": [
         "lib/3.5/Twilio.Api.dll",
         "lib/3.5/Twilio.Api.pdb",
         "lib/3.5/Twilio.Api.xml",
-        "lib/SL5/_._",
-        "lib/WINDOWSPHONE8/_._",
-        "Twilio.4.4.1.nupkg",
-        "Twilio.4.4.1.nupkg.sha512",
+        "lib/SL5/Twilio.Api.Silverlight.dll",
+        "lib/SL5/Twilio.Api.Silverlight.pdb",
+        "lib/SL5/Twilio.Api.Silverlight.xml",
+        "lib/WINDOWSPHONE8/Twilio.Api.WindowsPhone.dll",
+        "lib/WINDOWSPHONE8/Twilio.Api.WindowsPhone.pdb",
+        "lib/WINDOWSPHONE8/Twilio.Api.WindowsPhone.xml",
+        "Twilio.4.5.0.nupkg",
+        "Twilio.4.5.0.nupkg.sha512",
         "Twilio.nuspec"
       ]
     },
@@ -9570,11 +9526,10 @@
       "Microsoft.Extensions.Logging.Console >= 1.0.0-rc1-final",
       "Microsoft.Extensions.Logging.Debug >= 1.0.0-rc1-final",
       "Microsoft.VisualStudio.Web.BrowserLink.Loader >= 14.0.0-rc1-final",
-      "SSH.NET >= 2014.4.6-beta2",
+      "Twilio >= 4.5.0",
       "WindowsAzure.Storage >= 6.2.2-preview"
     ],
     "DNX,Version=v4.5.1": [
-      "Twilio >= 4.4.1",
       "Twilio.Mvc >= 3.1.15",
       "Twilio.TwiML >= 3.4.0"
     ]

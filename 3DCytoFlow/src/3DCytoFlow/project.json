@@ -27,7 +27,7 @@
     "Microsoft.Extensions.Logging.Console": "1.0.0-rc1-final",
     "Microsoft.Extensions.Logging.Debug": "1.0.0-rc1-final",
     "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-rc1-final",
-    "SSH.NET": "2014.4.6-beta2",
+    "Twilio": "4.5.0",
     "WindowsAzure.Storage": "6.2.2-preview"
   },
 
@@ -39,7 +39,6 @@
   "frameworks": {
     "dnx451": {
       "dependencies": {
-        "Twilio": "4.4.1",
         "Twilio.Mvc": "3.1.15",
         "Twilio.TwiML": "3.4.0"
       }

@@ -1,4 +1,11 @@
-﻿using _3DCytoFlow.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.AspNet.Authorization;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Mvc;
 using Microsoft.Extensions.OptionsModel;
@@ -6,14 +13,7 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.RetryPolicies;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Renci.SshNet;
+using _3DCytoFlow.Models;
 using _3DCytoFlow.Services;
 
 // For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
@@ -26,12 +26,107 @@ namespace _3DCytoFlow.Controllers
         private readonly ApplicationDbContext _context;
         private readonly string _storageConnectionString;
 
-        public FileController( ApplicationDbContext context, IOptions<StorageSettings> options, UserManager<ApplicationUser> userManager)
+        public FileController(ApplicationDbContext context, IOptions<StorageSettings> options, UserManager<ApplicationUser> userManager)
         {
             Manager = userManager;
             _context = context;
             _storageConnectionString = options.Value.StorageStringConnection;
         }
+
+        /// <summary>
+        /// Returns login information for the vm from the web server
+        /// </summary>
+        /// <param></param>
+        /// <param name="username"></param>
+        /// <param name="psw"></param>
+        /// <returns>LoginID?</returns>
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult GetToken([FromQuery]string username, string psw)
+        {
+            var vm = _context.VirtualMachines.First(x => x.MachineName == username);
+
+            if (vm != null)
+            {
+                if (PasswordHash.ValidatePassword(psw, vm.HashedPassword))
+                {
+                    return Json(vm.Id);
+                }
+                return HttpBadRequest();
+            }
+
+            return HttpNotFound();
+        }
+        
+        /// <summary>
+        // gets vm id
+        // assigns analysis that has no VM to that VM
+        // gives the filepath of the .fcs file linked to that analysis
+        /// </summary>
+        /// <param name="vmId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public ActionResult RequestAnalysis(string vmId)
+        {
+            var r = new RequestResponse();
+            VirtualMachine vm;
+            if (_context.VirtualMachines.Any(x => x.Id == vmId))
+            {
+                vm = _context.VirtualMachines.First(x => x.Id == vmId);
+            }
+            else
+            {
+                r.FileLocation = "505";
+                r.Found = false;
+                return HttpBadRequest();
+            }
+
+            // go through each analysis in the database and find the one that has a null virtual machine
+            // return the filepath of the .fcs linked to that analysis
+
+            // json object with found/notfound and the fcsFilePath
+            // if found vm looks into it
+
+
+            foreach (var analysis in _context.Analyses.Where(analysis => analysis.VirtualMachine == null))
+            {
+                vm.Analysis = analysis;
+                r.FileLocation = analysis.FcsFilePath;
+                r.Found = true;
+                _context.SaveChangesAsync();
+
+                return Json(r);
+            }
+
+            return Json(r);
+        }
+
+
+        /// <summary>
+        /// receive analysisID and loation
+        /// check if the VM is linked that analyss
+        /// if so, put the location into the analysis
+        /// if not, then cry
+        /// </summary>
+        /// 
+        [HttpPost]
+        public ActionResult AnalysisFinished(string vmId, string location)
+        {
+            // Check if an analysis is found that matches vmID
+            if (_context.VirtualMachines.Select(i => i.Analysis).Any(i => i.VirtualMachine.Id == vmId))
+            {
+                // if found then change the location to the given string and update the db
+                var analysis = _context.VirtualMachines.Select(i => i.Analysis).First(i => i.VirtualMachine.Id == vmId);
+                analysis.ResultFilePath = location;
+                _context.SaveChanges();
+                // return something else here? Not sure what to return for working result
+                return Json(analysis);
+            }
+            // if the analysis does not exist
+            // this should not be triggered
+            return HttpBadRequest();
+        }
+
 
         //
         // GET: /Account/UploadFile
@@ -81,7 +176,7 @@ namespace _3DCytoFlow.Controllers
             //retrieve container
             var container = await GetContainer(storageAccount, containerName);
 
-            List<IListBlobItem> blobs = new List<IListBlobItem>();
+            var blobs = new List<IListBlobItem>();
 
             //List blobs and directories in this container
             BlobContinuationToken token = null;
@@ -140,7 +235,7 @@ namespace _3DCytoFlow.Controllers
             var user = GetUser();
             //var containerName = user.LastName + "-" + user.FirstName + "-" + user.Id;
             var containerName = user.LastName.ToLower() + "-" + user.FirstName.ToLower() + "-" + user.Id;
-            var container = await GetContainer(storageAccount, containerName.ToLower());
+            //    var container = await GetContainer(storageAccount, containerName.ToLower());
 
             //get the patient
             var storedPatient = GetPatient(firstName, lastName);
@@ -302,13 +397,13 @@ namespace _3DCytoFlow.Controllers
                     user.Analyses.Add(analysis);
                     _context.SaveChanges();
                 }
-                /*
-                using (var client = new SshClient("hostnameOrIp", "username", "password"))
-                {
-                    client.Connect();
-                    client.RunCommand("etc/init.d/networking restart");
-                    client.Disconnect();
-                }*/
+                //otherwise, continue with the process and
+                //notify the user about the success of the file upload
+                //                SmsService.SendSms(new IdentityMessage
+                //                {
+                //                    Destination = user.Phone,
+                //                    Body = Greeting + "\nStatus on: " + model.OriginalFileName + "\n" + message
+                //                });
 
                 model.UploadStatusMessage = message;
             }
@@ -348,6 +443,7 @@ namespace _3DCytoFlow.Controllers
         /// <param name="model"></param>
         /// <param name="chunk"></param>
         /// <param name="id"></param>
+        /// <param name="blobBlock"></param>
         /// <returns></returns>
         private async Task<JsonResult> UploadCurrentChunk(CloudFile model, byte[] chunk, int id, CloudBlockBlob blobBlock)
         {
