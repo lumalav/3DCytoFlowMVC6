@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNet.Authorization;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Mvc;
+using Microsoft.Data.Entity;
 using Microsoft.Extensions.OptionsModel;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -66,6 +67,7 @@ namespace _3DCytoFlow.Controllers
         /// <param name="vmId"></param>
         /// <returns></returns>
         [HttpGet]
+        [AllowAnonymous]
         public ActionResult RequestAnalysis(string vmId)
         {
             var r = new RequestResponse();
@@ -76,8 +78,6 @@ namespace _3DCytoFlow.Controllers
             }
             else
             {
-                r.FileLocation = "505";
-                r.Found = false;
                 return HttpBadRequest();
             }
 
@@ -88,12 +88,22 @@ namespace _3DCytoFlow.Controllers
             // if found vm looks into it
 
 
-            foreach (var analysis in _context.Analyses.Where(analysis => analysis.VirtualMachine == null))
+            var analyses = _context.Analyses.Include(i => i.VirtualMachine);
+            Analysis analysis = null;
+            foreach (var a in analyses)
+            {
+                if (a.VirtualMachine == null)
+                {
+                    analysis = a;
+                    r.FileLocation = analysis.FcsFilePath;
+                    r.Found = true;
+                }
+            }
+
+            if (analysis != null)
             {
                 vm.Analysis = analysis;
-                r.FileLocation = analysis.FcsFilePath;
-                r.Found = true;
-                _context.SaveChangesAsync();
+                _context.SaveChanges();
 
                 return Json(r);
             }
@@ -110,6 +120,7 @@ namespace _3DCytoFlow.Controllers
         /// </summary>
         /// 
         [HttpPost]
+        [AllowAnonymous]   
         public ActionResult AnalysisFinished(string vmId, string location)
         {
             // Check if an analysis is found that matches vmID
