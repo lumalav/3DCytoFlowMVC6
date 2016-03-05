@@ -6,17 +6,16 @@
 @{
     ViewData["Title"] = "Log in";
 }
-
 <div id="page-wrapper">
     <div class="row">
-        <div class="col-md-offset-1 col-lg-12">
+        <div class="col-lg-2" style="margin-left: 50px;">
             <h1>@ViewBag.Title</h1>
         </div>
 
         <!-- /.col-lg-12 -->
     </div>
     <div class="row">
-        <div class="col-md-offset-1 col-lg-12">
+        <div class="col-lg-3" style="margin-left: 50px;">
             <h4>Use a local account to log in.</h4>
         </div>
 
@@ -26,27 +25,19 @@
         <div class="col-md-8">
             <section>
                 <form asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal" role="form">
-                    
+
                     <div class="form-group">
                         <label asp-for="Email" class="col-md-2 control-label"></label>
                         <div class="col-md-10">
-                            <input asp-for="Email" class="form-control" />
+                            <input asp-for="Email" class="form-control"/>
                             <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label asp-for="Password" class="col-md-2 control-label"></label>
                         <div class="col-md-10">
-                            <input asp-for="Password" class="form-control" />
+                            <input asp-for="Password" class="form-control"/>
                             <span asp-validation-for="Password" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-offset-2 col-md-10">
-                            <div class="checkbox">
-                                <input asp-for="RememberMe" />
-                                <label asp-for="RememberMe"></label>
-                            </div>
                         </div>
                     </div>
                     <div class="form-group">

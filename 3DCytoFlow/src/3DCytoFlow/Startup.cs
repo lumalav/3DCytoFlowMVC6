@@ -6,6 +6,7 @@ using Microsoft.Data.Entity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Twilio.TwiML.Mvc;
 using _3DCytoFlow.Models;
 using _3DCytoFlow.Services;
 
@@ -28,7 +29,15 @@ namespace _3DCytoFlow
 
             builder.AddEnvironmentVariables();
             Configuration = builder.Build();
+            ConnectionString = Configuration.Get<string>("Data:DefaultConnection:ConnectionString");
         }
+
+        public static string GetDefaultConnectionString()
+        {
+            return ConnectionString;
+        }
+
+        public static string ConnectionString { get; set; }
 
         public IConfigurationRoot Configuration { get; set; }
 

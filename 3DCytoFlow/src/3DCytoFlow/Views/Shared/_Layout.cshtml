@@ -13,6 +13,20 @@
         
         window.appInsights=appInsights;
         appInsights.trackPageView();
+
+        function hasWebGL() {
+            try { gl = canvas.getContext("webgl"); }
+            catch (x) { gl = null; }
+
+            if (gl === null) {
+                try { gl = canvas.getContext("experimental-webgl"); glExperimental = true; }
+                catch (x) { gl = null; }
+            }
+
+            if (gl) { return true; }
+            else if ("WebGLRenderingContext" in window) { return true; } // not a best way, as you're not 100% sure, so you can change it to false
+            else { return false; }
+        }
     </script>
 
     <environment names="Development,Staging,Production">
@@ -44,15 +58,16 @@
     // Wait for the navigation menu to be loaded
     @await Html.PartialAsync("NavigationMenu");
 }
-    <div id="loading">
-        <div id="loadingcontent">
-            <p id="loadingspinner">
-                Loading...
-            </p>
-        </div>
+<div id="loading">
+    <div id="loadingcontent">
+        <p id="loadingspinner">
+            Loading...
+        </p>
     </div>
+</div>
     <div class="container body-content">
         @RenderBody()
+
         <hr />
         <footer class="container body-content">
             <p style="text-align: center; margin-top: 5px;">&copy; @DateTime.Now.Year - 3DCytoFlow</p>

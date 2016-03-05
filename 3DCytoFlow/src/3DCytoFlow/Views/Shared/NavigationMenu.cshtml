@@ -1,10 +1,7 @@
 ﻿@using System.Security.Claims
-@using Microsoft.AspNet.Identity
-@{
-    var currentRequest = ViewContext.RouteData.Values["id"];
-}
 
 <script type="text/javascript">
+
     function showLoadingScreen() {
         $("#loading").fadeIn();
         var opts = {
@@ -24,8 +21,11 @@
         $("#loading").fadeIn();
     }
 
-    $(document).ready(function() {
+    $(document).ready(function () {
         $('#side-menu').metisMenu();
+        if (!window.hasWebGL()) {
+            $("#webGLMessage").show();
+        }
     });
 
 </script>
@@ -48,7 +48,12 @@
             {
                 @Html.ActionLink("3D CytoFlow", "Index", "Home", new {area = ""}, new {@class = "navbar-brand", @onclick = "showLoadingScreen()"})
             }
-
+            <ul class="nav navbar-nav" style="display: none;" id="webGLMessage">
+                <li><span class="pull-left text-danger" style="position: relative; top: 50%; transform: translateY(80%);">Sorry, it seems your system <a href="https://en.wikipedia.org/wiki/WebGL#Support" class="alert-link">does not support WebGL</a>. Please, use a different device.</span></li>
+            </ul>
+            <ul class="nav navbar-nav"  id="newAnalysis" style="display: none;">
+                <li><span class="pull-left text-info" style="position: relative;top: 50%;transform: translateY(80%);">A new analysis arrived! @Html.ActionLink("Click here to check it out!", "Index", "Analyses", null ,new { onclick= "$('#newAnalysis').hide();"} ) </span></li>
+            </ul>
         </div>
         <!-- /.Loggin stuff -->
         <ul class="nav navbar-top-links navbar-right">

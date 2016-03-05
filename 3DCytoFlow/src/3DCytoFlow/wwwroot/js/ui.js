@@ -51,6 +51,7 @@ $(".info.icon")
 
 $(".info.icon").click(function () {
     $("#info-box").toggleClass("hidden");
+    $("#clusterBox").toggleClass("hidden");
 });
 
 function updateInfoBox() {

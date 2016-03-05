@@ -41,6 +41,7 @@
                     {
                         <div class="label noselect" id="label2">Patient's Name - Data Upload Date</div>
                         <select class="form-control noselect" name="status" id="analysisSelect">
+                            
                             @foreach (var analysis in Model.Where(x => x.ResultFilePath != null && !x.ResultFilePath.Equals("")))
                             {
                                 if (string.IsNullOrWhiteSpace(directory))
@@ -51,19 +52,21 @@
 
                                 var displayName = analysis.PatientLastName + ", " + @analysis.PatientFirstName + " | " + analysis.Date.ToString("MM-dd-yyyy");
 
-                                <option class="noselect" value ="@analysis.Id">@displayName</option>
+                                <option class="noselect" value="@analysis.Id">@displayName</option>
                             }
 
                         </select>
+                        <div id="clusterBox">
+                            <div class="label noselect" id="label3">Clusters</div>
 
-                        <div class="label noselect" id="label3">Clusters</div>
-
-                        <input id="clusterInput" class="form-control noselect" type="text" placeholder="cluster name">
-                        <div>
-                            <input type="submit" id="clusterButton" onclick="addCluster();" value="Add" class="btn btn-primary noselect"/>
-                            <input type="submit" id="clusterButton2" onclick="removeCluster();" value="Remove" class="btn btn-primary noselect"/>
+                            <input id="clusterInput" class="form-control noselect" type="text" placeholder="cluster name">
+                            <div>
+                                <input type="submit" id="clusterButton" onclick="addCluster();" value="Add" class="btn btn-primary noselect" />
+                                <input type="submit" id="clusterButton2" onclick="removeCluster();" value="Remove" class="btn btn-primary noselect" />
+                            </div>
+                            <input id="deleteButton" analysis="@Model.First().Id" class="btn btn-danger noselect" type="button" value="Delete" />
                         </div>
-                        <input id="deleteButton" analysis="@Model.First().Id" class="btn btn-danger noselect" type="button" value="Delete" />
+                        
                       }
                 }                 
             </div>
@@ -89,7 +92,7 @@
                 </div>
             </div>
             <div class="ui divider noselect"></div>
-            <i class="ui white big undo icon noselect"></i>
+            <i class="ui white big undo icon noselect" style="cursor: pointer;"></i>
 
             <div class="ui inverted toggle checkbox noselect">
                 <label id="rotateLabel" class="noselect">Rotate</label>
@@ -102,7 +105,7 @@
 
         </div>
 
-        <i class="fixed big white info icon noselect" id="infoButt"></i>
+        <i class="fixed big white info icon noselect" style="cursor: pointer;" id="infoButt"></i>
 
         <!--PUSHER -->
         <div class="pusher">
