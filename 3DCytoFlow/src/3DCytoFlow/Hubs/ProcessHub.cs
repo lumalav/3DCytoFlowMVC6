@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Globalization;
+using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR;
 using _3DCytoFlow.EFChangeNotify;
 using _3DCytoFlow.Models;
@@ -8,62 +9,25 @@ namespace _3DCytoFlow.Hubs
     public class ProcessHub : Hub
     {
         private EntityChangeNotifier<Analysis, ApplicationDbContext> _notifier;
-        private int _currentPayloadsCount;
-        private int _updatedPayloadsCount;
-        private int _currentDifference;
 
         public override Task OnConnected()
         {
-//            SetCurrentPayloadsCount();
+            var username = Context.User.Identity.Name;
 
-            _notifier = new EntityChangeNotifier<Analysis, ApplicationDbContext>(i => true);
+            _notifier = new EntityChangeNotifier<Analysis, ApplicationDbContext>(i => i.User.FirstName.Equals(username) && i.ResultFilePath != null);
 
-//            _notifier.Changed += (sender, e) => OnBatchArrivesOrChangesHandler(e);
+            _notifier.Changed += (sender, e) => OnProcessFinishesHandler(e);
 
             return base.OnConnected();
         }
-//
-//        private void OnBatchArrivesOrChangesHandler(EntityChangeEventArgs<Analysis> changedRecords)
-//        {
-//            using (var db = new ApplicationDbContext())
-//            {
-//                _updatedPayloadsCount = db.PayloadControls.Count();
-//            }
-//
-//            var difference = _updatedPayloadsCount - _currentPayloadsCount;
-//
-//            if (difference == 0)
-//            {
-//                var revertedList = changedRecords.Results.Reverse();
-//                var json = revertedList.Any() ? JsonConvert.SerializeObject(revertedList) : "";
-//
-//                if (string.IsNullOrWhiteSpace(json)) return;
-//
-//                BroadcastMessage(Convert.ToString(0), json);
-//                OnReconnected();
-//            }
-//
-//            _currentDifference = difference;
-//
-//            if (_currentDifference > 0)
-//                BroadcastMessage(_currentDifference.ToString(CultureInfo.InvariantCulture), "");
-//
-//            OnReconnected();
-//        }
 
-//        private void SetCurrentPayloadsCount()
-//        {
-//            using (var db = new ApplicationDbContext())
-//            {
-//                _currentPayloadsCount = db.PayloadControls.Count();
-//            }
-//        }
+        private void OnProcessFinishesHandler(EntityChangeEventArgs<Analysis> changedRecords)
+        {
+            BroadcastMessage("", "");
 
-//        public override Task OnReconnected()
-//        {
-////            SetCurrentPayloadsCount();
-//            return base.OnReconnected();
-//        }
+            OnReconnected();
+        }
+
 
         public Task OnDisconnected()
         {

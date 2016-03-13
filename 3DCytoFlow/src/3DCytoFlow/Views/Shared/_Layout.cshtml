@@ -1,36 +1,60 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D CytoFlow</title>
     <script type="text/javascript">
-        var appInsights=window.appInsights||function(config){
-            function s(config){t[config]=function(){var i=arguments;t.queue.push(function(){t[config].apply(t,i)})}}var t={config:config},r=document,f=window,e="script",o=r.createElement(e),i,u;for(o.src=config.url||"//az416426.vo.msecnd.net/scripts/a/ai.0.js",r.getElementsByTagName(e)[0].parentNode.appendChild(o),t.cookie=r.cookie,t.queue=[],i=["Event","Exception","Metric","PageView","Trace"];i.length;)s("track"+i.pop());return config.disableExceptionTracking||(i="onerror",s("_"+i),u=f[i],f[i]=function(config,r,f,e,o){var s=u&&u(config,r,f,e,o);return s!==!0&&t["_"+i](config,r,f,e,o),s}),t
+        var appInsights = window.appInsights || function(config) {
+            function s(config) {
+                t[config] = function() {
+                    var i = arguments;
+                    t.queue.push(function() { t[config].apply(t, i) })
+                }
+            }
+
+            var t = { config: config }, r = document, f = window, e = "script", o = r.createElement(e), i, u;
+            for (o.src = config.url || "//az416426.vo.msecnd.net/scripts/a/ai.0.js", r.getElementsByTagName(e)[0].parentNode.appendChild(o), t.cookie = r.cookie, t.queue = [], i = ["Event", "Exception", "Metric", "PageView", "Trace"]; i.length;)s("track" + i.pop());
+            return config.disableExceptionTracking || (i = "onerror", s("_" + i), u = f[i], f[i] = function(config, r, f, e, o) {
+                var s = u && u(config, r, f, e, o);
+                return s !== !0 && t["_" + i](config, r, f, e, o), s
+            }), t
         }({
-            instrumentationKey:"cd0af4f0-c767-4266-9968-887461df8b4b"
+            instrumentationKey: "cd0af4f0-c767-4266-9968-887461df8b4b"
         });
-        
-        window.appInsights=appInsights;
+
+        window.appInsights = appInsights;
         appInsights.trackPageView();
 
         function hasWebGL() {
-            try { gl = canvas.getContext("webgl"); }
-            catch (x) { gl = null; }
-
-            if (gl === null) {
-                try { gl = canvas.getContext("experimental-webgl"); glExperimental = true; }
-                catch (x) { gl = null; }
+            try {
+                gl = canvas.getContext("webgl");
+            } catch (x) {
+                gl = null;
             }
 
-            if (gl) { return true; }
-            else if ("WebGLRenderingContext" in window) { return true; } // not a best way, as you're not 100% sure, so you can change it to false
-            else { return false; }
+            if (gl === null) {
+                try {
+                    gl = canvas.getContext("experimental-webgl");
+                    glExperimental = true;
+                } catch (x) {
+                    gl = null;
+                }
+            }
+
+            if (gl) {
+                return true;
+            } else if ("WebGLRenderingContext" in window) {
+                return true;
+            } // not a best way, as you're not 100% sure, so you can change it to false
+            else {
+                return false;
+            }
         }
     </script>
 
     <environment names="Development,Staging,Production">
-        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css"/>
         <link rel="stylesheet" href="~/css/Site.css"/>
         <link rel="stylesheet" href="~/css/bootstrapValidator.min.css"/>
         <link rel="stylesheet" href="~/css/metisMenu.css"/>
@@ -40,7 +64,7 @@
         <script src="~/js/modernizr-2.8.3.js"></script>
         <script src="~/js/spin.js"></script>
         <script src="~/js/respond.js"></script>
-    </environment> 
+    </environment>
     <style>
         .container {
             width: 99%;
@@ -71,7 +95,7 @@
         <hr />
         <footer class="container body-content">
             <p style="text-align: center; margin-top: 5px;">&copy; @DateTime.Now.Year - 3DCytoFlow</p>
-        </footer>
+        </footer>       
     </div>
 
     <environment names="Development,Staging,Production">       

@@ -34,6 +34,15 @@ body {
     background-color: #f8f8f8;
 }
 
+#warning-message { display: none; }
+@media only screen and (orientation:portrait){
+    #page-wrapper { display:none; }
+    #warning-message { display:block; }
+}
+@media only screen and (orientation:landscape){
+    #warning-message { display:none; }
+}
+
 #wrapper {
     width: 100%;
 }

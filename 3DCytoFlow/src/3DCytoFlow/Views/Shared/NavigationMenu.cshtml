@@ -51,8 +51,11 @@
             <ul class="nav navbar-nav" style="display: none;" id="webGLMessage">
                 <li><span class="pull-left text-danger" style="position: relative; top: 50%; transform: translateY(80%);">Sorry, it seems your system <a href="https://en.wikipedia.org/wiki/WebGL#Support" class="alert-link">does not support WebGL</a>. Please, use a different device.</span></li>
             </ul>
-            <ul class="nav navbar-nav"  id="newAnalysis" style="display: none;">
-                <li><span class="pull-left text-info" style="position: relative;top: 50%;transform: translateY(80%);">A new analysis arrived! @Html.ActionLink("Click here to check it out!", "Index", "Analyses", null ,new { onclick= "$('#newAnalysis').hide();"} ) </span></li>
+            <ul class="nav navbar-nav" id="newAnalysis" style="display: none;">
+                <li><span class="pull-left text-info" style="position: relative; top: 50%; transform: translateY(80%);">A new analysis arrived! @Html.ActionLink("Click here to check it out!", "Index", "Analyses", null, new {onclick = "$('#newAnalysis').hide();"}) </span></li>
+            </ul>
+            <ul class="nav navbar-nav" id="warning-message">
+                <li><span class="pull-left text-warning" style="position: relative; top: 50%; transform: translateY(80%);">Warning: this website is only viewable in landscape mode with tablet devices</span></li>
             </ul>
         </div>
         <!-- /.Loggin stuff -->
