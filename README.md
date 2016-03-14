@@ -11,4 +11,5 @@ Senior Design Project in MVC6
 Linux: 
 
 -jq -> https://stedolan.github.io/jq/
+
 -Azure CLI -> https://azure.microsoft.com/en-us/documentation/articles/xplat-cli-install/
