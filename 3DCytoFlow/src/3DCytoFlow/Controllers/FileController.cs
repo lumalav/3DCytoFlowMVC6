@@ -235,7 +235,7 @@ namespace _3DCytoFlow.Controllers
         [HttpPost]
         public async Task<ActionResult> SetMetadata(int blocksCount, string fileName, long fileSize, string patient)
         {
-            var storageAccount = CloudStorageAccount.Parse(_storageConnectionString);
+   //         var storageAccount = CloudStorageAccount.Parse(_storageConnectionString);
 
             var patientCompleteName = patient.Split(' ');
 
@@ -245,14 +245,14 @@ namespace _3DCytoFlow.Controllers
             //container name will be lastname-name-id of the user. Everything in lowercase or Azure complains with a 400 error
             var user = GetUser();
             //var containerName = user.LastName + "-" + user.FirstName + "-" + user.Id;
-            var containerName = user.LastName.ToLower() + "-" + user.FirstName.ToLower() + "-" + user.Id;
+            var containerName = user.LastName.ToLower() + "-" + user.FirstName.ToLower();
             //    var container = await GetContainer(storageAccount, containerName.ToLower());
 
             //get the patient
             var storedPatient = GetPatient(firstName, lastName);
 
             //blob exact name and location
-            var blobName = lastName + "-" + firstName + "/" + DateTime.Now.ToString("MM-dd-yyyy") + ".fcs";
+            var blobName = lastName + "-" + firstName + "/" + DateTime.Now.ToString("MM-dd-yyyy-hh-mm") + ".fcs";
 
             //filename will be lastname-name-uploaddate.fcs of the patient
             var fileToUpload = new CloudFile()
@@ -387,7 +387,7 @@ namespace _3DCytoFlow.Controllers
                 //Get the user
                 var user = GetUser();
                 //var fcsPath = user.LastName.ToLower() + "-" + user.FirstName.ToLower() + "-" + user.Id + "/" + model.FileName;
-                var fcsPath = user.LastName.ToLower() + "-" + user.FirstName.ToLower() + "-" + user.Id + "/" + model.FileName;
+                var fcsPath = user.LastName.ToLower() + "-" + user.FirstName.ToLower() + "/" + model.FileName;
                 //if the analysis did not exist before, add a new record to the db
                 if (ThereIsNoPreviousAnalysis(model, fcsPath))
                 {
@@ -398,7 +398,7 @@ namespace _3DCytoFlow.Controllers
                     {
                         Date = DateTime.Now.Date,
                         FcsFilePath = fcsPath,
-                        FcsUploadDate = DateTime.Now.Date.ToString("MM-dd-yyyy"),
+                        FcsUploadDate = DateTime.Now.Date.ToString("MM-dd-yyyy-hh-mm"),
                         ResultFilePath = "",
                         ResultDate = DateTime.Now.Date,
                         Delta = 0.00
