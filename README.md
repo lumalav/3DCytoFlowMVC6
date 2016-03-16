@@ -6,6 +6,16 @@ Senior Design Project in MVC6
 
 -Add 404 handling and other errors.
 
+-Refactor linux code (machinename, pswname must be stored in a file)
+
+-crontab lock
+
+-decide static/dynamic job number per machine
+
+-lock analysis that has been already processed
+
+-three.js and .json
+
 **Dependencies:**
 
 Linux: 
