@@ -30,17 +30,27 @@
         min-height: calc(100vh - 70px);
     }
 
+    .undraggable {
+        user-select: none;
+        -moz-user-select: none;
+        -webkit-user-drag: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+        -webkit-touch-callout: none;
+        -khtml-user-select: none;
+    }
+
 </style>
 
 <div id="page-wrapper">
-    <div id="body3" class="noselect">
-        <div class="form-group noselect" id="analysisGroup">          
+    <div id="body3" class="noselect undraggable">
+        <div class="form-group noselect undraggable" draggable="false" contenteditable="false" id="analysisGroup">          
             <div>
                 @{
                     if (Model.Any(analysis => analysis.ResultFilePath != null && !analysis.ResultFilePath.Equals("")))
                     {
-                        <div class="label noselect" id="label2">Patient's Name - Data Upload Date</div>
-                        <select class="form-control noselect" name="status" id="analysisSelect">
+                        <div class="label noselect undraggable" id="label2">Patient's Name - Data Upload Date</div>
+                        <select class="form-control noselect undraggable" name="status" id="analysisSelect">
                             
                             @foreach (var analysis in Model.Where(x => x.ResultFilePath != null && !x.ResultFilePath.Equals("")))
                             {
@@ -52,19 +62,19 @@
 
                                 var displayName = analysis.PatientLastName + ", " + @analysis.PatientFirstName + " | " + analysis.Date.ToString("MM-dd-yyyy");
 
-                                <option class="noselect" value="@analysis.Id">@displayName</option>
+                                <option class="noselect undraggable" value="@analysis.Id">@displayName</option>
                             }
 
                         </select>
                         <div id="clusterBox">
-                            <div class="label noselect" id="label3">Clusters</div>
+                            <div class="label noselect undraggable" id="label3">Clusters</div>
 
-                            <input id="clusterInput" class="form-control noselect" type="text" placeholder="cluster name">
+                            <input id="clusterInput" class="form-control noselect undraggable" type="text" placeholder="cluster name">
                             <div>
-                                <input type="submit" id="clusterButton" onclick="addCluster();" value="Add" class="btn btn-primary noselect" />
-                                <input type="submit" id="clusterButton2" onclick="removeCluster();" value="Remove" class="btn btn-primary noselect" />
+                                <input type="submit" id="clusterButton" onclick="addCluster();" value="Add" class="btn btn-primary noselect undraggable" />
+                                <input type="submit" id="clusterButton2" onclick="removeCluster();" value="Remove" class="btn btn-primary noselect undraggable" />
                             </div>
-                            <input id="deleteButton" analysis="@Model.First().Id" class="btn btn-danger noselect" type="button" value="Delete" />
+                            <input id="deleteButton" analysis="@Model.First().Id" class="btn btn-danger noselect undraggable" type="button" value="Delete" />
                         </div>
                         
                       }
@@ -73,39 +83,39 @@
         </div>
 
         <div id="info-box" class="hidden">
-            <div class="ui segment noselect">
-                <div class="ui green inverted statistic noselect">
-                    <div id="statsSize" class="value noselect">
+            <div class="ui segment noselect undraggable">
+                <div class="ui green inverted statistic noselect undraggable">
+                    <div id="statsSize" class="value noselect undraggable">
                         0
                     </div>
-                    <div class="label noselect">
+                    <div class="label noselect undraggable">
                         Points Plotted
                     </div>
                 </div>
-                <div class="ui blue inverted statistic noselect">
-                    <div id="clusterSize" class="value noselect">
+                <div class="ui blue inverted statistic noselect undraggable">
+                    <div id="clusterSize" class="value noselect undraggable">
                         0
                     </div>
-                    <div class="label noselect">
+                    <div class="label noselect undraggable">
                         Clusters
                     </div>
                 </div>
             </div>
-            <div class="ui divider noselect"></div>
-            <i class="ui white big undo icon noselect" style="cursor: pointer;"></i>
+            <div class="ui divider noselect undraggable"></div>
+            <i class="ui white big undo icon noselect undraggable" style="cursor: pointer;"></i>
 
-            <div class="ui inverted toggle checkbox noselect">
-                <label id="rotateLabel" class="noselect">Rotate</label>
-                <input type="checkbox" class="noselect" name="rotateCheckbox" checked="checked" onClick="rotateToggle()">
+            <div class="ui inverted toggle checkbox noselect undraggable">
+                <label id="rotateLabel" class="noselect undraggable">Rotate</label>
+                <input type="checkbox" class="noselect undraggable" name="rotateCheckbox" checked="checked" onClick="rotateToggle()">
             </div>
 
-            <div class="ui divider noselect"></div>
-            <div id="clusterInfo" class="noselect">          
+            <div class="ui divider noselect undraggable"></div>
+            <div id="clusterInfo" class="noselect undraggable">          
             </div>
 
         </div>
 
-        <i class="fixed big white info icon noselect" style="cursor: pointer;" id="infoButt"></i>
+        <i class="fixed big white info icon noselect undraggable" style="cursor: pointer;" id="infoButt"></i>
 
         <!--PUSHER -->
         <div class="pusher">
@@ -156,11 +166,14 @@
                 $.ajax({
                     type: "POST",
                     async: true,
-                    url: "/File/DownloadResult?path=" + getPath($('#analysisSelect').text())
+                    url: "/File/DownloadResult?analysisId=" + $('#analysisSelect option:selected').attr("value")
                 }).done(function (model) {
 
                     if (model !== undefined && model !== "") {
-                        data = JSON.parse(model);
+                        //test
+                        var fake = '{"x": {"0": "3", "1": "4" }, "y": {"0": "6", "1": "9" }, "z": {"0": "6", "1": "9" }}';
+                        //test
+                        data = JSON.parse(fake);
                         //plot the graph
                         plot(data);
 
@@ -303,12 +316,6 @@
                     $("#loader").removeClass("ui active dimmer");
                     alert("failed to retrieve clusters");
                 });
-            }
-
-            //get the right name of the blob
-            function getPath(value) {
-                data = null;
-                return '@(directory)' + value.replace(/ /g, '').replace(",", "-").replace("|", "/").toLowerCase() + ".json";
             }
         </script>
     </div>

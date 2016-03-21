@@ -92,7 +92,7 @@ namespace _3DCytoFlow.Controllers
             Analysis analysis = null;
             foreach (var a in analyses)
             {
-                if (a.VirtualMachine == null)
+                if (a.VirtualMachine == null && a.ResultFilePath == null)
                 {
                     analysis = a;
                     r.FileLocation = analysis.FcsFilePath;
@@ -119,7 +119,7 @@ namespace _3DCytoFlow.Controllers
         /// if not, then cry
         /// </summary>
         /// 
-        [HttpPost]
+        [HttpGet]
         [AllowAnonymous]   
         public ActionResult AnalysisFinished(string vmId, string location)
         {
@@ -170,8 +170,14 @@ namespace _3DCytoFlow.Controllers
         /// Downloads all the json files from the storage and saves them in the Results folder
         /// </summary> 
         [HttpPost]
-        public async Task<ActionResult> DownloadResult(string path)
+        public async Task<ActionResult> DownloadResult(string analysisId)
         {
+            var analysis = _context.Analyses.FirstOrDefault(i => i.Id == int.Parse(analysisId));
+
+            if (analysis == null) return Json(false);
+
+            var path = analysis.ResultFilePath;
+
             var jsonString = "";
             //prepare container name
             var index = path.IndexOf('/');
