@@ -210,6 +210,8 @@
 
             function addCluster() {
 
+                if (selectionCube === undefined) return;
+
                 //get the cluster name
                 var clusterName = $("#clusterInput").val();
 
@@ -226,7 +228,9 @@
                 var color = selectedColor.split("#");
 
                 //TODO:this is a fake model to simulate a real cluster being passed to the server
-                var fakeModel = { Id: analysisId, Name: clusterName, Color: color[1], Depth: 15.52, Width: 23.58, Height: 50.8, X: 15.0, Y: 17.6, Z: 9 };
+                var fakeModel = { Id: analysisId, Name: clusterName, Color: color[1], Depth: selectionCube.scale.x, Width: selectionCube.scale.y,
+                    Height: selectionCube.scale.z, X: selectionCube.position.x, Y: selectionCube.position.y, Z: selectionCube.position.z
+                };
                 var jsonModel = JSON.stringify(fakeModel);
                 //END
                
