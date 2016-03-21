@@ -10,7 +10,7 @@ Senior Design Project in MVC6
 
 -Refactor linux code (machinename, pswname must be stored in a file)
 
--crontab lock
+-~~crontab lock~~
 
 -decide static/dynamic job number per machine
 
