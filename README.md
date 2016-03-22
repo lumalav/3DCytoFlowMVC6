@@ -25,6 +25,8 @@ echo `pwd` > ../resultPath
 
 -remove the delta column in the analysis table and add color column in the cluster table
 
+-put a plane in the background to make the selection more user friendly
+
 **Dependencies:**
 
 Linux: 

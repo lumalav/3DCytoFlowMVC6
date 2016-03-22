@@ -49,11 +49,12 @@ colors = _.shuffle(
 
 // ratios
 var edge = 500;
-var pointToEdgeRatio = .05;
+var dist = 500;
+var pointToEdgeRatio = .1;
 var edgePaddingMultiplier = 1.3;
-var lineToEdgeRatio = .002;
-var lineGapToEdgeRatio = .002;
-var lineDashToEdgeRatio = .006;
+var lineToEdgeRatio = .5;
+var lineGapToEdgeRatio = .02;
+var lineDashToEdgeRatio = .06;
 
 // camera ratios
 var cameraYToEdgeRatio = 1.1;
@@ -83,6 +84,7 @@ resizeCamera();
 ////////////// 
 
 function init() {
+    $("#body3").mousedown = function () { };
 
     // get canvas
     canvas.width = canvas.clientWidth;
@@ -138,7 +140,7 @@ function init() {
     var vertArray = lineGeometry.vertices;
     vertArray.push(new THREE.Vector3(-edge, 0, 0), new THREE.Vector3(edge, 0, 0));
     lineGeometry.computeLineDistances();
-    var lineMaterial = new THREE.LineDashedMaterial({ color: 0xf68870, lineWidth: edge * lineToEdgeRatio, gapSize: lineGapToEdgeRatio, dashSize: lineDashToEdgeRatio });
+    var lineMaterial = new THREE.LineDashedMaterial({ color: 0xf68870, lineWidth: edge * lineToEdgeRatio, gapSize: lineGapToEdgeRatio * edge, dashSize: lineDashToEdgeRatio * edge });
     var line = new THREE.Line(lineGeometry, lineMaterial);
     scene.add(line);
 
@@ -147,7 +149,7 @@ function init() {
     vertArray = lineGeometry.vertices;
     vertArray.push(new THREE.Vector3(0, -edge, 0), new THREE.Vector3(0, edge, 0));
     lineGeometry.computeLineDistances();
-    lineMaterial = new THREE.LineDashedMaterial({ color: 0x325cb1, lineWidth: edge * lineToEdgeRatio, gapSize: lineGapToEdgeRatio, dashSize: lineDashToEdgeRatio });
+    lineMaterial = new THREE.LineDashedMaterial({ color: 0x325cb1, lineWidth: edge * lineToEdgeRatio, gapSize: lineGapToEdgeRatio * edge, dashSize: lineDashToEdgeRatio * edge });
     line = new THREE.Line(lineGeometry, lineMaterial);
     scene.add(line);
 
@@ -156,22 +158,24 @@ function init() {
     vertArray = lineGeometry.vertices;
     vertArray.push(new THREE.Vector3(0, 0, -edge), new THREE.Vector3(0, 0, edge));
     lineGeometry.computeLineDistances();
-    lineMaterial = new THREE.LineDashedMaterial({ color: 0x3beca3, lineWidth: edge * lineToEdgeRatio, gapSize: lineGapToEdgeRatio, dashSize: lineDashToEdgeRatio });
+    lineMaterial = new THREE.LineDashedMaterial({ color: 0x3beca3, lineWidth: edge * lineToEdgeRatio, gapSize: lineGapToEdgeRatio * edge, dashSize: lineDashToEdgeRatio * edge });
     line = new THREE.Line(lineGeometry, lineMaterial);
     scene.add(line);
 
+    dist = camera.position.clone().distanceTo(new THREE.Vector3(0, 0, 0));
+
     // add the selection planes to be on the sides of the selection cube
     selectionPlaneXY = new THREE.Mesh(new THREE.PlaneGeometry(1, 1, 1, 1), new THREE.MeshBasicMaterial({ color: 'red', transparent: true, opacity: 0.5, side: THREE.DoubleSide, alphaTest: 0.5 }));
-    selectionPlaneXZ = new THREE.Mesh(new THREE.PlaneGeometry(1, 1, 1, 1), new THREE.MeshBasicMaterial({ color: 'yellow', transparent: true, opacity: 0.5, side: THREE.DoubleSide, alphaTest: 0.5 }));
+    selectionPlaneXZ = new THREE.Mesh(new THREE.PlaneGeometry(1, 1, 1, 1), new THREE.MeshBasicMaterial({ color: 'green', transparent: true, opacity: 0.5, side: THREE.DoubleSide, alphaTest: 0.5 }));
     selectionPlaneYZ = new THREE.Mesh(new THREE.PlaneGeometry(1, 1, 1, 1), new THREE.MeshBasicMaterial({ color: 'blue', transparent: true, opacity: 0.5, side: THREE.DoubleSide, alphaTest: 0.5 }));
     selectionPlaneXY.scale = 0.3;
-    selectionPlaneXY.position.z = 1.03*edge;
+    selectionPlaneXY.position.z = 1.05*edge;
     selectionPlaneXY.rotateX(0);
     selectionPlaneXZ.scale = 0.3;
-    selectionPlaneXZ.position.y = 1.03*edge;
+    selectionPlaneXZ.position.y = 1.05*edge;
     selectionPlaneXZ.rotateX(Math.PI / 2);
     selectionPlaneYZ.scale = 0.3;
-    selectionPlaneYZ.position.x = 1.03*edge;
+    selectionPlaneYZ.position.x = 1.05*edge;
     selectionPlaneYZ.rotateY(Math.PI / 2);
     scene.add(selectionPlaneXY);
     scene.add(selectionPlaneXZ);
@@ -181,7 +185,7 @@ function init() {
     selectionPlaneYZ.visible = false;
 
     selectionCube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1, 20, 20 ,20), new THREE.MeshBasicMaterial({ color: 'red', opacity: 0.8 }));
-    scene.add(selectionCube);
+    //scene.add(selectionCube);
 
     selectionCube.visible = false;
 }
@@ -189,6 +193,9 @@ function init() {
 
 function animate() {
     requestAnimationFrame(animate);
+    
+    dist = camera.position.clone().distanceTo(new THREE.Vector3(0, 0, 0));
+
     render();
     update();
 }
@@ -212,7 +219,7 @@ window.addEventListener("keyup", function (event) {
 }, false);
 
 var sizeX, sizeY, sizeZ;
-var posX, posY, posZ;
+var posX = 0, posY = 0, posZ = 0;
 function update() {
     controls.update();
 
@@ -232,23 +239,6 @@ function update() {
             posY = initMouseDown.y + sizeY / 2;
 
             selectionPlaneXY.position.z = initMouseDown.z + 0.0001 * initMouseDown.normal.z;
-
-            if (firstTimeSelection === true) {
-                sizeZ = edge * 2;
-
-                // Extra planes
-                selectionPlaneYZ.scale.x = Math.abs(edge * 2);
-                selectionPlaneYZ.scale.y = Math.abs(sizeY);
-
-                selectionPlaneXZ.scale.x = Math.abs(sizeX);
-                selectionPlaneXZ.scale.y = Math.abs(edge * 2);
-
-                selectionPlaneYZ.position.y = posY;
-                selectionPlaneYZ.position.z = selectionCube.position.z;
-
-                selectionPlaneXZ.position.x = posX;
-                selectionPlaneXZ.position.z = outlineCube.position.z;
-            }
         }
         else if (initMouseDown.normal.y == 1 || initMouseDown.normal.y == -1) {
             sizeX = finalMouseDown.x - initMouseDown.x;
@@ -261,23 +251,6 @@ function update() {
             posZ = initMouseDown.z + sizeZ / 2;
 
             selectionPlaneXZ.position.y = initMouseDown.y + 0.0001 * initMouseDown.normal.y;
-
-            if (firstTimeSelection === true) {
-                sizeY = edge * 2;
-
-                // Extra planes
-                selectionPlaneYZ.scale.x = Math.abs(sizeZ);
-                selectionPlaneYZ.scale.y = Math.abs(edge * 2);
-
-                selectionPlaneXY.scale.x = Math.abs(sizeX);
-                selectionPlaneXY.scale.y = Math.abs(edge * 2);
-
-                selectionPlaneXY.position.x = selectionPlaneXZ.position.x;
-                selectionPlaneXY.position.y = posY;
-
-                selectionPlaneYZ.position.y = outlineCube.position.y;
-                selectionPlaneYZ.position.z = posZ;
-            }
         }
         else if (initMouseDown.normal.x == 1 || initMouseDown.normal.x == -1) {
             sizeY = finalMouseDown.y - initMouseDown.y;
@@ -290,59 +263,42 @@ function update() {
             posZ = initMouseDown.z + sizeZ / 2;
 
             selectionPlaneYZ.position.x = initMouseDown.x + 0.0001 * initMouseDown.normal.x;
-
-            if (firstTimeSelection === true) {
-                sizeX = Math.abs(edge * 2);
-
-                // Extra planes
-                selectionPlaneXY.scale.x = Math.abs(edge * 2);
-                selectionPlaneXY.scale.y = Math.abs(sizeY);
-
-                selectionPlaneXZ.scale.x = Math.abs(edge * 2);
-                selectionPlaneXZ.scale.y = Math.abs(sizeZ);
-
-                selectionPlaneXY.position.x = outlineCube.position.x;
-                selectionPlaneXY.position.y = posY;
-
-                selectionPlaneXZ.position.x = outlineCube.position.x;
-                selectionPlaneXZ.position.z = posZ;
-            }
         }
 
-        if (firstTimeSelection === false) {
-            console.log("NOT A FIRST TIME");
+        selectionPlaneXY.scale.x = Math.abs(sizeX);
+        selectionPlaneXY.scale.y = Math.abs(sizeY);
 
-            selectionPlaneXY.scale.x = Math.abs(sizeX);
-            selectionPlaneXY.scale.y = Math.abs(sizeY);
+        selectionPlaneXY.position.x = posX;
+        selectionPlaneXY.position.y = posY;
 
-            selectionPlaneXY.position.x = posX;
-            selectionPlaneXY.position.y = posY;
+        selectionPlaneXZ.scale.x = Math.abs(sizeX);
+        selectionPlaneXZ.scale.y = Math.abs(sizeZ);
 
-            selectionPlaneXZ.scale.x = Math.abs(sizeX);
-            selectionPlaneXZ.scale.y = Math.abs(sizeZ);
+        selectionPlaneXZ.position.x = posX;
+        selectionPlaneXZ.position.z = posZ;
 
-            selectionPlaneXZ.position.x = posX;
-            selectionPlaneXZ.position.z = posZ;
+        selectionPlaneYZ.scale.x = Math.abs(sizeZ);
+        selectionPlaneYZ.scale.y = Math.abs(sizeY);
 
-            selectionPlaneYZ.scale.x = Math.abs(sizeZ);
-            selectionPlaneYZ.scale.y = Math.abs(sizeY);
-
-            selectionPlaneYZ.position.y = posY;
-            selectionPlaneYZ.position.z = posZ;
-        }
+        selectionPlaneYZ.position.y = posY;
+        selectionPlaneYZ.position.z = posZ;
 
         // Selection Cube
         selectionCube.scale.x = sizeX;
         selectionCube.scale.y = sizeY;
         selectionCube.scale.z = sizeZ;
 
+        if (sizeX < 0) selectionCube.scale.x = -selectionCube.scale.x;
+        if (sizeY < 0) selectionCube.scale.y = -selectionCube.scale.y;
+        if (sizeZ < 0) selectionCube.scale.z = -selectionCube.scale.z;
+
         selectionCube.position.x = posX;
         selectionCube.position.y = posY;
         selectionCube.position.z = posZ;
 
-        if( Math.abs(initMouseDown.normal.z) == 1 ) selectionPlaneXY.position.z = 1.03 * edge * initMouseDown.normal.z;
-        if( Math.abs(initMouseDown.normal.x) == 1 ) selectionPlaneYZ.position.x = 1.03 * edge * initMouseDown.normal.x;
-        if( Math.abs(initMouseDown.normal.y) == 1 ) selectionPlaneXZ.position.y = 1.03 * edge * initMouseDown.normal.y;
+        if (Math.abs(initMouseDown.normal.z) == 1) selectionPlaneXY.position.z = 1.05 * edge * initMouseDown.normal.z;
+        if (Math.abs(initMouseDown.normal.x) == 1) selectionPlaneYZ.position.x = 1.05 * edge * initMouseDown.normal.x;
+        if (Math.abs(initMouseDown.normal.y) == 1) selectionPlaneXZ.position.y = 1.05 * edge * initMouseDown.normal.y;
 
     }
 
@@ -374,8 +330,9 @@ canvas.addEventListener("mousedown", function ( event )
 
     // calculate mouse position in normalized device coordinates
     // (-1 to +1) for both components
-    mouse.x =   (event.layerX / canvas.width) * 2 - 1;
-    mouse.y = -(event.layerY / canvas.height) * 2 + 1;
+    var evLay = getOffset(event);
+    mouse.x =   (evLay.x / canvas.offsetWidth) * 2 - 1;
+    mouse.y = -(evLay.y / canvas.offsetHeight) * 2 + 1;
 
     // update the picking ray with the camera and mouse position	
     raycaster.setFromCamera(mouse, camera);
@@ -424,13 +381,10 @@ canvas.addEventListener("mousemove", function (event)
         // calculate mouse position in normalized device coordinates
         // (-1 to +1) for both components
         var evLay = getOffset(event);
-
-        mouse.x = ( evLay.x / canvas.offsetWidth )*2 - 1;
+        mouse.x =  (evLay.x / canvas.offsetWidth ) * 2 - 1;
         mouse.y = -(evLay.y / canvas.offsetHeight) * 2 + 1;
 
-
-
-        console.log( "X " + evLay.x + "Y");
+        //console.log( "X " + evLay.x + "Y");
 
         // update the picking ray with the camera and mouse position	
         raycaster.setFromCamera(mouse, camera);
@@ -455,10 +409,10 @@ window.addEventListener("mouseup", function (event)
     if (selecting === true) {
         firstTimeSelection = false;
         selecting = false;
+
+        colorSelectedPoints();
     }
 });
-
-
 
 function rotateToggle() {
     controls.autoRotate = !controls.autoRotate;
@@ -507,6 +461,9 @@ function plotData() {
     // resize edge based on max min & reinitialize planes
     edge = getLimits() * edgePaddingMultiplier;
 
+    // set up the initial sizes of the selection planes
+    sizeX = edge * 2; sizeY = edge * 2; sizeZ = edge * 2;
+
     centroid = getCentroid();
 
     init();
@@ -545,9 +502,9 @@ function plotData() {
         pointGeometry.colors = pointColors;
 
         // create new point cloud
-        var pointCloudMaterial = new THREE.PointCloudMaterial({
+        var pointCloudMaterial = new THREE.PointsMaterial({
             size: edge * pointToEdgeRatio,
-            color: colors[i],
+            //color: colors[i],
             vertexColors: THREE.VertexColors,
             alphaTest: 0.5,
             transparent: true,
@@ -555,7 +512,7 @@ function plotData() {
             map: sprite
         });
 
-        pointCloud = new THREE.PointCloud(pointGeometry, pointCloudMaterial);
+        pointCloud = new THREE.Points(pointGeometry, pointCloudMaterial);
         scene.add(pointCloud);
         console.log(colors[i]);
     }
@@ -563,11 +520,46 @@ function plotData() {
     //add cube
     outlineCube = cube(edge * 2);
 
-    scene.add(outlineCube);
+    //scene.add(outlineCube);
 
     resizeCamera();
 
     return true;
+}
+
+function colorSelectedPoints() {
+    for (var i = 0; i < pointCloud.geometry.vertices.length; i++) {
+        if( inBoundsOfSelection( pointCloud.geometry.vertices[i].clone() ) )
+        {
+            // assign colors
+            pointCloud.geometry.colors[i] = new THREE.Color("#ffffff");
+        }
+        else
+        {
+            // assign colors
+            pointCloud.geometry.colors[i] = new THREE.Color(colors[0]);
+        }
+    }
+
+    pointCloud.geometry.colorsNeedUpdate = true;
+}
+
+function inBoundsOfSelection( vertex )
+{
+    //console.log("NONE X" + (selectionCube.position.x + selectionCube.scale.x / 2) + " " + (selectionCube.position.x - selectionCube.scale.x / 2) + " " + vertex.x);
+    //console.log("NONE Y" + (selectionCube.position.y + selectionCube.scale.y / 2) + " " + (selectionCube.position.y - selectionCube.scale.y / 2) + " " + vertex.y);
+    //console.log("NONE Z" + (selectionCube.position.z + selectionCube.scale.z / 2) + " " + (selectionCube.position.z - selectionCube.scale.z / 2) + " " + vertex.z);
+    if (vertex.x < selectionCube.position.x + selectionCube.scale.x / 2
+        && vertex.x > selectionCube.position.x - selectionCube.scale.x / 2
+        && vertex.y < selectionCube.position.y + selectionCube.scale.y / 2
+        && vertex.y > selectionCube.position.y - selectionCube.scale.y / 2
+        && vertex.z < selectionCube.position.z + selectionCube.scale.z / 2
+        && vertex.z > selectionCube.position.z - selectionCube.scale.z / 2)
+    {
+        //console.log("WHITE " + selectionCube.position.x + selectionCube.scale.x / 2 + " " + vertex.x);
+        return true;
+    }
+    else return false;
 }
 
 function getLimits() {
