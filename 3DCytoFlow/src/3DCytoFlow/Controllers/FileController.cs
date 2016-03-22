@@ -100,7 +100,7 @@ namespace _3DCytoFlow.Controllers
             Analysis analysis = null;
             foreach (var a in analyses)
             {
-                if (a.VirtualMachine == null && string.IsNullOrWhiteSpace(a.ResultFilePath))
+                if (a.VirtualMachine == null && string.IsNullOrEmpty(a.ResultFilePath))
                 {
                     analysis = a;
                     r.FileLocation = analysis.FcsFilePath;
