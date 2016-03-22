@@ -169,11 +169,9 @@
                     url: "/File/DownloadResult?analysisId=" + $('#analysisSelect option:selected').attr("value")
                 }).done(function (model) {
 
-                    if (model !== undefined && model !== "") {
+                    if (model !== undefined && model !== "") {                      
                         //test
-                        var fake = '{"x": {"0": "3", "1": "4" }, "y": {"0": "6", "1": "9" }, "z": {"0": "6", "1": "9" }}';
-                        //test
-                        data = JSON.parse(fake);
+                        data = JSON.parse(model);
                         //plot the graph
                         plot(data);
 
