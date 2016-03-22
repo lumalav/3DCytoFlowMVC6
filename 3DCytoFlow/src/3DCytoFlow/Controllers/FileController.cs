@@ -26,12 +26,20 @@ namespace _3DCytoFlow.Controllers
         public UserManager<ApplicationUser> Manager { get; }
         private readonly ApplicationDbContext _context;
         private readonly string _storageConnectionString;
+        private readonly ISmsSender _smsSender;
+        private readonly string _sid;
+        private readonly string _authToken;
+        private readonly string _number;
 
-        public FileController(ApplicationDbContext context, IOptions<StorageSettings> options, UserManager<ApplicationUser> userManager)
+        public FileController(ApplicationDbContext context, IOptions<StorageSettings> options, UserManager<ApplicationUser> userManager, ISmsSender smsSender, IOptions<SMSSettings> smsOptions)
         {
             Manager = userManager;
             _context = context;
+            _smsSender = smsSender;
             _storageConnectionString = options.Value.StorageStringConnection;
+            _sid = smsOptions.Value.Sid;
+            _authToken = smsOptions.Value.Token;
+            _number = smsOptions.Value.Number;
         }
 
         /// <summary>
@@ -92,7 +100,7 @@ namespace _3DCytoFlow.Controllers
             Analysis analysis = null;
             foreach (var a in analyses)
             {
-                if (a.VirtualMachine == null && a.ResultFilePath == null)
+                if (a.VirtualMachine == null && string.IsNullOrWhiteSpace(a.ResultFilePath))
                 {
                     analysis = a;
                     r.FileLocation = analysis.FcsFilePath;
@@ -394,33 +402,31 @@ namespace _3DCytoFlow.Controllers
                 var user = GetUser();
                 //var fcsPath = user.LastName.ToLower() + "-" + user.FirstName.ToLower() + "-" + user.Id + "/" + model.FileName;
                 var fcsPath = user.LastName.ToLower() + "-" + user.FirstName.ToLower() + "/" + model.FileName;
-                //if the analysis did not exist before, add a new record to the db
-                if (ThereIsNoPreviousAnalysis(model, fcsPath))
+
+                var storedPatient = _context.Patients.First(x => x.Id == model.Patient);
+
+                var analysis = new Analysis
                 {
+                    Date = DateTime.Now.Date,
+                    FcsFilePath = fcsPath,
+                    FcsUploadDate = DateTime.Now.Date.ToString("MM-dd-yyyy-hh-mm"),
+                    ResultFilePath = "",
+                    ResultDate = DateTime.Now.Date,
+                    Delta = 0.00
+                };
 
-                    var storedPatient = _context.Patients.First(x => x.Id == model.Patient);
+                storedPatient.Analyses.Add(analysis);
+                user.Analyses.Add(analysis);
+                _context.SaveChanges();
 
-                    var analysis = new Analysis
+                if (!string.IsNullOrWhiteSpace(user.Phone))
+                {
+                    //send message to the user
+                    _smsSender.SendSms(new AuthMessageSender.Message
                     {
-                        Date = DateTime.Now.Date,
-                        FcsFilePath = fcsPath,
-                        FcsUploadDate = DateTime.Now.Date.ToString("MM-dd-yyyy-hh-mm"),
-                        ResultFilePath = "",
-                        ResultDate = DateTime.Now.Date,
-                        Delta = 0.00
-                    };
-
-                    storedPatient.Analyses.Add(analysis);
-                    user.Analyses.Add(analysis);
-                    _context.SaveChanges();
+                        Body = "Greetings" + "\nStatus on: " + model.OriginalFileName + "\n" + message
+                    }, _sid, _authToken, _number, user.Phone);
                 }
-                //otherwise, continue with the process and
-                //notify the user about the success of the file upload
-                //                SmsService.SendSms(new IdentityMessage
-                //                {
-                //                    Destination = user.Phone,
-                //                    Body = Greeting + "\nStatus on: " + model.OriginalFileName + "\n" + message
-                //                });
 
                 model.UploadStatusMessage = message;
             }
