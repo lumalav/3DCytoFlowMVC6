@@ -23,6 +23,8 @@ echo `pwd` > ../resultPath
 
 -vm name and password hardcoded in the scripts
 
+-remove the delta column in the analysis table and add color column in the cluster table
+
 **Dependencies:**
 
 Linux: 
