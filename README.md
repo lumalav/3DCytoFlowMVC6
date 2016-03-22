@@ -18,6 +18,9 @@ Senior Design Project in MVC6
 
 -three.js and .json
 
+-the run_pfromd.sh has to have this line at the end so the result file can be located
+echo `pwd` > ../resultPath
+
 **Dependencies:**
 
 Linux: 
