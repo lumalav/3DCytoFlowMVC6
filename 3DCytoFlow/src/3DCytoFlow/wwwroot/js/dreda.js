@@ -165,10 +165,13 @@ function init() {
     selectionPlaneXZ = new THREE.Mesh(new THREE.PlaneGeometry(1, 1, 1, 1), new THREE.MeshBasicMaterial({ color: 'yellow', transparent: true, opacity: 0.5, side: THREE.DoubleSide, alphaTest: 0.5 }));
     selectionPlaneYZ = new THREE.Mesh(new THREE.PlaneGeometry(1, 1, 1, 1), new THREE.MeshBasicMaterial({ color: 'blue', transparent: true, opacity: 0.5, side: THREE.DoubleSide, alphaTest: 0.5 }));
     selectionPlaneXY.scale = 0.3;
+    selectionPlaneXY.position.z = 1.03*edge;
     selectionPlaneXY.rotateX(0);
     selectionPlaneXZ.scale = 0.3;
+    selectionPlaneXZ.position.y = 1.03*edge;
     selectionPlaneXZ.rotateX(Math.PI / 2);
     selectionPlaneYZ.scale = 0.3;
+    selectionPlaneYZ.position.x = 1.03*edge;
     selectionPlaneYZ.rotateY(Math.PI / 2);
     scene.add(selectionPlaneXY);
     scene.add(selectionPlaneXZ);
@@ -215,6 +218,8 @@ function update() {
 
     // UPDATE
     if (mouseDown == 1) {
+        if (finalMouseDown == undefined) return;
+
 
         if (initMouseDown.normal.z == 1 || initMouseDown.normal.z == -1) {
             sizeX = finalMouseDown.x - initMouseDown.x;
@@ -335,6 +340,10 @@ function update() {
         selectionCube.position.y = posY;
         selectionCube.position.z = posZ;
 
+        if( Math.abs(initMouseDown.normal.z) == 1 ) selectionPlaneXY.position.z = 1.03 * edge * initMouseDown.normal.z;
+        if( Math.abs(initMouseDown.normal.x) == 1 ) selectionPlaneYZ.position.x = 1.03 * edge * initMouseDown.normal.x;
+        if( Math.abs(initMouseDown.normal.y) == 1 ) selectionPlaneXZ.position.y = 1.03 * edge * initMouseDown.normal.y;
+
     }
 
 
@@ -365,8 +374,8 @@ canvas.addEventListener("mousedown", function ( event )
 
     // calculate mouse position in normalized device coordinates
     // (-1 to +1) for both components
-    mouse.x = ( event.layerX / canvas.clientWidth) * 2 - 1;
-    mouse.y = -(event.layerY / canvas.clientHeight) * 2 + 1;
+    mouse.x =   (event.layerX / canvas.width) * 2 - 1;
+    mouse.y = -(event.layerY / canvas.height) * 2 + 1;
 
     // update the picking ray with the camera and mouse position	
     raycaster.setFromCamera(mouse, camera);
@@ -386,6 +395,23 @@ canvas.addEventListener("mousedown", function ( event )
     }
 });
 
+function getOffset(evt) {
+    var el = evt.target,
+        x = 0,
+        y = 0;
+
+    while (el && !isNaN(el.offsetLeft) && !isNaN(el.offsetTop)) {
+        x += el.offsetLeft - el.scrollLeft;
+        y += el.offsetTop - el.scrollTop;
+        el = el.offsetParent;
+    }
+
+    x = evt.clientX - x;
+    y = evt.clientY - y;
+
+    return { x: x, y: y };
+}
+
 // mouse up
 canvas.addEventListener("mousemove", function (event)
 {
@@ -397,8 +423,14 @@ canvas.addEventListener("mousemove", function (event)
 
         // calculate mouse position in normalized device coordinates
         // (-1 to +1) for both components
-        mouse.x = ( event.layerX / canvas.clientWidth)*2 - 1;
-        mouse.y = - ( event.layerY / canvas.clientHeight )*2 + 1;
+        var evLay = getOffset(event);
+
+        mouse.x = ( evLay.x / canvas.offsetWidth )*2 - 1;
+        mouse.y = -(evLay.y / canvas.offsetHeight) * 2 + 1;
+
+
+
+        console.log( "X " + evLay.x + "Y");
 
         // update the picking ray with the camera and mouse position	
         raycaster.setFromCamera(mouse, camera);
@@ -474,6 +506,9 @@ function plotData() {
 
     // resize edge based on max min & reinitialize planes
     edge = getLimits() * edgePaddingMultiplier;
+
+    centroid = getCentroid();
+
     init();
 
     var sprite = THREE.ImageUtils.loadTexture("../Images/disc.png");
@@ -497,9 +532,9 @@ function plotData() {
         for (var j = 0; j < grouped[groupedKeys[i]].length; j++) {
 
             var vertex = new THREE.Vector3();
-            vertex.x = grouped[groupedKeys[i]][j][keys[0]];
-            vertex.y = grouped[groupedKeys[i]][j][keys[1]];
-            vertex.z = grouped[groupedKeys[i]][j][keys[2]];
+            vertex.x = grouped[groupedKeys[i]][j][keys[0]] - centroid.x;
+            vertex.y = grouped[groupedKeys[i]][j][keys[1]] - centroid.y;
+            vertex.z = grouped[groupedKeys[i]][j][keys[2]] - centroid.z;
             pointGeometry.vertices.push(vertex);
             // assign colors
             pointColors[j] = new THREE.Color(colors[i]);
@@ -544,11 +579,36 @@ function getLimits() {
             var min = _.min(data[col]);
             var max = _.max(data[col]);
             if (isFinite(min) && isFinite(max)) {
-                potentialEdges.push(Math.abs(min), max);
+                potentialEdges.push( (max - min) / 2 );
             }
         }
     }
     return _.max(potentialEdges);
+}
+
+function getCentroid() {
+    // container for potential x-z grid size
+    var potentialEdges = [];
+
+    var vertexCentroid = new THREE.Vector3();
+
+    count = 0;
+    centroid = [];
+    for (col in data) {
+        if (data.hasOwnProperty(col)) {
+            // http://stackoverflow.com/questions/11142884
+            var min = _.min(data[col]);
+            var max = _.max(data[col]);
+        }
+        centroid[count] = (min + max) / 2;
+        count++;
+    }
+
+    vertexCentroid.x = centroid[0];
+    vertexCentroid.y = centroid[1];
+    vertexCentroid.z = centroid[2];
+
+    return vertexCentroid;
 }
 
 function cube(size) {
