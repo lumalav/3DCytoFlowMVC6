@@ -66,11 +66,11 @@ function updateInfoBox() {
 
     // cluster info
     $("#clusterInfo").empty();
-    for (var i = 0; i < groupedSize; i++) {
-        $("#clusterInfo").append(
-          "<div style=\"color:" + colors[i] + ";\">" + groupedKeys[i] + " : " + grouped[groupedKeys[i]].length + "</div>"
-          );
-    }
+//    for (var i = 0; i < groupedSize; i++) {
+//        $("#clusterInfo").append(
+//          "<div style=\"color:" + colors[i] + ";\">" + groupedKeys[i] + " : " + grouped[groupedKeys[i]].length + "</div>"
+//          );
+//    }
 }
 
 //initalize rotateToggle

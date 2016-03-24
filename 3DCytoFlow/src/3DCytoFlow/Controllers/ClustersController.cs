@@ -15,7 +15,7 @@ namespace _3DCytoFlow.Controllers
             _context = context;    
         }
 
-        [HttpPost]
+        [HttpGet]
         public IActionResult SaveCluster(string model)
         {
             if (User.Identity.IsAuthenticated)
@@ -59,7 +59,13 @@ namespace _3DCytoFlow.Controllers
                 //save the changes
                 _context.SaveChanges();
 
-                return Json(true);
+                var newCluster =
+                    _context.Clusters.Include(i => i.Analysis)
+                        .FirstOrDefault(i => i.Analysis.Id == analysis.Id && i.Name.Equals(cluster.Name));
+
+                if(newCluster == null) return Json(false);
+
+                return Json(JsonConvert.SerializeObject(new { newCluster.Id }));
             }
 
             return RedirectToAction("LogIn", "Account");
@@ -73,22 +79,17 @@ namespace _3DCytoFlow.Controllers
                 //deserialize object model
                 dynamic obj = JsonConvert.DeserializeObject(model);
 
-                //get the data of the dynamic model
-                string strId = obj.Id;
-                string strName = obj.Name;
+                foreach (var jsonObj in obj)
+                {
+                    var id = (string) jsonObj.Id;
 
-                //parse the integer
-                var analysisId = int.Parse(strId);
+                    //get cluster
+                    var cluster = _context.Clusters.First(i => i.Id == int.Parse(id));
 
-                //get the analysis with the clusters
-                var analysis = _context.Analyses.Include(i => i.Clusters).First(i => i.Id == analysisId);
-
-                //get cluster
-                var cluster = analysis.Clusters.First(i => i.Name.Contains(strName));
-
-                //remove the cluster
-                _context.Clusters.Remove(cluster);
-
+                    //remove the cluster
+                    _context.Clusters.Remove(cluster);
+                }
+                
                 //save the changes
                 _context.SaveChanges();
 

@@ -103,9 +103,9 @@ function init() {
 
     // inital camera position is relativized to the overall scale
     camera.position.set(
-      edge * cameraXToEdgeRatio,
-      edge * cameraYToEdgeRatio,
-      edge * cameraZToEdgeRatio);
+      edge * cameraXToEdgeRatio * 1.5,
+      edge * cameraYToEdgeRatio * 1.5,
+      edge * cameraZToEdgeRatio * 1.5);
     camera.lookAt(scene.position);
 
     // create the renderer
@@ -116,7 +116,7 @@ function init() {
 
     // controls
     controls = new THREE.OrbitControls(camera, document, renderer.domElement);
-    controls.autoRotate = true;
+    controls.autoRotate = false;
 
     // stats
     // TODO: Add Stats
@@ -410,7 +410,7 @@ window.addEventListener("mouseup", function (event)
         firstTimeSelection = false;
         selecting = false;
 
-        colorSelectedPoints();
+        colorSelectedPoints(window.selectedColor);
     }
 });
 
@@ -482,8 +482,10 @@ function plotData() {
     for (var i = 0; i < groupedSize; i++) {
 
         // create new point cloud material
-        var pointGeometry = new THREE.Geometry();
+        var pointGeometry = new THREE.BufferGeometry();
         var pointColors = [];
+
+        var vertices = new Float32Array(grouped[groupedKeys[i]].length * 3); // three components per vertex
 
         // loop through points
         for (var j = 0; j < grouped[groupedKeys[i]].length; j++) {
@@ -492,14 +494,44 @@ function plotData() {
             vertex.x = grouped[groupedKeys[i]][j][keys[0]] - centroid.x;
             vertex.y = grouped[groupedKeys[i]][j][keys[1]] - centroid.y;
             vertex.z = grouped[groupedKeys[i]][j][keys[2]] - centroid.z;
-            pointGeometry.vertices.push(vertex);
+            vertices[i * 3 + 0] = vertex.x;
+            vertices[i * 3 + 1] = vertex.y;
+            vertices[i * 3 + 2] = vertex.z;
             // assign colors
-            pointColors[j] = new THREE.Color(colors[i]);
+            pointColors[j] = new THREE.Color("#ffffff");
         }
 
+        pointGeometry.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
+
+        // add an attribute
+        var numVertices = pointGeometry.attributes.position.count;
+        var alphas = new Float32Array(numVertices * 1); // 1 values per vertex
+
+        for (var j = 0; j < numVertices; j++) {
+            alphas[j] = 1.00;
+        }
+
+        pointGeometry.addAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
 
         console.log(grouped[groupedKeys[i]].length + " points in cluster " + groupedKeys[i]);
         pointGeometry.colors = pointColors;
+
+        // uniforms
+        var uniforms = {
+
+            color: { type: "c", value: new THREE.Color(0x00ff00) }
+
+        };
+
+        // point cloud material
+        var shaderMaterial = new THREE.ShaderMaterial({
+
+            uniforms: uniforms,
+            vertexShader: document.getElementById('vertexshader').textContent,
+            fragmentShader: document.getElementById('fragmentshader').textContent,
+            transparent: true
+
+        });
 
         // create new point cloud
         var pointCloudMaterial = new THREE.PointsMaterial({
@@ -515,6 +547,8 @@ function plotData() {
         pointCloud = new THREE.Points(pointGeometry, pointCloudMaterial);
         scene.add(pointCloud);
         console.log(colors[i]);
+
+
     }
 
     //add cube
@@ -527,22 +561,23 @@ function plotData() {
     return true;
 }
 
-function colorSelectedPoints() {
-    for (var i = 0; i < pointCloud.geometry.vertices.length; i++) {
-        if( inBoundsOfSelection( pointCloud.geometry.vertices[i].clone() ) )
+function colorSelectedPoints(color) {
+    for (var i = 0; i < pointCloud.geometry.attributes.position.count; i++) {
+        if (inBoundsOfSelection(new THREE.Vector3(pointCloud.geometry.attributes.position[i * 3], pointCloud.geometry.attributes.position[i * 3 + 1], pointCloud.geometry.attributes.position[i * 3 + 2])))
         {
             // assign colors
-            pointCloud.geometry.colors[i] = new THREE.Color("#ffffff");
+            pointCloud.geometry.colors[i] = new THREE.Color(color);
         }
         else
         {
             // assign colors
-            pointCloud.geometry.colors[i] = new THREE.Color(colors[0]);
+            //pointCloud.geometry.alpha[i] = 0.8;
         }
     }
 
     pointCloud.geometry.colorsNeedUpdate = true;
 }
+
 
 function inBoundsOfSelection( vertex )
 {
