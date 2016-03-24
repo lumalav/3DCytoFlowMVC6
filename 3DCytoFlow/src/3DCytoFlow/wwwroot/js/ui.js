@@ -29,7 +29,7 @@ function plot() {
             return;
         }
 
-        $("#loader").removeClass("ui active dimmer");
+     //   $("#loader").removeClass("ui active dimmer");
 
         updateInfoBox();
 
