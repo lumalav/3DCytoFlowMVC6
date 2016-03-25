@@ -18,8 +18,6 @@ Senior Design Project in MVC6
 
 -lock analysis that has been already processed
 
--three.js and .json
-
 -the run_pfromd.sh has to have this line at the end so the result file can be located
 echo `pwd` > ../resultPath
 
@@ -36,6 +34,8 @@ echo `pwd` > ../resultPath
 -~~Fix overwriting of analysis records when uploading data to the same patient~~
 
 -~~crontab lock~~
+
+-~~three.js and .json together~~
 
 **Dependencies:**
 
