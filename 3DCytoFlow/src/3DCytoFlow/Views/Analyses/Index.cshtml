@@ -195,9 +195,6 @@
                     data = JSON.parse(model);
                     //plot the graph
                     plot(data);
-
-                    //add the clusters
-                    getClusters();
                 } else {
                     $("#loader").removeClass("ui active dimmer");
                     alert("This file is corrupted. Press the red button to delete it");
@@ -223,7 +220,7 @@
             $('#colorselector').colorselector({
                 callback: function(value, color, title) {
                     selectedColor = color;
-                    window.colorSelectedPoints(selectedColor);
+                    window.colorSelectedPoints(selectedColor, 0);
                 }
             });
         }
@@ -327,7 +324,7 @@
                             window.selectionCube.position.y = currentClusters[k].Y;
                             window.selectionCube.position.z = currentClusters[k].Z;
 
-                            window.colorSelectedPoints("#ffffff");
+                            window.colorSelectedPoints("#ffffff", 0);
                             break;
                         }
                     }
@@ -398,7 +395,7 @@
                         window.selectionCube.position.y = y;
                         window.selectionCube.position.z = z;
 
-                        window.colorSelectedPoints(color);
+                        window.colorSelectedPoints(color, 0);
 
                         $('#clusterInfo').append('<input id="cluster' + cluster.Id + '" class="clusterCheck" style="margin-right: 10px;" type="checkbox" name="' + split[0] + '" value="' + cluster.Id + '"><span style="color:' + color.toUpperCase() + ';">' + split[0] + '</span></br>');
                     }

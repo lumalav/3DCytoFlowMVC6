@@ -28,3 +28,4 @@
 /// <reference path="lib/jqueryui-timepicker-addon/dist/jquery-ui-timepicker-addon.js" />
 /// <reference path="lib/jquery-validation/dist/jquery.validate.js" />
 /// <reference path="lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js" />
+/// <reference path="lib/metismenu/dist/metisMenu.js" />

@@ -13,6 +13,7 @@ var organized = [], objects = [];
 var grouped;
 var groupedSize;
 var groupedKeys;
+var plotFinished;
 
 // color options (rainbow husl, 30 shades)
 colors = _.shuffle(
@@ -410,7 +411,8 @@ window.addEventListener("mouseup", function (event)
         firstTimeSelection = false;
         selecting = false;
 
-        colorSelectedPoints(window.selectedColor);
+        colorSelectedPoints(window.selectedColor, 2);
+        colorSelectedPoints(window.selectedColor, 1);
     }
 });
 
@@ -451,6 +453,8 @@ function loadData() {
 }
 
 function plotData() {
+
+    plotFinished = false;
 
     if (data == undefined) return false;
 
@@ -559,15 +563,30 @@ function plotData() {
 
     resizeCamera();
 
+    plotFinished = true;
+
     return true;
 }
 
-function colorSelectedPoints(color) {
+// action 0 - setting cluster color | action 1 - selecting cluster | action 2 - deselect cluster
+
+var originalPointPosition = [];
+var originalPointColor = [];
+
+function colorSelectedPoints(color, action) {
     if (pointCloud == undefined) return;
 
     for (var i = 0; i < pointCloud.geometry.attributes.position.count; i++) {
         if (inBoundsOfSelection(new THREE.Vector3(pointCloud.geometry.attributes.position.array[i * 3], pointCloud.geometry.attributes.position.array[i * 3 + 1], pointCloud.geometry.attributes.position.array[i * 3 + 2])))
         {
+            if (action === 1) {
+                // backup the colors
+                originalPointPosition.push(i);
+                originalPointColor.push(new THREE.Color(pointCloud.geometry.attributes.color.array[i * 3 + 0],
+                                                        pointCloud.geometry.attributes.color.array[i * 3 + 1], 
+                                                        pointCloud.geometry.attributes.color.array[i * 3 + 2]) );
+            }
+
             // assign colors
             pointCloud.geometry.attributes.color.array[i * 3 + 0] = new THREE.Color(color).r;
             pointCloud.geometry.attributes.color.array[i * 3 + 1] = new THREE.Color(color).g;
@@ -580,8 +599,23 @@ function colorSelectedPoints(color) {
             //pointCloud.geometry.attributes.color.array[i * 3 + 0] = new THREE.Color(color).r;
             //pointCloud.geometry.attributes.color.array[i * 3 + 1] = new THREE.Color(color).g;
             //pointCloud.geometry.attributes.color.array[i * 3 + 2] = new THREE.Color(color).b;
-            pointCloud.geometry.attributes.alpha.array[i] = 0.1;
+            //pointCloud.geometry.attributes.alpha.array[i] = 0.1;
+
+            // deselecting points
+            if (action === 2 && originalPointPosition.indexOf(i) !== -1 ) {
+                color = new THREE.Color(originalPointColor[originalPointPosition.indexOf(i)]);
+
+                pointCloud.geometry.attributes.color.array[i * 3 + 0] = new THREE.Color(color).r;
+                pointCloud.geometry.attributes.color.array[i * 3 + 1] = new THREE.Color(color).g;
+                pointCloud.geometry.attributes.color.array[i * 3 + 2] = new THREE.Color(color).b;
+                pointCloud.geometry.attributes.alpha.array[i] = 1.0;
+            }
         }
+    }
+
+    if (action === 2) {
+        originalPointPosition = [];
+        originalPointColor = [];
     }
     pointCloud.geometry.attributes.color.needsUpdate = true;
     pointCloud.geometry.attributes.alpha.needsUpdate = true;

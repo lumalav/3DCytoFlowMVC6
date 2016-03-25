@@ -70,7 +70,10 @@ function updateInfoBox() {
 //        $("#clusterInfo").append(
 //          "<div style=\"color:" + colors[i] + ";\">" + groupedKeys[i] + " : " + grouped[groupedKeys[i]].length + "</div>"
 //          );
-//    }
+    //    }
+
+    //add the clusters
+    window.getClusters();
 }
 
 //initalize rotateToggle
