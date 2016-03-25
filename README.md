@@ -2,9 +2,9 @@ Senior Design Project in MVC6
 
 **TODO:**
 
--Fix negative values in clusters
+-~~Fix negative values in clusters~~
 
--Fix overwriting of analysis records when uploading data to the same patient.
+-~~Fix overwriting of analysis records when uploading data to the same patient~~
 
 -Add 404 handling and other errors.
 
@@ -26,6 +26,8 @@ echo `pwd` > ../resultPath
 -remove the delta column in the analysis table and add color column in the cluster table
 
 -put a plane in the background to make the selection more user friendly
+
+-Fix synchronization problem between clusters and graph
 
 **Dependencies:**
 
