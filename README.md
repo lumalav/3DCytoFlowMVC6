@@ -6,6 +6,8 @@ Senior Design Project in MVC6
 
 -Unselecting clusters that have not been saved should return to original color
 
+-toggle visibility for clusters
+
 **< Priority**
 
 -Add 404 handling and other errors.
