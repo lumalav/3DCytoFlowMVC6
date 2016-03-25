@@ -563,6 +563,8 @@ function plotData() {
 }
 
 function colorSelectedPoints(color) {
+    if (pointCloud == undefined) return;
+
     for (var i = 0; i < pointCloud.geometry.attributes.position.count; i++) {
         if (inBoundsOfSelection(new THREE.Vector3(pointCloud.geometry.attributes.position.array[i * 3], pointCloud.geometry.attributes.position.array[i * 3 + 1], pointCloud.geometry.attributes.position.array[i * 3 + 2])))
         {
