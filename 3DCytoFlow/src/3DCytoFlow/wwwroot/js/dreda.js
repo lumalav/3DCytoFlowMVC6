@@ -497,6 +497,8 @@ function plotData() {
             vertices[j * 3 + 0] = vertex.x;
             vertices[j * 3 + 1] = vertex.y;
             vertices[j * 3 + 2] = vertex.z;
+
+            // put the
             // assign colors
             pointColors[j * 3 + 0] = 1.0;
             pointColors[j * 3 + 1] = 1.0;
@@ -519,21 +521,20 @@ function plotData() {
 
         console.log(grouped[groupedKeys[i]].length + " points in cluster " + groupedKeys[i]);
 
-        // uniforms
-        var uniforms = {
-
-            "tDiffuse": { type: "t", value: sprite },
-
-        };
-
         // point cloud material
         var shaderMaterial = new THREE.ShaderMaterial({
-            uniforms: uniforms,
+            uniforms: {
+                shadedCircle: { type: 't', value: sprite },
+                windowWidth: { type: 'f', value: canvas.width },
+                windowHeight: { type: 'f', value: canvas.height }
+            },
             vertexShader: document.getElementById('vertexshader').textContent,
             fragmentShader: document.getElementById('fragmentshader').textContent,
             transparent: true
 
         });
+
+        console.log(canvas.width + " " + canvas.height);
 
         // create new point cloud
         var pointCloudMaterial = new THREE.PointsMaterial({

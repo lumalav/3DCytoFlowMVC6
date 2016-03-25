@@ -442,29 +442,47 @@
 
             varying float vAlpha;
             varying vec3 vColor;
+            varying vec2 vUv;
 
             void main() {
 
             vAlpha = alpha;
-            vColor = color;            
+            vColor = color;           
 
             vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
 
-            gl_PointSize = 8.0;
+            gl_PointSize = 10.0;
 
             gl_Position = projectionMatrix * mvPosition;
+            //gl_Position = vec4(0.5, 0.5, 0.5, 0.0);
+            vUv = vec2(gl_Position.x/gl_Position.w/2.0 + 1.0/2.0, gl_Position.y/gl_Position.w/2.0 + 1.0/2.0);
 
             }
 
         </script>
 
         <script type="x-shader/x-fragment" id="fragmentshader">
+            uniform sampler2D shadedCircle;
+            uniform float windowWidth;
+            uniform float windowHeight;
+
             varying vec3 vColor;
             varying float vAlpha;
+            varying vec2 vUv;
 
             void main() {
+            
+            float distX = abs(gl_FragCoord.x - windowWidth*vUv.x) / 3.0;
+            float distY = abs(gl_FragCoord.y - windowHeight*vUv.y)  / 3.0;
 
-            gl_FragColor = vec4( vColor, vAlpha );
+            float z = 1.0 - sqrt(distX*distX + distY*distY) + 0.5;
+
+            vec3 color = vColor;
+
+            if( sqrt(distX*distX + distY*distY) > 3.0 )
+                z = 0.0;
+
+            gl_FragColor = vec4( color, z*vAlpha );
 
             }
 
