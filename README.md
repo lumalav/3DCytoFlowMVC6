@@ -29,6 +29,8 @@ echo `pwd` > ../resultPath
 
 -Fix synchronization problem between clusters and graph
 
+-Unselecting clusters that have not been saved should return to original color
+
 **Dependencies:**
 
 Linux: 
