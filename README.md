@@ -2,15 +2,17 @@ Senior Design Project in MVC6
 
 **TODO:**
 
--~~Fix negative values in clusters~~
+**> Priority**
 
--~~Fix overwriting of analysis records when uploading data to the same patient~~
+-Fix synchronization problem between clusters and graph
+
+-Unselecting clusters that have not been saved should return to original color
+
+**< Priority**
 
 -Add 404 handling and other errors.
 
 -Refactor linux code (machinename, pswname must be stored in a file)
-
--~~crontab lock~~
 
 -decide static/dynamic job number per machine
 
@@ -27,9 +29,13 @@ echo `pwd` > ../resultPath
 
 -put a plane in the background to make the selection more user friendly
 
--Fix synchronization problem between clusters and graph
+**Fixed**
 
--Unselecting clusters that have not been saved should return to original color
+-~~Fix negative values in clusters~~
+
+-~~Fix overwriting of analysis records when uploading data to the same patient~~
+
+-~~crontab lock~~
 
 **Dependencies:**
 
