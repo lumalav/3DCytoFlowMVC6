@@ -74,6 +74,7 @@ var selectionPlaneXY, selectionPlaneXZ, selectionPlaneYZ;
 var firstTimeSelection = true;
 var selecting = false;
 var pointCloud;
+var uniforms;
 
 // calls
 init();
@@ -303,7 +304,6 @@ function update() {
 
     }
 
-
     //stats.update();
 }
 
@@ -322,6 +322,11 @@ function resizeCamera()
     renderer.setViewport(0, 0, canvas.clientWidth, canvas.clientHeight);
     camera.aspect = canvas.clientWidth / canvas.clientHeight;
     camera.updateProjectionMatrix();
+
+    if (uniforms != undefined) {
+        uniforms.windowWidth.value = canvas.width;
+        uniforms.windowHeight.value = canvas.height;
+    }
 }
 
 // mouse down
@@ -525,13 +530,15 @@ function plotData() {
 
         console.log(grouped[groupedKeys[i]].length + " points in cluster " + groupedKeys[i]);
 
+        uniforms = {
+            shadedCircle: { type: 't', value: sprite },
+            windowWidth: { type: 'f', value: canvas.width },
+            windowHeight: { type: 'f', value: canvas.height }
+        }
+
         // point cloud material
         var shaderMaterial = new THREE.ShaderMaterial({
-            uniforms: {
-                shadedCircle: { type: 't', value: sprite },
-                windowWidth: { type: 'f', value: canvas.width },
-                windowHeight: { type: 'f', value: canvas.height }
-            },
+            uniforms: uniforms,
             vertexShader: document.getElementById('vertexshader').textContent,
             fragmentShader: document.getElementById('fragmentshader').textContent,
             transparent: true
