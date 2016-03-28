@@ -594,11 +594,17 @@ function colorSelectedPoints(color, action) {
                                                         pointCloud.geometry.attributes.color.array[i * 3 + 2]) );
             }
 
-            // assign colors
-            pointCloud.geometry.attributes.color.array[i * 3 + 0] = new THREE.Color(color).r;
-            pointCloud.geometry.attributes.color.array[i * 3 + 1] = new THREE.Color(color).g;
-            pointCloud.geometry.attributes.color.array[i * 3 + 2] = new THREE.Color(color).b;
-            pointCloud.geometry.attributes.alpha.array[i] = 1.0;
+            if (action === 3) {
+                pointCloud.geometry.attributes.alpha.array[i] = 0.0;
+            }
+
+            if (action !== 3) {
+                // assign colors
+                pointCloud.geometry.attributes.color.array[i * 3 + 0] = new THREE.Color(color).r;
+                pointCloud.geometry.attributes.color.array[i * 3 + 1] = new THREE.Color(color).g;
+                pointCloud.geometry.attributes.color.array[i * 3 + 2] = new THREE.Color(color).b;
+                pointCloud.geometry.attributes.alpha.array[i] = 1.0;
+            }
         }
         else
         {

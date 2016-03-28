@@ -170,10 +170,16 @@
                 var selected = $(this).is(":checked");
 
                 $('.clusterCheck').each(function () {
-                    if (selected)
+                    
+                    if (selected) {
                         $(this).prop('checked', true);
-                    else
+                    }
+                       
+                    else{
                         $(this).prop('checked', false);
+                    }
+                    var id = $(this).attr('value');
+                    selectDeselectClusters(id, $(this));
                 });
             });
         });
@@ -257,7 +263,6 @@
                 Z: selectionCube.position.z
             };
             var jsonModel = JSON.stringify(fakeModel);
-            //END
 
             $.ajax({
                 type: "GET",
@@ -273,6 +278,7 @@
 
                 var currentClusterNum = $("#clusterSize").text();
                 $("#clusterSize").text(++currentClusterNum);
+                DownloadCurrentResult(); // TODO: Remove this, make it so it doesn't need to request it from the database
             }).fail(function() {
                 //if failed, remove the loading screen and notify user
                 $("#loader").removeClass("ui active dimmer");
@@ -411,12 +417,10 @@
                     });
                   
                     $('.clusterCheck').change(function (e) {
-                        if (!$(this).is(":checked")) {
-                            //has been unchecked, clear colors
-                            
-                        } else {
-                            //has been checked, show colors
-                        }
+
+                        var clusterId = $(this).attr('value');
+
+                        selectDeselectClusters(clusterId, $(this));
                     });
 
                     $("#loader").removeClass("ui active dimmer");
@@ -429,6 +433,37 @@
             });
         }
 
+        function selectDeselectClusters(id, e) {
+            var i;
+            for (i = 0; i < currentClusters.length; i++) {
+                if (currentClusters[i].Id === parseInt(id)) break;
+            }
+
+            var split = currentClusters[i].Name.split("#");
+            var color = "#" + split[1];
+
+            var height = currentClusters[i].Height;
+            var depth = currentClusters[i].Depth;
+            var width = currentClusters[i].Width;
+            var x = currentClusters[i].X;
+            var y = currentClusters[i].Y;
+            var z = currentClusters[i].Z;
+
+            window.selectionCube.scale.x = depth;
+            window.selectionCube.scale.y = width;
+            window.selectionCube.scale.z = height;
+            window.selectionCube.position.x = x;
+            window.selectionCube.position.y = y;
+            window.selectionCube.position.z = z;
+
+            if (!$(e).is(":checked")) {
+                //being unchecked. Apply transparency
+                window.colorSelectedPoints(color, 3);
+            } else {
+                //being checked
+                window.colorSelectedPoints(color, 0);
+            }
+        }
 
     </script>
 
