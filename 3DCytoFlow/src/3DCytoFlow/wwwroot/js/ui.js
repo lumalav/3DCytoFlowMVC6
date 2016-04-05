@@ -190,3 +190,55 @@ function selectElements(e) {
     ////////////////////////////////////////////////
 
 }
+///fill the color selector with the array of colors
+function fillColorSelector() {
+    $("#clusterInput").after("<select class=\"form-control\" id=\"colorselector\" style=\"margin: 10px;\"></select>");
+
+    for (var i = 0; i < colors.length; i++) {
+        $("#colorselector").append("<option value=\"" + i + "\" data-color=\"" + colors[i].toUpperCase() + "\"></option>");
+    }
+
+    $("#colorselector").colorselector({
+        callback: function (value, color, title) {
+            window.selectedColor = color;
+            window.colorSelectedPoints(window.selectedColor, 0);
+        }
+    });
+}
+
+//selects and deselects clusters
+function selectDeselectClusters(id, e) {
+
+    //get the data of the cluster that its being checked
+    var i;
+    for (i = 0; i < window.currentClusters.length; i++) {
+        if (window.currentClusters[i].Id === parseInt(id)) break;
+    }
+
+    //set the values of the selectionCube and change accordingly
+    var split = window.currentClusters[i].Name.split("#");
+
+    var color = !window.currentClusters[i].Name.includes("#") ? "#" + window.currentClusters[i].Color : "#" + split[1];
+
+    var height = window.currentClusters[i].Height;
+    var depth = window.currentClusters[i].Depth;
+    var width = window.currentClusters[i].Width;
+    var x = window.currentClusters[i].X;
+    var y = window.currentClusters[i].Y;
+    var z = window.currentClusters[i].Z;
+
+    window.selectionCube.scale.x = depth;
+    window.selectionCube.scale.y = width;
+    window.selectionCube.scale.z = height;
+    window.selectionCube.position.x = x;
+    window.selectionCube.position.y = y;
+    window.selectionCube.position.z = z;
+
+    if (!$(e).is(":checked")) {
+        //being unchecked. Apply transparency
+        window.colorSelectedPoints(color, 3);
+    } else {
+        //being checked
+        window.colorSelectedPoints(color, 0);
+    }
+}
