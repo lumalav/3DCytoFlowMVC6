@@ -135,11 +135,35 @@ namespace _3DCytoFlow.Controllers
             if (_context.VirtualMachines.Select(i => i.Analysis).Any(i => i.VirtualMachine.Id == vmId))
             {
                 // if found then change the location to the given string and update the db
-                var analysis = _context.VirtualMachines.Select(i => i.Analysis).First(i => i.VirtualMachine.Id == vmId);
+                var a = _context.VirtualMachines.Select(i => i.Analysis).First(i => i.VirtualMachine.Id == vmId);
+                var analysis = _context.Analyses.Include(i => i.User).First(i => i.Id == a.Id);
+
+                var users = _context.Users.Include(i => i.Analyses);
+
+
+                ApplicationUser u = null;
+                foreach (var user in users)
+                {
+                    var selected = user.Analyses.FirstOrDefault(i => i.Id == analysis.Id);
+
+                    if (selected != null)
+                        u = user;
+                }
+
                 analysis.ResultFilePath = location;
                 _context.SaveChanges();
+
+                if (u == null) return Json(null);
+
+                //send message to the user
+//                _smsSender.SendSms(new AuthMessageSender.Message
+//                {
+//                    Body = "Greetings" + "\nAn analysis that you recently requested has been completed"+ "\n" +
+//                           "Please, login to 3DCytoFlow to see the results\n"
+//                }, _sid, _authToken, _number, u.Phone);
+
                 // return something else here? Not sure what to return for working result
-                return Json(analysis);
+                return Json(u);
             }
             // if the analysis does not exist
             // this should not be triggered

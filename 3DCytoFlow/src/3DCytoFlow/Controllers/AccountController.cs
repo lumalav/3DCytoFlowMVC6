@@ -93,6 +93,7 @@ namespace _3DCytoFlow.Controllers
                            "First Name: " + user.FirstName + "<br>" +
                            "Last Name: " + user.LastName + "<br>" +
                            "DOB: " + user.DOB.ToString("d") + "<br>" +
+                           "Phone: " + user.Phone + "<br>" +
                            "Email: " + user.Email + "<br>" +
                            "Address: " + user.Address + "<br>" +
                            "City: " + user.City + "<br>" +

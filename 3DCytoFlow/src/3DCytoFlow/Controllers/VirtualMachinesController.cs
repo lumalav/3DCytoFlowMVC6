@@ -18,6 +18,7 @@ namespace _3DCytoFlow.Controllers
         }
 
         // GET: VirtualMachines
+        [Authorize(Roles = "Admin")]
         public IActionResult Index()
         {
             if (User.Identity.IsAuthenticated)
@@ -28,6 +29,7 @@ namespace _3DCytoFlow.Controllers
         }
 
         // GET: VirtualMachines/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             if (User.Identity.IsAuthenticated)
@@ -85,6 +87,7 @@ namespace _3DCytoFlow.Controllers
 
         // GET: VirtualMachines/Delete/5
         [ActionName("Delete")]
+        [Authorize(Roles = "Admin")]
         public IActionResult Delete(string id)
         {
             if (User.Identity.IsAuthenticated)
@@ -107,6 +110,7 @@ namespace _3DCytoFlow.Controllers
 
         // POST: VirtualMachines/Delete/5
         [HttpPost, ActionName("Delete")]
+        [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(string id)
         {

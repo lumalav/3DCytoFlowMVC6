@@ -84,9 +84,16 @@ namespace _3DCytoFlow.Controllers
         // POST: Analyses/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        //TODO:FIX
         public IActionResult DeleteConfirmed(int id)
         {
-            Analysis analysis = _context.Analyses.Single(m => m.Id == id);
+            var analysis = _context.Analyses.Include(x => x.Clusters).Single(m => m.Id == id);
+
+            foreach (var cluster in analysis.Clusters)
+            {
+                _context.Clusters.Remove(cluster);
+            }
+
             _context.Analyses.Remove(analysis);
             _context.SaveChanges();
             return RedirectToAction("Index");

@@ -27,13 +27,16 @@ namespace _3DCytoFlow
 
         [Required]
         [Display(Name="First Name")]
+        [RegularExpression(@"^\b[a-zA-Z0-9_]+\b$", ErrorMessage = "Enter a single name")]
         public string FirstName { get; set; }
 
         [Display(Name = "MI")]
+        [RegularExpression(@"^\b[a-zA-Z0-9_]+\b$", ErrorMessage = "Enter a single middle name")]
         public string Middle { get; set; }
 
         [Required]
         [Display(Name = "Last Name")]
+        [RegularExpression(@"^\b[a-zA-Z0-9_]+\b$", ErrorMessage = "Enter a single last name")]
         public string LastName { get; set; }
 
         [Required]

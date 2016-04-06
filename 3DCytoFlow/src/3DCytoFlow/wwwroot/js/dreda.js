@@ -73,6 +73,8 @@ var mouseDown = 0;
 var selectionPlaneXY, selectionPlaneXZ, selectionPlaneYZ;
 var firstTimeSelection = true;
 var selecting = false;
+var shifting = false;
+var controlling = false;
 var pointCloud;
 var uniforms;
 
@@ -206,8 +208,12 @@ window.addEventListener("keydown", function (event) {
     var keyCode = event.keyCode;
 
     if (keyCode == 16) {
-        selecting = true;
+        shifting = true;
         controls.enabled = false;
+    }
+
+    if (keyCode == 17) {
+        controlling = true;
     }
 }, false);
 window.addEventListener("keyup", function (event) {
@@ -215,8 +221,12 @@ window.addEventListener("keyup", function (event) {
 
     // http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
     if (keyCode == 16) {
-        selecting = false;
+        shifting = false;
         controls.enabled = true;
+    }
+
+    if (keyCode == 17) {
+        controlling = false;
     }
 }, false);
 
@@ -228,7 +238,6 @@ function update() {
     // UPDATE
     if (mouseDown == 1) {
         if (finalMouseDown == undefined) return;
-
 
         if (initMouseDown.normal.z == 1 || initMouseDown.normal.z == -1) {
             sizeX = finalMouseDown.x - initMouseDown.x;
@@ -332,7 +341,23 @@ function resizeCamera()
 // mouse down
 canvas.addEventListener("mousedown", function ( event ) 
 {
-    if (!(selecting === true)) return;
+    if (!shifting) {
+
+        if (controlling) {
+
+
+         //   colorSelectedPoints("#", 2);
+
+            selectionPlaneXY.visible = false;
+            selectionPlaneXZ.visible = false;
+            selectionPlaneYZ.visible = false;
+            selectionCube.visible = false;
+        }
+
+        return;
+    } else {
+        selecting = true;
+    }
 
     // calculate mouse position in normalized device coordinates
     // (-1 to +1) for both components
@@ -412,7 +437,7 @@ canvas.addEventListener("mousemove", function (event)
 window.addEventListener("mouseup", function (event)
 {
     mouseDown = 0;
-    if (selecting === true) {
+    if (selecting) {
         firstTimeSelection = false;
         selecting = false;
 
@@ -701,4 +726,3 @@ function cube(size) {
 
     return cube;
 }
-
