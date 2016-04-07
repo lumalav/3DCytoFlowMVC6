@@ -201,7 +201,7 @@ function fillColorSelector() {
     $("#colorselector").colorselector({
         callback: function (value, color, title) {
             window.selectedColor = color;
-            window.colorSelectedPoints(window.selectedColor, 0);
+            window.colorSelectedPoints(window.selectedColor, 1);
         }
     });
 }
