@@ -2,7 +2,7 @@ Senior Design Project in MVC6
 
 **TODO:**
 
-**> Priority**
+**> Priority** (BEFORE MONDAY)
 
 ~~-Unselecting clusters that have not been saved should return to original color~~
 
@@ -11,6 +11,12 @@ Senior Design Project in MVC6
 -Refactor linux code (machinename, pswname must be stored in a file)
 
 -implement dynamic job number per machine
+
+-implement dynamic number of points per machine
+
+-implement ETA
+
+-put ETA(TIMESTAMP), jobNumber(INT32), machineNumber(INT32) in the database
 
 -vm name and password hardcoded in the scripts
 
@@ -21,6 +27,12 @@ Senior Design Project in MVC6
 -remove the delta column in the analysis table and add color column in the cluster table
 
 -put a plane in the background to make the selection more user friendly
+
+-add a button for changing the origin to the selected cluster every time a cluster is selected/when toggling the button
+
+-design undo and redo
+
+-implement undo redo
 
 **Fixed**
 
