@@ -4,19 +4,19 @@ Senior Design Project in MVC6
 
 **> Priority**
 
--Unselecting clusters that have not been saved should return to original color
+~~-Unselecting clusters that have not been saved should return to original color~~
 
--toggle visibility for clusters
-
-**< Priority**
-
--Add 404 handling and other errors.
+~~-toggle visibility for clusters~~
 
 -Refactor linux code (machinename, pswname must be stored in a file)
 
 -implement dynamic job number per machine
 
 -vm name and password hardcoded in the scripts
+
+**< Priority**
+
+-Add 404 handling and other errors.
 
 -remove the delta column in the analysis table and add color column in the cluster table
 
