@@ -77,6 +77,7 @@ var shifting = false;
 var controlling = false;
 var pointCloud;
 var uniforms;
+var DEFAULT_ALPHA = 0.8;
 
 // calls
 init();
@@ -342,18 +343,6 @@ function resizeCamera()
 canvas.addEventListener("mousedown", function ( event ) 
 {
     if (!shifting) {
-
-        if (controlling) {
-
-
-         //   colorSelectedPoints("#", 2);
-
-            selectionPlaneXY.visible = false;
-            selectionPlaneXZ.visible = false;
-            selectionPlaneYZ.visible = false;
-            selectionCube.visible = false;
-        }
-
         return;
     } else {
         selecting = true;
@@ -548,7 +537,7 @@ function plotData() {
         var alphas = new Float32Array(numVertices * 1); // 1 values per vertex
 
         for (var j = 0; j < numVertices; j++) {
-            alphas[j] = 0.5;
+            alphas[j] = DEFAULT_ALPHA;
         }
 
         pointGeometry.addAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
@@ -600,7 +589,7 @@ function plotData() {
     return true;
 }
 
-// action 0 - setting cluster color | action 1 - selecting cluster | action 2 - deselect cluster
+// action 0 - setting cluster color | action 1 - selecting cluster | action 2 - deselect cluster | 3 - dissapear cluster
 
 var originalPointPosition = [];
 var originalPointColor = [];
@@ -609,26 +598,31 @@ function colorSelectedPoints(color, action) {
     if (pointCloud == undefined) return;
 
     for (var i = 0; i < pointCloud.geometry.attributes.position.count; i++) {
-        if (inBoundsOfSelection(new THREE.Vector3(pointCloud.geometry.attributes.position.array[i * 3], pointCloud.geometry.attributes.position.array[i * 3 + 1], pointCloud.geometry.attributes.position.array[i * 3 + 2])))
+        if (action != 2 && inBoundsOfSelection(new THREE.Vector3(pointCloud.geometry.attributes.position.array[i * 3], pointCloud.geometry.attributes.position.array[i * 3 + 1], pointCloud.geometry.attributes.position.array[i * 3 + 2])))
         {
-            if (action === 1) {
+            if (action === 1 && originalPointPosition.indexOf(i) === -1 ) {
+
                 // backup the colors
                 originalPointPosition.push(i);
                 originalPointColor.push(new THREE.Color(pointCloud.geometry.attributes.color.array[i * 3 + 0],
                                                         pointCloud.geometry.attributes.color.array[i * 3 + 1], 
-                                                        pointCloud.geometry.attributes.color.array[i * 3 + 2]) );
+                                                        pointCloud.geometry.attributes.color.array[i * 3 + 2]));
+
+                console.log("Color saved: " + new THREE.Color(pointCloud.geometry.attributes.color.array[i * 3 + 0],
+                    pointCloud.geometry.attributes.color.array[i * 3 + 1],
+                    pointCloud.geometry.attributes.color.array[i * 3 + 2]).getHexString());
             }
 
             if (action === 3) {
                 pointCloud.geometry.attributes.alpha.array[i] = 0.0;
             }
 
-            if (action !== 3) {
+            if (action < 2) {
                 // assign colors
                 pointCloud.geometry.attributes.color.array[i * 3 + 0] = new THREE.Color(color).r;
                 pointCloud.geometry.attributes.color.array[i * 3 + 1] = new THREE.Color(color).g;
                 pointCloud.geometry.attributes.color.array[i * 3 + 2] = new THREE.Color(color).b;
-                pointCloud.geometry.attributes.alpha.array[i] = 1.0;
+                pointCloud.geometry.attributes.alpha.array[i] = DEFAULT_ALPHA;
             }
         }
         else
@@ -639,19 +633,21 @@ function colorSelectedPoints(color, action) {
             //pointCloud.geometry.attributes.color.array[i * 3 + 2] = new THREE.Color(color).b;
             //pointCloud.geometry.attributes.alpha.array[i] = 0.1;
 
-            // deselecting points
-            if (action === 2 && originalPointPosition.indexOf(i) !== -1 ) {
+            // assign colors for deselecting points
+            if (action === 2 && originalPointPosition.indexOf(i) !== -1) {
+                console.log("Back to the future " + new THREE.Color(originalPointColor[originalPointPosition.indexOf(i)]).getHexString() );
                 color = new THREE.Color(originalPointColor[originalPointPosition.indexOf(i)]);
 
                 pointCloud.geometry.attributes.color.array[i * 3 + 0] = new THREE.Color(color).r;
                 pointCloud.geometry.attributes.color.array[i * 3 + 1] = new THREE.Color(color).g;
                 pointCloud.geometry.attributes.color.array[i * 3 + 2] = new THREE.Color(color).b;
-                pointCloud.geometry.attributes.alpha.array[i] = 1.0;
+                pointCloud.geometry.attributes.alpha.array[i] = DEFAULT_ALPHA;
             }
         }
     }
 
-    if (action === 2) {
+    if (action === 2 || action === 0) {
+        console.log("Clearing the original color array.");
         originalPointPosition = [];
         originalPointColor = [];
     }

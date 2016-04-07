@@ -234,9 +234,12 @@ function selectDeselectClusters(id, e) {
     window.selectionCube.position.y = y;
     window.selectionCube.position.z = z;
 
-    if (!$(e).is(":checked")) {
+    if (e != undefined && !$(e).is(":checked")) {
         //being unchecked. Apply transparency
         window.colorSelectedPoints(color, 3);
+    } else if (e != undefined) {
+        //being checked
+        window.colorSelectedPoints(color, 0);
     } else {
         //being checked
         window.colorSelectedPoints(color, 0);

@@ -56,6 +56,13 @@ function addCluster() {
         var currentClusterNum = $("#clusterSize").text();
         $("#clusterSize").text(++currentClusterNum);
 
+        $(".clusterCheck").change(function (e) {
+
+            var clusterId = $(this).attr("value");
+
+            window.selectDeselectClusters(clusterId, $(this));
+        });
+
         //bind the on change event to new clusters
         $(".clusterCheck").each(function () {
 
@@ -63,12 +70,8 @@ function addCluster() {
                 $(this).prop("checked", true);
             }
         });
-        $(".clusterCheck").change(function (e) {
 
-            var clusterId = $(this).attr("value");
-
-            window.selectDeselectClusters(clusterId, $(this));
-        });
+        window.selectDeselectClusters(model.Id, undefined);
 
     }).fail(function () {
         //if failed, remove the loading screen and notify user
