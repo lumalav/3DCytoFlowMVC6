@@ -47,6 +47,8 @@ namespace _3DCytoFlow.Migrations
 
                     b.Property<int?>("AnalysisId");
 
+                    b.Property<string>("Color");
+
                     b.Property<double>("Depth");
 
                     b.Property<double>("Height");
@@ -138,9 +140,15 @@ namespace _3DCytoFlow.Migrations
 
                     b.Property<int?>("AnalysisId");
 
+                    b.Property<TimeSpan>("ETC");
+
                     b.Property<string>("HashedPassword");
 
+                    b.Property<int>("Jobs");
+
                     b.Property<string>("MachineName");
+
+                    b.Property<int>("PointsToCalculate");
 
                     b.HasKey("Id");
                 });
