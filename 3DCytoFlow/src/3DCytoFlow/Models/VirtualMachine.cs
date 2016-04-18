@@ -20,6 +20,9 @@ namespace _3DCytoFlow.Models
 
         public string MachineName { get; set; }
         public string HashedPassword { get; set; }
+        public Int32 Jobs { get; set; }
+        public Int32 PointsToCalculate { get; set; }
+        public TimeSpan ETC { get; set; }
 
         public virtual Analysis Analysis { get; set; }
     }
