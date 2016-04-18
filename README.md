@@ -10,19 +10,7 @@ Senior Design Project in MVC6
 
 -Refactor linux code (machinename, pswname must be stored in a file)
 
--implement dynamic job number per machine
-
--implement dynamic number of points per machine
-
--implement ETA
-
--put ETA(TIMESTAMP), jobNumber(INT32), machineNumber(INT32) in the database
-
--vm name and password hardcoded in the scripts
-
-**< Priority**
-
--Add 404 handling and other errors.
+-make sure the timestamp goes to zero when the analysis is done
 
 -remove the delta column in the analysis table and add color column in the cluster table
 
@@ -30,9 +18,23 @@ Senior Design Project in MVC6
 
 -add a button for changing the origin to the selected cluster every time a cluster is selected/when toggling the button
 
+~~-implement dynamic job number per machine~~
+
+~~-implement dynamic number of points per machine~~
+
+~~-implement ETA~~
+
+~~-put ETA(TIMESTAMP), jobNumber(INT32), machineNumber(INT32) in the database~~
+
+**< Priority**
+
+-Add 404 handling and other errors.
+
 -design undo and redo
 
 -implement undo redo
+
+-found a bug in the visualizer. Make a cluster visible/nonvisible. Zoom in closer, press shift and drag the mouse. The cluster will change to the selected color
 
 **Fixed**
 

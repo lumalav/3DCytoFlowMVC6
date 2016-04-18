@@ -112,11 +112,49 @@ namespace _3DCytoFlow.Controllers
             {
                 vm.Analysis = analysis;
                 _context.SaveChanges();
+                r.Jobs = vm.Jobs;
+                r.Points = vm.PointsToCalculate;
 
                 return Json(r);
             }
 
             return Json(r);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult UpdateETC(string vmId, long? totalSeconds)
+        {
+            // Check if an analysis is found that matches vmID
+            if (_context.VirtualMachines.Select(i => i.Analysis).Any(i => i.VirtualMachine.Id == vmId))
+            {
+                // if found then change the location to the given string and update the db
+                var a = _context.VirtualMachines.Select(i => i.Analysis).First(i => i.VirtualMachine.Id == vmId);
+                var analysis = _context.Analyses.Include(i => i.User).First(i => i.Id == a.Id);
+
+                if( analysis != null )
+                {
+                    VirtualMachine vm = _context.VirtualMachines.First(i => i.Id == vmId);
+
+                    if( totalSeconds != null )
+                    {
+                        int days = (int)totalSeconds / 60 / 60 / 24;
+                        int hours = (int)(totalSeconds / 60 / 60) % 24;
+                        int minutes = (int)(totalSeconds / 60) % 60;
+                        int seconds = (int)(totalSeconds % 60);
+
+
+                        vm.ETC = new TimeSpan(days, hours, minutes, seconds, 0);
+                        _context.VirtualMachines.Update(vm);
+                        _context.SaveChanges();
+
+                        return Ok();
+                    }
+                    return HttpBadRequest();
+                }
+                return HttpBadRequest();
+            }
+            return HttpNotFound();
         }
 
 
@@ -156,14 +194,14 @@ namespace _3DCytoFlow.Controllers
                 if (u == null) return Json(null);
 
                 //send message to the user
-//                _smsSender.SendSms(new AuthMessageSender.Message
-//                {
-//                    Body = "Greetings" + "\nAn analysis that you recently requested has been completed"+ "\n" +
-//                           "Please, login to 3DCytoFlow to see the results\n"
-//                }, _sid, _authToken, _number, u.Phone);
+                //                _smsSender.SendSms(new AuthMessageSender.Message
+                //                {
+                //                    Body = "Greetings" + "\nAn analysis that you recently requested has been completed"+ "\n" +
+                //                           "Please, login to 3DCytoFlow to see the results\n"
+                //                }, _sid, _authToken, _number, u.Phone);
 
                 // return something else here? Not sure what to return for working result
-                return Json(u);
+                return Ok();
             }
             // if the analysis does not exist
             // this should not be triggered

@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Authorization;
 using Microsoft.AspNet.Mvc;
+using Microsoft.Data.Entity;
 using _3DCytoFlow.Models;
 using _3DCytoFlow.ViewModels.VirtualMachine;
 
@@ -23,7 +24,8 @@ namespace _3DCytoFlow.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                return View(_context.VirtualMachines.ToList().Select(x => new DetailsViewModel { id = x.Id, name = x.MachineName }));
+                return View(_context.VirtualMachines.ToList().Select(x => new DetailsViewModel { id = x.Id, name = x.MachineName, JobNumber = x.Jobs,
+                    PointNumber = x.PointsToCalculate, ETC = x.ETC }));
             }
             return RedirectToAction("LogIn", "Account");
         }
@@ -83,6 +85,58 @@ namespace _3DCytoFlow.Controllers
             }
 
             return HttpNotFound();
+        }
+
+        // GET: Patients/Edit/5
+        [ActionName("Edit")]
+        [Authorize(Roles = "Admin")]
+        public IActionResult Edit(string id)
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                if (id == null)
+                {
+                    return HttpNotFound();
+                }
+
+                VirtualMachine virtualMachine = _context.VirtualMachines.Single(m => m.Id == id);
+                if (virtualMachine == null)
+                {
+                    return HttpNotFound();
+                }
+
+                return View(new DetailsViewModel { id = virtualMachine.Id, name = virtualMachine.MachineName, JobNumber = virtualMachine.Jobs,
+                    PointNumber = virtualMachine.PointsToCalculate });
+            }
+
+            return RedirectToAction("LogIn", "Account");
+        }
+
+        // POST: Patients/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ActionName("Edit")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit([Bind("id,JobNumber,PointNumber")] DetailsViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var vm = _context.VirtualMachines.Include(i => i.Analysis).First(x => x.Id == model.id);
+
+                if (vm != null)
+                {
+                    vm.Jobs = model.JobNumber;
+                    vm.PointsToCalculate = model.PointNumber;
+
+                    _context.VirtualMachines.Update(vm);
+                    await _context.SaveChangesAsync();
+
+                    return RedirectToAction("Index", "VirtualMachines", null);
+                }
+
+                return HttpNotFound();
+            }
+            return View(model);
         }
 
         // GET: VirtualMachines/Delete/5
