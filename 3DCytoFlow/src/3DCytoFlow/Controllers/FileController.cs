@@ -133,16 +133,20 @@ namespace _3DCytoFlow.Controllers
         {
 
             Analysis a = null;
+            VirtualMachine vm = null;
             // Check if an analysis is found that matches vmID
             if (_context.VirtualMachines.Select(i => i.Analysis).Any(i => i.VirtualMachine.Id == vmId))
             {
                 // if found then change the location to the given string and update the db
                a = _context.VirtualMachines.Select(i => i.Analysis).FirstOrDefault(i => i.VirtualMachine.Id == vmId);
+                vm = _context.VirtualMachines.FirstOrDefault(i => i.Analysis.Id == a.Id);
+                vm.Analysis = null;
+
                a.ResultFilePath = location;
                _context.SaveChanges();
 
                 
-               var phone = "null";
+               var phone = "";
                foreach (var user in _context.Users)
                 {
 
