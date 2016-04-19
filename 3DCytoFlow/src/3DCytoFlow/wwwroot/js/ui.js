@@ -61,7 +61,7 @@ function updateInfoBox() {
 
     // number clusters
     $("#clusterSize").empty();
-    $("#clusterSize").append(_.uniq(organized, Object.keys(data)[3]).length);
+    $("#clusterSize").append(0);
     $("#info-box").removeClass("hidden");
 
     // cluster info
