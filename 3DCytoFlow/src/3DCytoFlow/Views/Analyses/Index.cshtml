@@ -134,7 +134,12 @@
         var currentClusters;
         var selectedColor;
         $(document).ready(function() {
+            $('#analysisSelect').multiselect({
+                enableFiltering: true,
+                enableCaseInsensitiveFiltering: true
+            });
 
+            $(".multiselect").css("margin-left", "10px");
             //download current result if available
             @{
                 if (Model.Any(analysis => analysis.ResultFilePath != null && !analysis.ResultFilePath.Equals("")))

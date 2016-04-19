@@ -52,9 +52,10 @@ a > i {
     position: absolute;
 }
 
-#analysisSelect, .btn-colorselector, #clusterInput, #clusterButton, #clusterButton2, #deleteButton {
+.btn-colorselector, #clusterInput, #clusterButton, #clusterButton2, #deleteButton {
     margin: 10px;
 }
+
 .label {
     font-size: 20px; 
     font-style: normal; 

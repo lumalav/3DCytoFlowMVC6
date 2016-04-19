@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Hosting;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -6,7 +7,6 @@ using Microsoft.Data.Entity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Twilio.TwiML.Mvc;
 using _3DCytoFlow.Models;
 using _3DCytoFlow.Services;
 
@@ -55,6 +55,12 @@ namespace _3DCytoFlow
                 .AddDefaultTokenProviders();
 
             services.AddMvc();
+
+            services.AddSignalR(options =>
+            {
+                options.Hubs.EnableDetailedErrors = true;
+            });
+
             services.AddCaching();
             services.AddSession(options => {
                 options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -75,11 +81,11 @@ namespace _3DCytoFlow
             services.Configure<SMSSettings>(Configuration.GetSection("SMSSettings"));
 
             // Add the database seeder service
-            services.AddTransient<ISeeder, DbSeeder>();
-        }
+            services.AddTransient<ISeeder, DbSeeder>();    
+    }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, ISeeder seeder, IHostingEnvironment env, ILoggerFactory loggerFactory)
+    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    public void Configure(IApplicationBuilder app, ISeeder seeder, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             app.UseSession();
 
@@ -123,6 +129,8 @@ namespace _3DCytoFlow
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            app.UseSignalR();
 
             // Seed the database using the seeder
             seeder.EnsureSeedData();
