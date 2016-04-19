@@ -113,6 +113,12 @@
                             }
                         </li>
                         <li>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a href="@Url.Action("Index", "VirtualMachines")" onclick="showLoadingScreen()"><img src="~/images/virtual_machine.png" class="img-responsive" alt="Virtual Machines"> Virtual Machines</a>
+                            }
+                        </li>
+                        <li>
                             <a href="@Url.Action("Index", "Patients")"><img src="~/images/family6464blue.png" class="img-responsive" alt="Patients"> Patients</a>
                             <ul class="nav">
                                 <li>
