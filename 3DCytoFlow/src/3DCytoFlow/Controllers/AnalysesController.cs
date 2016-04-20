@@ -30,7 +30,6 @@ namespace _3DCytoFlow.Controllers
                 
                 foreach ( var analysis in analyses )
                 { 
-
                     var vm = _context.VirtualMachines.Include(i => i.Analysis).FirstOrDefault(i => i.Analysis.Id == analysis.Id);
 
                     var patient = analysis.Patient;
@@ -46,7 +45,7 @@ namespace _3DCytoFlow.Controllers
                         PatientLastName = patient.LastName,
                         Date = analysis.ResultDate,
                         ResultFilePath = analysis.ResultFilePath,
-                        Etc = vm != null && string.IsNullOrWhiteSpace(analysis.ResultFilePath) ? vm.ETC : vm == null && string.IsNullOrWhiteSpace(analysis.ResultFilePath) ? TimeSpan.MaxValue : TimeSpan.Zero
+                        Etc = vm != null && string.IsNullOrWhiteSpace(analysis.ResultFilePath) ? vm.ETC : vm == null && string.IsNullOrWhiteSpace(analysis.ResultFilePath) ? new TimeSpan(6,23,59,59) : TimeSpan.Zero
                     });
                 }
 
@@ -91,7 +90,7 @@ namespace _3DCytoFlow.Controllers
         // POST: Analyses/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        //TODO:FIX
+
         public IActionResult DeleteConfirmed(int id)
         {
             var analysis = _context.Analyses.Include(x => x.Clusters).Single(m => m.Id == id);

@@ -188,39 +188,39 @@ namespace _3DCytoFlow.Controllers
         public ActionResult AnalysisFinished(string vmId, string location)
         {
 
-            Analysis a;
+            Analysis analysis;
             // Check if an analysis is found that matches vmID
             if (_context.VirtualMachines.Select(i => i.Analysis).Any(i => i.VirtualMachine.Id == vmId))
             {
                 // if found then change the location to the given string and update the db
-                a = _context.VirtualMachines.Select(i => i.Analysis).FirstOrDefault(i => i.VirtualMachine.Id == vmId);
-                var vm = _context.VirtualMachines.FirstOrDefault(i => i.Analysis.Id == a.Id);
-                vm.Analysis = null;
-                vm.ETC = TimeSpan.MaxValue;
+                analysis = _context.VirtualMachines.Select(i => i.Analysis).FirstOrDefault(i => i.VirtualMachine.Id == vmId);
 
-                a.ResultFilePath = location;
-                _context.SaveChanges();
-
-
-               var phone = "";
-               foreach (var user in _context.Users)
+                if (analysis != null)
                 {
+                    var vm = _context.VirtualMachines.FirstOrDefault(i => i.Analysis.Id == analysis.Id);
+                    vm.Analysis = null;
+                    vm.ETC = new TimeSpan(23, 59, 59);
 
-                    if (user.Analyses.FirstOrDefault(i => i.Id == a.Id) != null)
+                    analysis.ResultFilePath = location;
+                    _context.Analyses.Update(analysis);
+                    _context.VirtualMachines.Update(vm);
+                    _context.SaveChanges();
+
+                    //send message to the user
+                    var phone = "";
+                    foreach (var user in _context.Users)
                     {
-                        phone = user.Phone;
+                        if (user.Analyses.FirstOrDefault(i => i.Id == analysis.Id) != null)
+                        {
+                            phone = user.Phone;
+                        }
                     }
+
+                    _smsSender.SendSms(new AuthMessageSender.Message{
+                        Body = "Greetings" + "\nAn analysis that you recently requested has been completed"+ "\n" +
+                               "Please, login to 3DCytoFlow to see the results\n"
+                    }, _sid, _authToken, _number, phone);
                 }
-
-                a.ResultFilePath = location;
-                _context.SaveChanges();
-
-
-                //send message to the user
-                _smsSender.SendSms(new AuthMessageSender.Message{
-                    Body = "Greetings" + "\nAn analysis that you recently requested has been completed"+ "\n" +
-                    "Please, login to 3DCytoFlow to see the results\n"
-                }, _sid, _authToken, _number, phone);
 
                 // return something else here? Not sure what to return for working result
                 return Ok();
