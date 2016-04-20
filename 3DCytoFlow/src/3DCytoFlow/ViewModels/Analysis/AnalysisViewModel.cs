@@ -13,5 +13,6 @@ namespace _3DCytoFlow.ViewModels.Analysis
         public string PatientLastName;
         public DateTime Date;
         public string ResultFilePath;
+        public TimeSpan Etc;
     }
 }

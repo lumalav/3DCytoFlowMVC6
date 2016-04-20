@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -25,8 +26,13 @@ namespace _3DCytoFlow.Controllers
                 var user = GetUser();
                 var analysisViews = new List<AnalysisViewModel>();
 
-                foreach( var analysis in _context.Analyses.Include( x=>x.Patient ).Include(x=>x.User).Where(x=>x.User.Id == user.Id) )
-                {
+                var analyses = _context.Analyses.Include(x => x.Patient).Include(x => x.User).Where(x => x.User.Id == user.Id).ToList();
+                
+                foreach ( var analysis in analyses )
+                { 
+
+                    var vm = _context.VirtualMachines.Include(i => i.Analysis).FirstOrDefault(i => i.Analysis.Id == analysis.Id);
+
                     var patient = analysis.Patient;
 
                     analysisViews.Add(new AnalysisViewModel
@@ -39,7 +45,8 @@ namespace _3DCytoFlow.Controllers
                         PatientFirstName = patient.FirstName,
                         PatientLastName = patient.LastName,
                         Date = analysis.ResultDate,
-                        ResultFilePath = analysis.ResultFilePath
+                        ResultFilePath = analysis.ResultFilePath,
+                        Etc = vm?.ETC ?? TimeSpan.Zero
                     });
                 }
 

@@ -188,18 +188,18 @@ namespace _3DCytoFlow.Controllers
         public ActionResult AnalysisFinished(string vmId, string location)
         {
 
-            Analysis a = null;
-            VirtualMachine vm = null;
+            Analysis a;
             // Check if an analysis is found that matches vmID
             if (_context.VirtualMachines.Select(i => i.Analysis).Any(i => i.VirtualMachine.Id == vmId))
             {
                 // if found then change the location to the given string and update the db
-               a = _context.VirtualMachines.Select(i => i.Analysis).FirstOrDefault(i => i.VirtualMachine.Id == vmId);
-                vm = _context.VirtualMachines.FirstOrDefault(i => i.Analysis.Id == a.Id);
+                a = _context.VirtualMachines.Select(i => i.Analysis).FirstOrDefault(i => i.VirtualMachine.Id == vmId);
+                var vm = _context.VirtualMachines.FirstOrDefault(i => i.Analysis.Id == a.Id);
                 vm.Analysis = null;
+                vm.ETC = TimeSpan.MaxValue;
 
-               a.ResultFilePath = location;
-               _context.SaveChanges();
+                a.ResultFilePath = location;
+                _context.SaveChanges();
 
 
                var phone = "";
@@ -265,10 +265,13 @@ namespace _3DCytoFlow.Controllers
         public async Task<ActionResult> DownloadResult(string analysisId)
         {
             var analysis = _context.Analyses.FirstOrDefault(i => i.Id == int.Parse(analysisId));
+            var vm = _context.VirtualMachines.Include(i => i.Analysis).FirstOrDefault(i => i.Analysis.Id == analysis.Id);
 
             if (analysis == null) return Json(false);
 
             var path = analysis.ResultFilePath;
+
+            if (string.IsNullOrWhiteSpace(path)) return Json(new {ETC = vm.ETC});
 
             var jsonString = "";
             //prepare container name
