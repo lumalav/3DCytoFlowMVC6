@@ -545,7 +545,6 @@ function plotData() {
         console.log(grouped[groupedKeys[i]].length + " points in cluster " + groupedKeys[i]);
 
         uniforms = {
-            shadedCircle: { type: 't', value: sprite },
             windowWidth: { type: 'f', value: canvas.width },
             windowHeight: { type: 'f', value: canvas.height }
         }

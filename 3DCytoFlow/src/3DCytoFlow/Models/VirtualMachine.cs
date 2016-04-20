@@ -22,7 +22,7 @@ namespace _3DCytoFlow.Models
         public string HashedPassword { get; set; }
         public Int32 Jobs { get; set; }
         public Int32 PointsToCalculate { get; set; }
-        public TimeSpan ETC { get; set; }
+        public DateTime? CompletionDate { get; set; }
 
         public virtual Analysis Analysis { get; set; }
     }

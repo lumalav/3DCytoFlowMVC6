@@ -1,4 +1,5 @@
 ﻿@using System.Threading.Tasks
+@using Microsoft.WindowsAzure.Storage.File
 @using _3DCytoFlow.ViewModels.Analysis
 @model List<AnalysisViewModel>
 
@@ -55,6 +56,12 @@
                             
                             @foreach (var analysis in Model)
                             {
+                                TimeSpan? fCT = null;
+                                if (analysis.Etc != null)
+                                {
+                                    fCT = new TimeSpan(analysis.Etc.Value.Subtract(DateTime.Now.ToUniversalTime()).Ticks);
+                                }
+
                                 if (string.IsNullOrWhiteSpace(directory))
                                 {
                                     directory = analysis.UserLastName + "-" + analysis.UserFirstName + "/";
@@ -67,10 +74,24 @@
                                     displayName += analysis.Date.ToString("MM-dd-yyyy");
                                     <option class="noselect undraggable" value="@analysis.Id">@displayName</option>
                                 }
+                                else if (analysis.Etc != null && fCT != null && fCT.Value.CompareTo(TimeSpan.Zero) > 0)
+                                {
+                                    var displayName = analysis.PatientLastName + ", " + @analysis.PatientFirstName + " | ";
+                                    // FinalCompletionTime
+                                    displayName += string.Format("{0}", new TimeSpan(fCT.Value.Days, fCT.Value.Hours, fCT.Value.Minutes, fCT.Value.Seconds));
+                                    <option class="noselect undraggable" value="@analysis.Id">@displayName</option>
+                                }
+                                else if (analysis.Etc != null && fCT != null && fCT.Value.CompareTo(TimeSpan.Zero) <= 0)
+                                {
+                                    var displayName = analysis.PatientLastName + ", " + @analysis.PatientFirstName + " | ";
+                                    // FinalCompletionTime
+                                    displayName += "Getting results ready for visualization";
+                                    <option class="noselect undraggable" value="@analysis.Id">@displayName</option>
+                                }
                                 else
                                 {
                                     var displayName = analysis.PatientLastName + ", " + @analysis.PatientFirstName + " | ";
-                                    displayName += analysis.Etc.ToString("c");
+                                    displayName += "Waiting to be analyzed";
                                     <option class="noselect undraggable" value="@analysis.Id">@displayName</option>
                                 }
                             }
@@ -208,10 +229,17 @@
 
                 if (model !== undefined && model !== "") {                 
                     if (typeof model.ETC != "undefined") {
+                        //if analysis has not been finished
                         $("#loader").removeClass("ui active dimmer");
+                        clear();
                         alert(model.ETC);
-                    } else {
-                    
+                    } else if (typeof model.message != "undefined") {
+                        //if analysis has not been finished
+                        $("#loader").removeClass("ui active dimmer");
+                        clear();
+                        alert(model.message);
+                    } else{
+                        //parse data
                         window.data = JSON.parse(model);
                         //plot the graph
                         plot(data);
@@ -257,7 +285,6 @@
         </script>
 
         <script type="x-shader/x-fragment" id="fragmentshader">
-            uniform sampler2D shadedCircle;
             uniform float windowWidth;
             uniform float windowHeight;
 

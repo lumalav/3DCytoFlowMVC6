@@ -25,7 +25,7 @@ namespace _3DCytoFlow.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 return View(_context.VirtualMachines.ToList().Select(x => new DetailsViewModel { id = x.Id, name = x.MachineName, JobNumber = x.Jobs,
-                    PointNumber = x.PointsToCalculate, ETC = x.ETC }));
+                    PointNumber = x.PointsToCalculate, CompletionDate = x.CompletionDate }));
             }
             return RedirectToAction("LogIn", "Account");
         }

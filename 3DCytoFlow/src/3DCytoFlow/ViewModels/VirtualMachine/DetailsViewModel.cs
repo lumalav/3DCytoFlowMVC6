@@ -11,8 +11,8 @@ namespace _3DCytoFlow.ViewModels.VirtualMachine
         public string id { get; set; }
         [Display(Name = "Name")]
         public string name { get; set; }
-        [Display(Name = "Time to Completion")]
-        public TimeSpan ETC { get; set; }
+        [Display(Name = "Completion Date")]
+        public DateTime? CompletionDate { get; set; }
         [Display(Name = "Number of jobs to use")]
         [Range(1, 64, ErrorMessage = "The number of jobs to use must be between 1 and 64")]
         public Int32 JobNumber { get; set; }

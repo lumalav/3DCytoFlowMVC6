@@ -45,7 +45,7 @@ namespace _3DCytoFlow.Controllers
                         PatientLastName = patient.LastName,
                         Date = analysis.ResultDate,
                         ResultFilePath = analysis.ResultFilePath,
-                        Etc = vm != null && string.IsNullOrWhiteSpace(analysis.ResultFilePath) ? vm.ETC : vm == null && string.IsNullOrWhiteSpace(analysis.ResultFilePath) ? new TimeSpan(6,23,59,59) : TimeSpan.Zero
+                        Etc = vm != null && string.IsNullOrWhiteSpace(analysis.ResultFilePath) ? vm.CompletionDate : null
                     });
                 }
 
@@ -99,7 +99,7 @@ namespace _3DCytoFlow.Controllers
             {
                 _context.Clusters.Remove(cluster);
             }
-
+            
             _context.Analyses.Remove(analysis);
             _context.SaveChanges();
             return RedirectToAction("Index");

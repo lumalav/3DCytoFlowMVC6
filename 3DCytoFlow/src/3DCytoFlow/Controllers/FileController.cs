@@ -162,7 +162,7 @@ namespace _3DCytoFlow.Controllers
                         int minutes = (int)(totalSeconds / 60) % 60;
                         int seconds = (int)(totalSeconds % 60);
 
-                        vm.ETC = new TimeSpan(days, hours, minutes, seconds, 0);
+                        vm.CompletionDate = DateTime.Now.Add(new TimeSpan(days, hours, minutes, seconds, 0));
                         _context.VirtualMachines.Update(vm);
                         _context.SaveChanges();
 
@@ -199,7 +199,9 @@ namespace _3DCytoFlow.Controllers
                 {
                     var vm = _context.VirtualMachines.FirstOrDefault(i => i.Analysis.Id == analysis.Id);
                     vm.Analysis = null;
-                    vm.ETC = new TimeSpan(23, 59, 59);
+
+                    //TODO: Fix
+                    vm.CompletionDate = null;
 
                     analysis.ResultFilePath = location;
                     _context.Analyses.Update(analysis);
@@ -271,7 +273,8 @@ namespace _3DCytoFlow.Controllers
 
             var path = analysis.ResultFilePath;
 
-            if (string.IsNullOrWhiteSpace(path)) return Json(new {ETC = vm.ETC});
+            if (string.IsNullOrWhiteSpace(path) && vm != null) return Json(new {ETC = vm.CompletionDate});
+            if (string.IsNullOrWhiteSpace(path) && vm == null) return Json(new {message = "Waiting to be analyzed"});
 
             var jsonString = "";
             //prepare container name

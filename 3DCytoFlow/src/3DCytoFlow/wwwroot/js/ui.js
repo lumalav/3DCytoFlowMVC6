@@ -20,6 +20,10 @@ function hideAndLoad() {
     $(".ui.sidebar").sidebar("hide");
 }
 
+function clear() {
+    init();
+}
+
 function plot() {
 
     setTimeout(function () {
