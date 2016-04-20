@@ -46,7 +46,7 @@ namespace _3DCytoFlow.Controllers
                         PatientLastName = patient.LastName,
                         Date = analysis.ResultDate,
                         ResultFilePath = analysis.ResultFilePath,
-                        Etc = vm?.ETC ?? TimeSpan.Zero
+                        Etc = vm != null && string.IsNullOrWhiteSpace(analysis.ResultFilePath) ? vm.ETC : vm == null && string.IsNullOrWhiteSpace(analysis.ResultFilePath) ? TimeSpan.MaxValue : TimeSpan.Zero
                     });
                 }
 
