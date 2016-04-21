@@ -55,6 +55,13 @@ a > i {
 .btn-colorselector, #clusterInput, #clusterButton, #clusterButton2, #deleteButton {
     margin: 10px;
 }
+#timeIcon {
+    top: 50%;
+    color: #3aa6bc;
+    font-size: 3em;
+    text-align: left;
+}
+
 
 .label {
     font-size: 20px; 

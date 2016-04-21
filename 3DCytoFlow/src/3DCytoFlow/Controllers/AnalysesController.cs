@@ -95,11 +95,21 @@ namespace _3DCytoFlow.Controllers
         {
             var analysis = _context.Analyses.Include(x => x.Clusters).Single(m => m.Id == id);
 
+            //if user deletes an analysis with clusters
             foreach (var cluster in analysis.Clusters)
             {
                 _context.Clusters.Remove(cluster);
             }
-            
+
+            var vm = _context.VirtualMachines.FirstOrDefault(i => i.Analysis.Id == analysis.Id);
+
+            //if user deletes an analysis during process
+            if (vm != null)
+            {
+                vm.Analysis = null;
+                _context.VirtualMachines.Update(vm);
+            }
+           
             _context.Analyses.Remove(analysis);
             _context.SaveChanges();
             return RedirectToAction("Index");

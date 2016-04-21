@@ -5,6 +5,7 @@ $("#info-box").toggleClass("hidden");
 
 var userFile;
 var data;
+var interval;
 
 // file selector so we can hide ugly input
 var fileSelector = $("#fileSelector");
@@ -21,7 +22,32 @@ function hideAndLoad() {
 }
 
 function clear() {
+    $("#clusterSize").text(0);
+    $("#statsSize").text(0);
     init();
+}
+var d = new Date();
+function updateTimer() {
+
+    interval = setInterval(function () {
+        var time = $("#timeIcon").text().match(/\d{1,}/g);
+        var hours = time[0];
+        var minutes = time[1];
+        var seconds = time[2];
+
+        d.setHours(hours);
+        d.setMinutes(minutes);
+        d.setSeconds(seconds);
+        d.setSeconds(d.getSeconds() - 1);
+
+        if (d.getHours() === 0 && d.getMinutes() === 0 && d.getSeconds() === 0) {
+            clearInterval(interval);
+            $("#timeIcon").hide();
+        }
+
+        $("#timeIcon").text(d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds());
+
+    }, 1000);
 }
 
 function plot() {

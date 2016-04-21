@@ -1,5 +1,4 @@
 ﻿@using System.Threading.Tasks
-@using Microsoft.WindowsAzure.Storage.File
 @using _3DCytoFlow.ViewModels.Analysis
 @model List<AnalysisViewModel>
 
@@ -42,6 +41,26 @@
         -o-user-select: none;
     }
 
+    kbd {
+        padding:0.1em 0.6em;
+        border:1px solid #ccc;
+        font-size:11px;
+        font-family:Arial, Helvetica, sans-serif;
+        background-color:#f7f7f7;
+        color:#333;
+        -moz-box-shadow:0 1px 0px rgba(0, 0, 0, 0.2), 0 0 0 2px #ffffff inset;
+        -webkit-box-shadow:0 1px 0px rgba(0, 0, 0, 0.2), 0 0 0 2px #ffffff inset;
+        box-shadow:0 1px 0px rgba(0, 0, 0, 0.2), 0 0 0 2px #ffffff inset;
+        -moz-border-radius:3px;
+        -webkit-border-radius:3px;
+        border-radius:3px;
+        display:inline-block;
+        margin:0 0.1em;
+        text-shadow:0 1px 0 #fff;
+        line-height:1.4;
+        white-space:nowrap;
+    }
+
 </style>
 
 <div id="page-wrapper">
@@ -78,8 +97,10 @@
                                 {
                                     var displayName = analysis.PatientLastName + ", " + @analysis.PatientFirstName + " | ";
                                     // FinalCompletionTime
-                                    displayName += string.Format("{0}", new TimeSpan(fCT.Value.Days, fCT.Value.Hours, fCT.Value.Minutes, fCT.Value.Seconds));
-                                    <option class="noselect undraggable" value="@analysis.Id">@displayName</option>
+                                    var fct = new TimeSpan(fCT.Value.Days, fCT.Value.Hours, fCT.Value.Minutes, fCT.Value.Seconds);
+                                    var str = string.Format("{0}", fct);
+                                    displayName += str;
+                                    <option class="noselect undraggable" value="@analysis.Id" completion-time="@str">@displayName</option>
                                 }
                                 else if (analysis.Etc != null && fCT != null && fCT.Value.CompareTo(TimeSpan.Zero) <= 0)
                                 {
@@ -148,7 +169,7 @@
         </div>
 
         <i class="fixed big white info icon noselect undraggable" style="cursor: pointer;" id="infoButt"></i>
-
+        <div class="fixed big white info icon noselect undraggable" style="display: none;" id="timeIcon"></div>
         <!--PUSHER -->
         <div class="pusher">
             <canvas id="data-canvas"></canvas>
@@ -163,7 +184,9 @@
     <script>
         var currentClusters;
         var selectedColor;
-        $(document).ready(function() {
+        $(document).ready(function () {
+            
+
             $('#analysisSelect').multiselect({
                 enableFiltering: true,
                 enableCaseInsensitiveFiltering: true
@@ -191,7 +214,6 @@
 
             $('#deleteButton').click(function(e) {
                 var id = $(this).attr("analysis");
-
                 location.href = '@Url.Content("~/Analyses/Delete/")' + id;
             });
 
@@ -217,6 +239,9 @@
         //downloads the current result selected in the dropdownmenu
         function DownloadCurrentResult() {
 
+            clearInterval(interval);
+            $("#timeIcon").hide();
+
             currentClusters = [];
 
             $("#loader").addClass("ui active dimmer");
@@ -232,7 +257,13 @@
                         //if analysis has not been finished
                         $("#loader").removeClass("ui active dimmer");
                         clear();
-                        alert(model.ETC);
+
+                        if (model.ETC !== "null") {
+                            $("#timeIcon").text($('#analysisSelect option:selected').attr("completion-time"));
+                            $("#timeIcon").show();
+                            updateTimer();
+                        }
+                        
                     } else if (typeof model.message != "undefined") {
                         //if analysis has not been finished
                         $("#loader").removeClass("ui active dimmer");
@@ -246,7 +277,7 @@
                     }
                 } else {
                     $("#loader").removeClass("ui active dimmer");
-                    alert("This file is corrupted. Press the red button to delete it");
+                    alert("This file is not ready yet");
                 }
             }).fail(function() {
                 $("#loader").removeClass("ui active dimmer");
