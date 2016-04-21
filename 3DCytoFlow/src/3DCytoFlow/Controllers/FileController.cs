@@ -8,15 +8,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNet.Authorization;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Mvc;
-using Microsoft.AspNet.SignalR;
-using Microsoft.AspNet.SignalR.Infrastructure;
 using Microsoft.Data.Entity;
 using Microsoft.Extensions.OptionsModel;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.RetryPolicies;
 using Newtonsoft.Json;
-using _3DCytoFlow.Hubs;
 using _3DCytoFlow.Models;
 using _3DCytoFlow.Services;
 
@@ -30,8 +27,6 @@ namespace _3DCytoFlow.Controllers
         private readonly ApplicationDbContext _context;
         private readonly string _storageConnectionString;
         private readonly ISmsSender _smsSender;
-        private IConnectionManager _connectionManager;
-        private IHubContext _etaHub;
         private readonly string _sid;
         private readonly string _authToken;
         private readonly string _number;
@@ -45,20 +40,6 @@ namespace _3DCytoFlow.Controllers
             _sid = smsOptions.Value.Sid;
             _authToken = smsOptions.Value.Token;
             _number = smsOptions.Value.Number;
-        }
-
-        [FromServices]
-        public IConnectionManager ConnectionManager
-        {
-            get
-            {
-                return _connectionManager;
-            }
-            set
-            {
-                _connectionManager = value;
-                _etaHub = _connectionManager.GetHubContext<EtaHub>();
-            }
         }
 
         /// <summary>

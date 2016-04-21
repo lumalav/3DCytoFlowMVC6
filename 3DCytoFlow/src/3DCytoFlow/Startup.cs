@@ -56,11 +56,6 @@ namespace _3DCytoFlow
 
             services.AddMvc();
 
-            services.AddSignalR(options =>
-            {
-                options.Hubs.EnableDetailedErrors = true;
-            });
-
             services.AddCaching();
             services.AddSession(options => {
                 options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -129,8 +124,6 @@ namespace _3DCytoFlow
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
-
-            app.UseSignalR();
 
             // Seed the database using the seeder
             seeder.EnsureSeedData();
