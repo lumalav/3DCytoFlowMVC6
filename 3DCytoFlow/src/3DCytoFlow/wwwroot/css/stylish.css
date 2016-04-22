@@ -56,10 +56,11 @@ a > i {
     margin: 10px;
 }
 #timeIcon {
-    top: 50%;
-    color: #3aa6bc;
+    top: 60%;
     font-size: 3em;
-    text-align: left;
+    float: left;
+    margin-left: 10px;
+    position: static;
 }
 
 

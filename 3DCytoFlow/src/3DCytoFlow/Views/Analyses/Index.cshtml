@@ -127,6 +127,7 @@
                                 <input type="submit" id="clusterButton2" onclick="removeCluster();" value="Remove" class="btn btn-primary noselect undraggable" />
                             </div>
                             <input id="deleteButton" analysis="@Model.First().Id" class="btn btn-danger noselect undraggable" type="button" value="Delete" />
+                            <div class="fixed big white info icon noselect undraggable" style="display: none;" id="timeIcon"></div>
                         </div>
                         
                       }
@@ -169,7 +170,7 @@
         </div>
 
         <i class="fixed big white info icon noselect undraggable" style="cursor: pointer;" id="infoButt"></i>
-        <div class="fixed big white info icon noselect undraggable" style="display: none;" id="timeIcon"></div>
+      
         <!--PUSHER -->
         <div class="pusher">
             <canvas id="data-canvas"></canvas>
@@ -200,6 +201,7 @@
                     <text>
                         DownloadCurrentResult();
                         selectedColor = colors[0];
+                        $("#timeIcon").css("color", selectedColor);
                         //fill the color selector
                         fillColorSelector();
                     </text>
