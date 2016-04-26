@@ -26,27 +26,21 @@ function clear() {
     $("#statsSize").text(0);
     init();
 }
-var d = new Date();
-function updateTimer() {
 
+var d;
+
+function updateTimer(ticks) {
+    d = new Date(ticks/10000);
+    //$("#timeIcon").css("left", screen.width/2 + 250);
     interval = setInterval(function () {
-        var time = $("#timeIcon").text().match(/\d{1,}/g);
-        var hours = time[0];
-        var minutes = time[1];
-        var seconds = time[2];
-
-        d.setHours(hours);
-        d.setMinutes(minutes);
-        d.setSeconds(seconds);
-        d.setSeconds(d.getSeconds() - 1);
-
-        if (d.getHours() === 0 && d.getMinutes() === 0 && d.getSeconds() === 0) {
-            clearInterval(interval);
-            $("#timeIcon").hide();
-        }
-
-        $("#timeIcon").text(d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds());
-
+        var timeToCompletion = d.getTime() - new Date().getTime();
+        var m = new Date(timeToCompletion);
+        var time = $("#timeIcon").text(
+            ("0" + m.getUTCHours()).slice(-2) + ":" +
+            ("0" + m.getUTCMinutes()).slice(-2) + ":" +
+            ("0" + m.getUTCSeconds()).slice(-2)
+        );
+       
     }, 1000);
 }
 

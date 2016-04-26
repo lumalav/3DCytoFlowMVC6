@@ -65,14 +65,14 @@
 
 <div id="page-wrapper">
     <div id="body3" class="noselect undraggable">
-        <div class="form-group noselect undraggable" draggable="false" ondrag="return false" contenteditable="false" id="analysisGroup" style="width: 20%;">          
+        <div class="form-group noselect undraggable" draggable="false" ondrag="return false" contenteditable="false" id="analysisGroup" style="width: 20%;">
             <div>
                 @{
                     if (Model.Any())
                     {
                         <div class="label noselect undraggable" id="label2">Patient's Name - Data Upload Date</div>
                         <select class="form-control noselect undraggable" name="status" id="analysisSelect">
-                            
+
                             @foreach (var analysis in Model)
                             {
                                 TimeSpan? fCT = null;
@@ -100,7 +100,7 @@
                                     var fct = new TimeSpan(fCT.Value.Days, fCT.Value.Hours, fCT.Value.Minutes, fCT.Value.Seconds);
                                     var str = string.Format("{0}", fct);
                                     displayName += str;
-                                    <option class="noselect undraggable" value="@analysis.Id" completion-time="@str">@displayName</option>
+                                    <option class="noselect undraggable" value="@analysis.Id" completion-time="@analysis.Etc.Value.Ticks">@displayName</option>
                                 }
                                 else if (analysis.Etc != null && fCT != null && fCT.Value.CompareTo(TimeSpan.Zero) <= 0)
                                 {
@@ -123,16 +123,18 @@
 
                             <input id="clusterInput" class="form-control noselect undraggable" type="text" placeholder="cluster name">
                             <div>
-                                <input type="submit" id="clusterButton" onclick="addCluster();" value="Add" class="btn btn-primary noselect undraggable" />
-                                <input type="submit" id="clusterButton2" onclick="removeCluster();" value="Remove" class="btn btn-primary noselect undraggable" />
+                                <input type="submit" id="clusterButton" onclick="addCluster();" value="Add" class="btn btn-primary noselect undraggable"/>
+                                <input type="submit" id="clusterButton2" onclick="removeCluster();" value="Remove" class="btn btn-primary noselect undraggable"/>
                             </div>
-                            <input id="deleteButton" analysis="@Model.First().Id" class="btn btn-danger noselect undraggable" type="button" value="Delete" />
-                            <div class="fixed big white info icon noselect undraggable" style="display: none;" id="timeIcon"></div>
+                            <input id="deleteButton" analysis="@Model.First().Id" class="btn btn-danger noselect undraggable" type="button" value="Delete"/>
+
                         </div>
-                        
-                      }
-                }                 
+
+
+                    }
+                }
             </div>
+            <div class="fixed big white info icon noselect undraggable" style="display: none;" id="timeIcon"></div>
         </div>
 
         <div id="info-box" class="hidden">
@@ -261,9 +263,8 @@
                         clear();
 
                         if (model.ETC !== "null") {
-                            $("#timeIcon").text($('#analysisSelect option:selected').attr("completion-time"));
                             $("#timeIcon").show();
-                            updateTimer();
+                            updateTimer($('#analysisSelect option:selected').attr("completion-time"));
                         }
                         
                     } else if (typeof model.message != "undefined") {
